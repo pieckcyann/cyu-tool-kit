@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "obsidian-copy-block",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "This plugin can help you to achieve a click copy of the specified text",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
