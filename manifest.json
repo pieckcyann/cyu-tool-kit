@@ -1,9 +1,9 @@
 {
-	"id": "cyu-copy-block",
-	"name": "Copy Block",
+	"id": "cyu-tool-kit",
+	"name": "Cyu Toolkit",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "This plugin can help you to achieve a click copy of the specified text.",
+	"description": "I developed some miscellaneous tools myself.",
 	"author": "pieckcyann",
 	"authorUrl": "https://obsidian.md",
 	"fundingUrl": "https://obsidian.md/pricing",
