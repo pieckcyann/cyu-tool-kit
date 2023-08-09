@@ -1,10 +1,8 @@
-# Obsidian copy block
+# Cyu tool kit
 
-This is a plugin for obsidian. This plugin can help you to achieve a click copy of the specified text
+I have developed a variety of tools myself, including:
 
-## Features
-
-- **One-click Copying**: Simply click on the designated text, and it will be immediately copied to your clipboard, eliminating the need for manual selection and copying.
+- **click-copy block**: Simply click on the designated text, and it will be immediately copied to your clipboard, eliminating the need for manual selection and copying.
 
 ## How to install
 Go to Community Plugins in your Obsidian Settings and disable Safe Mode
