@@ -1,25 +1,41 @@
-/*
-
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
-*/
-
-.ic {
-    white-space: nowrap;
-    color: whitesmoke;
-    background-color: rgba(221, 96, 11, 1);
-    border-radius: 0.3em;
-    padding: 1px 4px 2px 4px;
-    box-shadow: 1px 1px 2px #cccccc;
-    margin-left: 2px;
-    margin-right: 2px;
-    cursor: pointer;
+span.cpb:not(:has(*)) {
+  color: white;
+  line-height: 2em;
+  padding: 0px 4px 0px 4px;
+  border-radius: 0.2em;
+  box-shadow: 1px 1px 2px #cccccc;
+  background-color: #dd600b;
+  cursor: pointer;
 }
-
-.ic:active {
-    box-shadow: -1px -1.5px 2px #333333 inset;
-    text-shadow: -1px -1.5px 2px #333333;
+span.cpb:not(:has(*)):active {
+  box-shadow: -1px -1.5px 2px #333333 inset;
+  text-shadow: -1px -1.5px 2px #333333;
+}
+:is(span.cpb span) img {
+  border-image-source: radial-gradient(60% 80%, transparent 0px, transparent 100%, #dd600b 100%);
+  border-image-slice: 1;
+  border-width: 3px;
+  border-style: solid;
+  border-image-outset: 1px;
+  border-image: 10px;
+  border-radius: 10px;
+  cursor: pointer !important;
+}
+:is(span.cpb span) img:active {
+  border-image-outset: 4px;
+}
+.color-gallery.list-cards.markdown-preview-view div .transition-effects {
+  transition: background-color 0.3s ease, box-shadow 0.25s ease;
+}
+.color-gallery.list-cards.markdown-preview-view div > ul > li {
+  --cards-background: #fff;
+}
+.color-gallery.list-cards.markdown-preview-view div ul ul > li {
+  display: inline;
+}
+.color-gallery.list-cards.markdown-preview-view div ul ul > li button {
+  cursor: pointer;
+  width: 3em;
+  height: 3em;
+  border-radius: 50%;
 }

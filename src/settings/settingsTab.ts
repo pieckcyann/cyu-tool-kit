@@ -1,0 +1,146 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { App, Setting, PluginSettingTab, SettingTab } from 'obsidian'
+import CyuToolkitPlugin from 'src/main'
+import { FolderSuggest } from './suggesters/FolderSuggester'
+import { FileSuggest, FileSuggestMode } from './suggesters/FileSuggester'
+
+export class CyuToolkitSettingTab extends PluginSettingTab {
+	plugin: CyuToolkitPlugin
+
+	constructor(app: App, plugin: CyuToolkitPlugin) {
+		super(app, plugin)
+	}
+
+	display(): void {
+		const { containerEl } = this
+
+		containerEl.empty()
+
+		containerEl.createEl('h2', { text: 'Functions' })
+
+		this.addToggle('激活复制块', '是否启用复制块的点击复制功能', 'enable_clickCopy_block')
+		this.addToggle('自动固定笔记', '在启动库时固定所有笔记页面', 'enable_auto_pin')
+		this.addToggle('自动解析m3u8视频 ', '将.m3u8解析为.mp4播放', 'enable_parse_m3u8')
+
+		containerEl.createEl('h2', { text: 'Notes' })
+
+		this.addToggle(
+			'颜色展廊',
+			'用于创建一个可视化可交互的颜色展示笔记',
+			'enable_color_gallery'
+		)
+		this.addFileSuggest(
+			'颜色展廊的笔记路径',
+			'在这里指定颜色展廊的笔记路径',
+			'folder_color_galler'
+		)
+
+		containerEl.createEl('hr')
+
+		// this.addText(
+		// 	'Auto pinned notes',
+		// 	'pin all notes at startup',
+		// 	'Example: 100',
+		// 	'startupms (ms)'
+		// )
+	}
+
+	addDropdown(name: string, desc: string): void {
+		new Setting(this.containerEl)
+			.setName(name)
+			.setDesc(desc)
+			.addDropdown((dropdown) => dropdown.addOption('none', '').addOption('none2', ''))
+	}
+
+	addFileSuggest(
+		name: string,
+		desc: string,
+		setting: string,
+		placeholder = '示例：folder1/folder2/file1'
+	) {
+		new Setting(this.containerEl)
+			.setName(name)
+			.setDesc(desc)
+			.addSearch((fs) => {
+				new FileSuggest(fs.inputEl, this.plugin, FileSuggestMode.TemplateFiles)
+				fs.setPlaceholder(placeholder)
+					.setValue(this.plugin.settings[setting] as string)
+					.onChange((new_folder) => {
+						this.plugin.settings[setting] = new_folder
+						this.plugin.saveSettings()
+					})
+				// @ts-ignore
+				fs.containerEl.addClass('templater_search')
+			})
+	}
+
+	addFolderSuggest(
+		name: string,
+		desc: string,
+		setting: string,
+		placeholder = '示例：folder1/folder2'
+	) {
+		new Setting(this.containerEl)
+			.setName(name)
+			.setDesc(desc)
+			.addSearch((fs) => {
+				new FolderSuggest(fs.inputEl)
+				fs.setPlaceholder(placeholder)
+					.setValue(this.plugin.settings[setting] as string)
+					.onChange((new_folder) => {
+						this.plugin.settings[setting] = new_folder
+						this.plugin.saveSettings()
+					})
+				// @ts-ignore
+				fs.containerEl.addClass('templater_search')
+			})
+	}
+
+	addToggle(
+		name: string,
+		desc: string,
+		setting: string,
+		addtext?: string,
+		callback?: (v: any) => any
+	): void {
+		const toggle = new Setting(this.containerEl)
+			.setName(name)
+			.setDesc(desc)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings[setting] as boolean)
+					.onChange(async (value) => {
+						this.plugin.settings[setting] = value
+						this.plugin.saveSettings()
+						if (callback) callback(value)
+					})
+			)
+
+		if (addtext) {
+			toggle.addText((text) => text.setPlaceholder(addtext))
+		}
+	}
+
+	addText(
+		name: string,
+		desc: string,
+		placeholder: string,
+		setting: string,
+		callback?: (v: any) => any
+	): void {
+		new Setting(this.containerEl)
+			.setName(name)
+			.setDesc(desc)
+			.addText((text) =>
+				text
+					.setPlaceholder(placeholder)
+					.setValue(this.plugin.settings[setting] as string)
+					.onChange(async (value) => {
+						this.plugin.settings[setting] = value
+						this.plugin.saveSettings()
+						if (callback) callback(value)
+					})
+			)
+	}
+}
