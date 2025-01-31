@@ -23,6 +23,8 @@
 		"typescript": "4.7.4"
 	},
 	"dependencies": {
-		"@popperjs/core": "^2.11.8"
+		"@popperjs/core": "^2.11.8",
+		"colorthief": "^2.6.0",
+		"monkey-around": "^3.0.0"
 	}
 }

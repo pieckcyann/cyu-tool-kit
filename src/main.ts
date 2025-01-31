@@ -6,6 +6,7 @@ import {
 	Notice,
 	Plugin,
 	WorkspaceLeaf,
+	parseFrontMatterEntry,
 	parseFrontMatterStringArray,
 } from 'obsidian'
 import { CyuToolkitSettingTab } from './settings/settingsTab'
@@ -13,6 +14,7 @@ import { CyuTookitSettings, DEFAULT_SETTINGS } from 'src/settings/settingsData'
 import ClickCopyBlock from './core/ClickCopyBlock'
 import renderColorGallery from './core/ColorGallery'
 import { parseM3u8Video } from './core/parseVideoSrc'
+import ArtGallery from './core/ArtGallery'
 
 export default class CyuToolkitPlugin extends Plugin {
 	settings: CyuTookitSettings = DEFAULT_SETTINGS
@@ -30,15 +32,22 @@ export default class CyuToolkitPlugin extends Plugin {
 		// click-copy block
 		this.renderClickCopyBlock()
 
-		// color gallery
+		// render pages
 		this.renderColorGallery()
+		this.renderArtGallery()
 
 		this.registerMarkdownPostProcessor(
 			(el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+				// Add a layer of outer <span> for a separate <img> for a network image
+				const isNeedUpdateExternalImageTags = !(parseFrontMatterEntry(
+					ctx.frontmatter,
+					'ignore-update-external-image'
+				) as boolean)
+				if (isNeedUpdateExternalImageTags) this.altExternalImageTags(el)
+
 				// parse .m3u8 to .mp4
-				if (this.settings.enable_parse_m3u8) {
-					parseM3u8Video(el)
-				}
+				if (this.settings.enable_parse_m3u8) parseM3u8Video(el)
+
 				// remove the iframe scroll bar
 				this.removeIframeScrollbars(el)
 			}
@@ -53,11 +62,19 @@ export default class CyuToolkitPlugin extends Plugin {
 		)
 
 		this.registerEvent(
-			this.app.workspace.on('active-leaf-change', (_leaf: WorkspaceLeaf | null) => {})
+			this.app.workspace.on('active-leaf-change', (leaf: WorkspaceLeaf | null) => {})
 		)
 	}
 
 	renderClickCopyBlock() {
+		this.registerMarkdownPostProcessor(
+			(el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+				ctx.addChild(new ClickCopyBlock(this.settings, el))
+			}
+		)
+	}
+
+	renderArtGallery() {
 		this.registerMarkdownPostProcessor(
 			(el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
 				const cssclasses = parseFrontMatterStringArray(
@@ -65,10 +82,12 @@ export default class CyuToolkitPlugin extends Plugin {
 					'cssclasses',
 					true
 				)
+				const isArtGallery =
+					Array.isArray(cssclasses) && cssclasses.includes('r34-twitter')
 
-				const isR34Twitter =
-					Array.isArray(cssclasses) && cssclasses.includes('r34-twitter') // 类型守卫
-				ctx.addChild(new ClickCopyBlock(this.settings, el, isR34Twitter))
+				if (isArtGallery) {
+					ctx.addChild(new ArtGallery(this.settings, el))
+				}
 			}
 		)
 	}
@@ -99,6 +118,44 @@ export default class CyuToolkitPlugin extends Plugin {
 				leaf.setPinned(true)
 			}
 		})
+	}
+
+	altExternalImageTags(container: HTMLElement): void {
+		const imgs = container.findAll('img') as HTMLImageElement[]
+		for (const img of imgs) {
+			if (img.classList.contains('banner-image')) return // 避免影响banners插件
+			// 创建
+			const span = document.createElement('span')
+			// const imgWid = img.width.toString()
+			const imgSrc = img.getAttribute('src')
+			const imgAlt = img.alt
+
+			// if (imgWid) span.setAttribute('width', imgWid)
+			if (imgSrc) span.setAttribute('src', imgSrc)
+			if (imgAlt) span.setAttribute('alt', imgAlt.split('|')[1] || imgAlt)
+
+			span.setAttribute('id', 'external-link-image')
+			span.classList.add('image-embed')
+			// ArtGallery.identifyUnhostedImages(span, img)
+
+			// 插入
+			img.parentNode?.insertBefore(span, img)
+			span.appendChild(img)
+		}
+		const sources = container.findAll('source') as HTMLSourceElement[]
+		for (const source of sources) {
+			if (!source.src) return
+			// 创建
+			const span = document.createElement('span')
+			span.setAttribute('id', 'span-video')
+
+			const video = source.parentElement as HTMLVideoElement
+			// ArtGallery.identifyUnhostedVideos(span, source)
+
+			// 插入
+			video.parentNode?.insertBefore(span, video)
+			span.appendChild(video)
+		}
 	}
 
 	removeIframeScrollbars(container: HTMLElement): void {
