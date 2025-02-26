@@ -17,14 +17,19 @@ export class CyuToolkitSettingTab extends PluginSettingTab {
 
 		containerEl.empty()
 
+		// Functions area
 		containerEl.createEl('h2', { text: 'Functions' })
-
 		this.addToggle('激活复制块', '是否启用复制块的点击复制功能', 'enable_clickCopy_block')
 		this.addToggle('自动固定笔记', '在启动库时固定所有笔记页面', 'enable_auto_pin')
-		this.addToggle('自动解析m3u8视频 ', '将.m3u8解析为.mp4播放', 'enable_parse_m3u8')
+		this.addToggle('自动解析 m3u8 ', '将 .m3u8视 频解析为 .mp4 播放', 'enable_parse_m3u8')
+		this.addToggle(
+			'启用悬浮展开',
+			'是否默认启用悬浮展开侧边栏功能',
+			'setup_enable_hover_sider'
+		)
 
+		// Notes area
 		containerEl.createEl('h2', { text: 'Notes' })
-
 		this.addToggle(
 			'颜色展廊',
 			'用于创建一个可视化可交互的颜色展示笔记',

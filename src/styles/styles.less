@@ -55,3 +55,28 @@ span.cpb:not(:has(*)) {
         }
     }
 }
+
+// hover toggle sidebars
+// right ribbon
+.workspace-ribbon.side-dock-ribbon.mod-right {
+    --ribbon-width: 10px;
+    width: var(--ribbon-width);
+    display: flex;
+}
+
+// TODO 有卡顿的bug
+// 强制改变侧边栏 toggle 过渡效果 
+.workspace-split.mod-horizontal.mod-sidedock.mod-right-split,
+.workspace-split.mod-horizontal.mod-sidedock.mod-left-split,
+.workspace-split.mod-vertical.mod-root {
+    transition: width .35s ease-out !important;
+
+    // &.is-sidedock-collapsed {
+    //     display: inline-flex !important;
+    // }
+}
+
+.callout.drop-shadow {
+    // box-shadow: 0 .2rem .5rem var(--background-modifier-box-shadow);
+    box-shadow: 0 .1rem .3rem var(--background-modifier-box-shadow);
+}

@@ -1,5 +1,5 @@
 import ColorThief from 'colorthief'
-import { Notice } from 'obsidian'
+// import { Notice } from 'obsidian'
 
 export function getDominantColor(img: HTMLImageElement): string[] {
 	const colorThief = new ColorThief()
@@ -8,7 +8,7 @@ export function getDominantColor(img: HTMLImageElement): string[] {
 		const hexColors = palette.map(rgbToHex) // 将每个 RGB 转为 HEX 颜色
 		return hexColors // 返回五个 HEX 颜色值的数组
 	} catch (err) {
-		new Notice(`获取颜色失败: ${err}`)
+		// new Notice(`获取颜色失败: ${err}`)
 		return [] // 返回空数组，避免继续执行后面的代码
 	}
 }
@@ -16,8 +16,7 @@ export function getDominantColor(img: HTMLImageElement): string[] {
 // 根据背景颜色返回最适合的突出文字色
 export function getTextColor(backgroundColor: string): string {
 	const rgb = hexToRgb(backgroundColor)
-	// if (!rgb) return '#000000' // 默认黑色
-	if (!rgb) return '#ffffff' // 默认白色
+	if (!rgb) return '#000000' // 默认黑色
 
 	const luminance = (r: number, g: number, b: number) => {
 		const a = [r, g, b].map(function (v) {
@@ -34,6 +33,29 @@ export function getTextColor(backgroundColor: string): string {
 }
 
 // 选择最显眼的颜色（综合对比度、鲜艳度、色彩距离）
+
+export function getMostVisibleColor(colors: string[]): string {
+	let bestColor = colors[0]
+	let bestScore = -Infinity
+
+	for (const color of colors) {
+		const luminance = getLuminance(color)
+		const chroma = getChroma(color)
+		const colorDist = colorDistanceFromGray(color)
+
+		// 计算综合得分（调节权重，突出鲜艳颜色）
+		const score = chroma * 2.5 + colorDist * 1.5 - Math.abs(luminance - 0.5)
+
+		if (score > bestScore) {
+			bestScore = score
+			bestColor = color
+		}
+	}
+
+	return bestColor
+}
+
+/*
 export function getMostVisibleColor(hexColors: string[]): string {
 	const getSaturation = (color: string): number => {
 		const rgb = hexToRgb(color)
@@ -84,29 +106,7 @@ export function getMostVisibleColor(hexColors: string[]): string {
 
 	return mostVisibleColor
 }
-
-// #region
-// export function getMostVisibleColor(colors: string[]): string {
-// 	let bestColor = colors[0]
-// 	let bestScore = -Infinity
-
-// 	for (const color of colors) {
-// 		const luminance = getLuminance(color)
-// 		const chroma = getChroma(color)
-// 		const colorDist = colorDistanceFromGray(color)
-
-// 		// 计算综合得分（调节权重，突出鲜艳颜色）
-// 		const score = chroma * 2.5 + colorDist * 1.5 - Math.abs(luminance - 0.5)
-
-// 		if (score > bestScore) {
-// 			bestScore = score
-// 			bestColor = color
-// 		}
-// 	}
-
-// 	return bestColor
-// }
-// #endregion
+*/
 
 // RGB 转 HEX
 function rgbToHex(rgb: [number, number, number]): string {

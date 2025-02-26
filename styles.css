@@ -39,3 +39,16 @@ span.cpb:not(:has(*)):active {
   height: 3em;
   border-radius: 50%;
 }
+.workspace-ribbon.side-dock-ribbon.mod-right {
+  --ribbon-width: 10px;
+  width: var(--ribbon-width);
+  display: flex;
+}
+.workspace-split.mod-horizontal.mod-sidedock.mod-right-split,
+.workspace-split.mod-horizontal.mod-sidedock.mod-left-split,
+.workspace-split.mod-vertical.mod-root {
+  transition: width 0.35s ease-out !important;
+}
+.callout.drop-shadow {
+  box-shadow: 0 0.1rem 0.3rem var(--background-modifier-box-shadow);
+}

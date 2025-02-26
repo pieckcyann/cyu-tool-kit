@@ -2,6 +2,7 @@
 export interface CyuTookitSettings {
 	// 添加一个字符串索引签名，允许使用字符串来索引属性
 	[key: string]: boolean | string
+	setup_enable_hover_sider: boolean
 	enable_clickCopy_block: boolean
 	enable_auto_pin: boolean
 	enable_color_gallery: boolean
@@ -10,6 +11,7 @@ export interface CyuTookitSettings {
 }
 
 export const DEFAULT_SETTINGS: CyuTookitSettings = {
+	setup_enable_hover_sider: false,
 	enable_clickCopy_block: true,
 	enable_auto_pin: false,
 	enable_color_gallery: true,
