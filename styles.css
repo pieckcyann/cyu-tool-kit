@@ -1,28 +1,16 @@
-span.cpb:not(:has(*)) {
+span.cpb {
   color: white;
-  line-height: 2em;
-  padding: 0px 4px 0px 4px;
+  font-size: 0.85em;
+  padding: 0px 4px 2px 4px;
   border-radius: 0.2em;
   box-shadow: 1px 1px 2px #cccccc;
   background-color: #dd600b;
   cursor: pointer;
+  vertical-align: baseline;
 }
-span.cpb:not(:has(*)):active {
+span.cpb:active {
   box-shadow: -1px -1.5px 2px #333333 inset;
   text-shadow: -1px -1.5px 2px #333333;
-}
-:is(span.cpb span) img {
-  border-image-source: radial-gradient(60% 80%, transparent 0px, transparent 100%, #dd600b 100%);
-  border-image-slice: 1;
-  border-width: 3px;
-  border-style: solid;
-  border-image-outset: 1px;
-  border-image: 10px;
-  border-radius: 10px;
-  cursor: pointer !important;
-}
-:is(span.cpb span) img:active {
-  border-image-outset: 4px;
 }
 .color-gallery.list-cards.markdown-preview-view div .transition-effects {
   transition: background-color 0.3s ease, box-shadow 0.25s ease;
@@ -39,6 +27,25 @@ span.cpb:not(:has(*)):active {
   height: 3em;
   border-radius: 50%;
 }
+.icon-gallery .HyperMD-list-line.HyperMD-list-line-1.cm-line {
+  max-width: 200vh;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.icon-gallery.list-cards.markdown-preview-view div > ul > li {
+  --cards-padding: 20px;
+  font-size: 24px;
+  aspect-ratio: 1;
+  width: 100%;
+}
+.icon-gallery.list-cards.markdown-preview-view div > ul > li > ul > li {
+  display: none;
+}
+.icon-gallery.list-cards.markdown-preview-view [class*="loader-"] {
+  --loader-size: 100%;
+  --loader-font-size: 1em;
+}
 .workspace-ribbon.side-dock-ribbon.mod-right {
   --ribbon-width: 10px;
   width: var(--ribbon-width);
@@ -47,8 +54,13 @@ span.cpb:not(:has(*)):active {
 .workspace-split.mod-horizontal.mod-sidedock.mod-right-split,
 .workspace-split.mod-horizontal.mod-sidedock.mod-left-split,
 .workspace-split.mod-vertical.mod-root {
-  transition: width 0.35s ease-out !important;
+  transition: width 0.2s ease !important;
 }
-.callout.drop-shadow {
-  box-shadow: 0 0.1rem 0.3rem var(--background-modifier-box-shadow);
+.workspace-split.mod-horizontal.mod-sidedock.mod-right-split.is-sidedock-collapsed,
+.workspace-split.mod-horizontal.mod-sidedock.mod-left-split.is-sidedock-collapsed,
+.workspace-split.mod-vertical.mod-root.is-sidedock-collapsed {
+  display: inline-flex !important;
+}
+.metadata-property-value {
+  transition: width 0.2s ease;
 }

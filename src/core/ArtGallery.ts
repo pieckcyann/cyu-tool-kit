@@ -3,13 +3,20 @@ import { CyuTookitSettings } from 'src/settings/settingsData'
 import { getDominantColor, getTextColor } from 'src/utils/HandleColor'
 
 export default class ArtGallery extends MarkdownRenderChild {
-	constructor(public settings: CyuTookitSettings, public renderedDiv: HTMLElement) {
+	constructor(
+		public settings: CyuTookitSettings,
+		public renderedDiv: HTMLElement,
+		public curH2Ele: HTMLDivElement | undefined,
+		public curPreEl: HTMLDivElement | undefined
+	) {
 		super(renderedDiv)
+		this.curH2Ele = curH2Ele
+		this.curPreEl = curPreEl
 	}
 
 	async onload() {
 		await this.setForUllist(this.containerEl)
-		// this.setForOllist(this.containerEl)
+		this.setForOllist(this.containerEl)
 	}
 
 	/**
@@ -28,7 +35,8 @@ export default class ArtGallery extends MarkdownRenderChild {
 		const originImgSrc = img.src // 保存原始图片 URL
 
 		let imgThemeN = 0
-		if (img.hasAttribute('width')) imgThemeN = parseInt(img.getAttribute('width')!, 10) // 转换为整数
+		if (img.hasAttribute('width'))
+			imgThemeN = parseInt(img.getAttribute('width')!, 10) - 1 // 转换为整数
 
 		img.crossOrigin = 'anonymous'
 		if (imgSrc.includes('imgbox.com')) {
@@ -36,15 +44,15 @@ export default class ArtGallery extends MarkdownRenderChild {
 			const proxyUrl = 'https://proxy.cors.sh/' + imgSrc
 			try {
 				const response = await fetch(proxyUrl, {
-					headers: { 'x-cors-api-key': 'temp_6d60f9311522e85a3dabfc9b8bf86633' },
+					headers: { 'x-cors-api-key': 'temp_0cbd61248d3a5eca7b7a554ec5b42eaf' },
 				})
 
-				if (!response.ok) throw new Error(`代理请求失败: ${response.statusText}`)
+				if (!response.ok) throw new Error(`x代理请求失败: ${response.statusText}`)
 
 				const blob = await response.blob()
 				img.src = URL.createObjectURL(blob)
 			} catch (error) {
-				new Notice('代理请求失败: ' + error.message)
+				new Notice('z代理请求失败: ' + error.message)
 				return
 			}
 		}
@@ -65,13 +73,23 @@ export default class ArtGallery extends MarkdownRenderChild {
 			img.removeAttribute('crossOrigin') // 完全移除 crossOrigin 属性
 			img.src = originImgSrc // 恢复原始图片 URL
 
-			ulListDiv.setAttribute('attr-theme-olor', themeColor)
+			// ulListDiv.setAttribute('attr-theme-olor', themeColor)
 			// ulListDiv.setAttribute('attr-text-olor', themeColor)
+			ulListDiv.style.setProperty('--cyu-theme-olor', themeColor)
+			// bold font color
+			ulListDiv.style.setProperty('--bold-color', themeColor)
+			// list before color
+			ulListDiv.style.setProperty('--interactive-accent', themeColor)
 			ulListDiv.style.setProperty('--cyu-profile-border-color', themeColor)
 			ulListDiv.style.setProperty('--cyu-avatar-border-color', themeColor)
 			ulListDiv.style.setProperty('--cyu-list-marker-color', themeColor)
 			ulListDiv.style.setProperty('--cyu-cpb-bgcolor', themeColor)
 			ulListDiv.style.setProperty('--cyu-cpb-txcolor', textColor)
+
+			if (this.curH2Ele && !this.curH2Ele.hasAttribute('style'))
+				this.curH2Ele.style.setProperty('--h2-color', themeColor)
+			if (this.curPreEl && !this.curPreEl.hasAttribute('style'))
+				this.curPreEl.style.setProperty('--cyu-theme-olor', themeColor)
 		} catch (err) {
 			// new Notice('提取颜色失败:', err)
 		}

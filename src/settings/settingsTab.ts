@@ -30,18 +30,30 @@ export class CyuToolkitSettingTab extends PluginSettingTab {
 
 		// Notes area
 		containerEl.createEl('h2', { text: 'Notes' })
+
 		this.addToggle(
 			'颜色展廊',
-			'用于创建一个可视化可交互的颜色展示笔记',
+			'用于创建一个可视化可交互的颜色展示廊笔记页面',
 			'enable_color_gallery'
 		)
 		this.addFileSuggest(
 			'颜色展廊的笔记路径',
 			'在这里指定颜色展廊的笔记路径',
-			'folder_color_galler'
+			'folder_color_gallery'
 		)
 
 		containerEl.createEl('hr')
+
+		this.addToggle(
+			'图标展廊',
+			'用于创建一个可视化的图标展示廊笔记页面',
+			'enable_icon_gallery'
+		)
+		this.addFileSuggest(
+			'图标展廊的笔记路径',
+			'在这里指定图标展廊的笔记路径',
+			'folder_icon_gallery'
+		)
 
 		// this.addText(
 		// 	'Auto pinned notes',

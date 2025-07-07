@@ -5,18 +5,22 @@ export interface CyuTookitSettings {
 	setup_enable_hover_sider: boolean
 	enable_clickCopy_block: boolean
 	enable_auto_pin: boolean
-	enable_color_gallery: boolean
 	enable_parse_m3u8: boolean
-	folder_color_galler: string
+	enable_color_gallery: boolean
+	folder_color_gallery: string
+	enable_icon_gallery: boolean
+	folder_icon_gallery: string
 }
 
 export const DEFAULT_SETTINGS: CyuTookitSettings = {
 	setup_enable_hover_sider: false,
 	enable_clickCopy_block: true,
 	enable_auto_pin: false,
-	enable_color_gallery: true,
 	enable_parse_m3u8: true,
-	folder_color_galler: '',
+	enable_color_gallery: true,
+	folder_color_gallery: '',
+	enable_icon_gallery: true,
+	folder_icon_gallery: '',
 }
 
 export const DEFAULT_SHAPES = {
