@@ -31,6 +31,8 @@ export default class CyuToolkitPlugin extends Plugin {
 
 	audioCache = new Map<string, HTMLAudioElement>() // 用来缓存音频文件
 
+	// private lenis?: Lenis
+
 	async onload() {
 		// 加载设置
 		await this.loadSettings()
@@ -53,6 +55,7 @@ export default class CyuToolkitPlugin extends Plugin {
 
 		// 运行各种功能函数
 		this.registerEvents()
+
 		/*
 		let velocity = 0 // 速度
 		let ticking = false
@@ -125,7 +128,7 @@ export default class CyuToolkitPlugin extends Plugin {
 				this.setupSpeakerClickEvent(el)
 
 				// remove the iframe scroll bar
-				this.removeIframeScrollbars(el)
+				// this.removeIframeScrollbars(el)
 			}
 		)
 		// auto pin notes
