@@ -109,7 +109,7 @@ export default class CyuToolkitPlugin extends Plugin {
 
 		// render pages
 		this.renderGallerys()
-		this.renderArtGallery()
+		// this.renderArtGallery()
 
 		this.registerMarkdownPostProcessor(
 			(el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
