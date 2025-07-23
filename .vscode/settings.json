@@ -1,0 +1,62 @@
+{
+	"less.compile": {
+		"compress": false, //是否压缩
+		"sourceMap": false, //是否生成map文件，有了这个可以在调试台看到less行数
+		"out": "${workspaceRoot}\\", // 输出文件目录 这里为css文件夹
+		"outExt": ".css" // 输出文件的后缀
+	},
+
+	"editor.tabSize": 4, // 这是您要设置的缩进符长度，例如这里设置为 4
+	"editor.insertSpaces": false, // 如果为 true，将使用空格进行缩进；如果为 false，将使用制表符进行缩进
+	"svg.preview.background": "dark-transparent",
+	"better-comments.tags": [
+		{
+			"tag": "!",
+			"color": "#FF2D00",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "?",
+			"color": "#3498DB",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "//",
+			"color": "#474747",
+			"strikethrough": true,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "todo",
+			"color": "#FF8C00",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "*",
+			"color": "#98C379",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		}
+	],
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "never" // 导入未使用不报错
+	}
+}

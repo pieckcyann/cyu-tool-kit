@@ -1,0 +1,14 @@
+{
+  "setup_enable_hover_sider": false,
+  "enable_clickCopy_block": true,
+  "enable_auto_pin": false,
+  "enable_parse_m3u8": false,
+  "enable_color_gallery": true,
+  "folder_color_gallery": "30-Miscellaneous/Collections/展示廊/颜色展示廊.md",
+  "enable_icon_gallery": true,
+  "folder_icon_gallery": "30-Miscellaneous/Collections/展示廊/图标展示廊.md",
+  "folder_color_galler": "66-Obsidian/Collection/颜色展示廊.md",
+  "enablecpb": true,
+  "enableapn": true,
+  "startupms": "100"
+}

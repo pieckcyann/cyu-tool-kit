@@ -211,90 +211,90 @@ export default class CyuToolkitPlugin extends Plugin {
 	}
 
 	// 渲染艺术画廊
-	renderArtGallery = async () => {
-		let preEleMap = new Map<HTMLDivElement, HTMLDivElement>()
-		let h2ElemMap = new Map<HTMLDivElement, HTMLDivElement>()
+	// renderArtGallery = async () => {
+	// 	let preEleMap = new Map<HTMLDivElement, HTMLDivElement>()
+	// 	let h2ElemMap = new Map<HTMLDivElement, HTMLDivElement>()
 
-		let ulListArr: HTMLDivElement[] = []
-		let preEleArr: HTMLDivElement[] = []
-		let h2ElemArr: HTMLDivElement[] = []
-		let curH2Elem: HTMLDivElement | null = null
+	// 	let ulListArr: HTMLDivElement[] = []
+	// 	let preEleArr: HTMLDivElement[] = []
+	// 	let h2ElemArr: HTMLDivElement[] = []
+	// 	let curH2Elem: HTMLDivElement | null = null
 
-		let index = -1
-		// let isStart = true
+	// 	let index = -1
+	// 	// let isStart = true
 
-		this.registerMarkdownPostProcessor(
-			(el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-				const cssclasses = parseFrontMatterStringArray(
-					ctx.frontmatter,
-					'cssclasses',
-					true
-				)
-				const isArtGallery =
-					Array.isArray(cssclasses) && cssclasses.includes('r34-profile')
-				if (!isArtGallery) return
+	// 	this.registerMarkdownPostProcessor(
+	// 		(el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+	// 			const cssclasses = parseFrontMatterStringArray(
+	// 				ctx.frontmatter,
+	// 				'cssclasses',
+	// 				true
+	// 			)
+	// 			const isArtGallery =
+	// 				Array.isArray(cssclasses) && cssclasses.includes('r34-profile')
+	// 			if (!isArtGallery) return
 
-				// if (!isStart) return
+	// 			// if (!isStart) return
 
-				if (
-					!h2ElemArr.includes(el as HTMLDivElement) &&
-					el.classList.length == 1 &&
-					el.classList.contains('el-h2')
-				) {
-					curH2Elem = el as HTMLDivElement
-				}
+	// 			if (
+	// 				!h2ElemArr.includes(el as HTMLDivElement) &&
+	// 				el.classList.length == 1 &&
+	// 				el.classList.contains('el-h2')
+	// 			) {
+	// 				curH2Elem = el as HTMLDivElement
+	// 			}
 
-				// 确保 ulListDiv 不重复添加
-				if (!ulListArr.includes(el as HTMLDivElement) && el.classList.contains('el-ul')) {
-					index++
-					ulListArr.push(el as HTMLDivElement)
-					h2ElemArr.push(curH2Elem as HTMLDivElement)
-					h2ElemMap.set(ulListArr[index], h2ElemArr[index])
-				}
+	// 			// 确保 ulListDiv 不重复添加
+	// 			if (!ulListArr.includes(el as HTMLDivElement) && el.classList.contains('el-ul')) {
+	// 				index++
+	// 				ulListArr.push(el as HTMLDivElement)
+	// 				h2ElemArr.push(curH2Elem as HTMLDivElement)
+	// 				h2ElemMap.set(ulListArr[index], h2ElemArr[index])
+	// 			}
 
-				if (
-					!preEleArr.includes(el as HTMLDivElement) &&
-					el.classList.length == 1 &&
-					el.classList.contains('el-pre')
-				) {
-					preEleArr.push(el as HTMLDivElement)
-					preEleMap.set(ulListArr[index], preEleArr[index])
-				}
-			}
-		)
+	// 			if (
+	// 				!preEleArr.includes(el as HTMLDivElement) &&
+	// 				el.classList.length == 1 &&
+	// 				el.classList.contains('el-pre')
+	// 			) {
+	// 				preEleArr.push(el as HTMLDivElement)
+	// 				preEleMap.set(ulListArr[index], preEleArr[index])
+	// 			}
+	// 		}
+	// 	)
 
-		// window.setTimeout(() => {
-		// 	isStart = false
-		// }, 5000)
+	// 	// window.setTimeout(() => {
+	// 	// 	isStart = false
+	// 	// }, 5000)
 
-		this.registerMarkdownPostProcessor(
-			(el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-				if (!el.classList.contains('el-ul')) return
+	// 	this.registerMarkdownPostProcessor(
+	// 		(el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+	// 			if (!el.classList.contains('el-ul')) return
 
-				const cssclasses = parseFrontMatterStringArray(
-					ctx.frontmatter,
-					'cssclasses',
-					true
-				)
+	// 			const cssclasses = parseFrontMatterStringArray(
+	// 				ctx.frontmatter,
+	// 				'cssclasses',
+	// 				true
+	// 			)
 
-				const isArtGallery =
-					Array.isArray(cssclasses) && cssclasses.includes('r34-profile')
+	// 			const isArtGallery =
+	// 				Array.isArray(cssclasses) && cssclasses.includes('r34-profile')
 
-				if (!isArtGallery) return
-				ctx.addChild(
-					new ArtGallery(
-						this.settings,
-						el,
-						h2ElemMap.get(el as HTMLDivElement),
-						preEleMap.get(el as HTMLDivElement)
-					)
-				)
-				// new Notice(`${h2ElemMap.has(el as HTMLDivElement)}`)
-				// new Notice(`${preEleMap.has(el as HTMLDivElement)}`)
-				// new Notice(`---------`)
-			}
-		)
-	}
+	// 			if (!isArtGallery) return
+	// 			ctx.addChild(
+	// 				new ArtGallery(
+	// 					this.settings,
+	// 					el,
+	// 					h2ElemMap.get(el as HTMLDivElement),
+	// 					preEleMap.get(el as HTMLDivElement)
+	// 				)
+	// 			)
+	// 			// new Notice(`${h2ElemMap.has(el as HTMLDivElement)}`)
+	// 			// new Notice(`${preEleMap.has(el as HTMLDivElement)}`)
+	// 			// new Notice(`---------`)
+	// 		}
+	// 	)
+	// }
 
 	// 渲染颜色库
 	renderGallerys() {
