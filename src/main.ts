@@ -47,7 +47,7 @@ export default class CyuToolkitPlugin extends Plugin {
 			this.middleArea = document.querySelector('.mod-root')
 
 			if (this.settings.setup_enable_hover_sider) this.hoverToggleSidebars()
-			else this.clickToggleSidebars()
+			// else this.clickToggleSidebars()
 
 			// 注册命令
 			this.registerCommands()
@@ -616,13 +616,13 @@ export default class CyuToolkitPlugin extends Plugin {
 		}
 	}
 
-	removeClickToggleSidebars() {
-		if (this.leftRibbon && this.middleArea && this.rightRibbon) {
-			this.leftRibbon.removeEventListener('click', this.toggleLeftSidebar)
-			this.middleArea.removeEventListener('click', this.toggleMiddleSidebar)
-			this.rightRibbon.removeEventListener('click', this.toggleRightSidebar)
-		}
-	}
+	// removeClickToggleSidebars() {
+	// 	if (this.leftRibbon && this.middleArea && this.rightRibbon) {
+	// 		this.leftRibbon.removeEventListener('click', this.toggleLeftSidebar)
+	// 		this.middleArea.removeEventListener('click', this.toggleMiddleSidebar)
+	// 		this.rightRibbon.removeEventListener('click', this.toggleRightSidebar)
+	// 	}
+	// }
 
 	toggleLeftSidebar = () => {
 		const isLeftCollapsed = this.app.workspace.leftSplit.collapsed
@@ -654,20 +654,24 @@ export default class CyuToolkitPlugin extends Plugin {
 			callback: () => {
 				// 先清除所有事件监听（确保不会重复注册）
 				this.removeHoverToggleSidebars?.()
-				this.removeClickToggleSidebars?.()
+				// this.removeClickToggleSidebars?.()
 
 				if (this.toggleMode === 0) {
 					this.hoverToggleSidebars?.()
 					new Notice('已改为 “悬浮触发”')
-				} else if (this.toggleMode === 1) {
-					this.clickToggleSidebars?.()
-					new Notice('已改为 “点击触发”')
-				} else {
+				}
+				// else if (this.toggleMode === 1) {
+				// 	this.clickToggleSidebars?.()
+				// 	new Notice('已改为 “点击触发”')
+				// }
+				else {
 					new Notice('已改为 “不触发”')
 				}
 
 				// 状态切换（0 → 1 → 2 → 0）
-				this.toggleMode = (this.toggleMode + 1) % 3
+				// this.toggleMode = (this.toggleMode + 1) % 3
+
+				this.toggleMode = (this.toggleMode + 1) % 2
 			},
 		})
 
