@@ -693,118 +693,30 @@ export default class CyuToolkitPlugin extends Plugin {
 		})
 
 		this.addCommand({
-			id: 'fold-h6-in-specific-dir',
-			name: '在特定目录中折叠 H6（支持~~~块）',
-			editorCallback: (editor, view) => {
-				const file = this.app.workspace.getActiveFile()
-				if (!file || !file.path.startsWith('Art')) {
-					// new Notice('当前文件不在指定目录中，跳过折叠')
-					return
+			id: 'open-specific-note',
+			name: '打开主页笔记',
+			hotkeys: [{ modifiers: ['Alt'], key: '`' }],
+			callback: async () => {
+				openNoteByPath('Kanban/Home/Home.kanban.md') // ← 修改成你的路径
+
+				/*
+				const leftmostLeaf = this.app.workspace.getLeaf(false)
+				const newLeaf = this.app.workspace.createLeafBySplit(leftmostLeaf, false)
+
+				const abstractFile = this.app.vault.getAbstractFileByPath(
+					'Kanban/Home/Home.kanban.md'
+				)
+
+				if (abstractFile && abstractFile instanceof TFile) {
+					// 这里确定是文件
+					await newLeaf.openFile(abstractFile)
+					this.app.workspace.setActiveLeaf(newLeaf, { focus: true })
+				} else {
+					console.log('指定路径不是文件，或文件不存在')
 				}
-
-				// 跳转
-				jumpToImageInPreview(view as MarkdownView)
-
-				const lines = editor.lineCount()
-				const cursorLine = editor.getCursor().line
-				const folds: { from: number; to: number }[] = []
-
-				let inBlock = false
-				let blockStart = -1
-				let h6LinesInBlock: number[] = []
-
-				for (let i = 0; i < lines; i++) {
-					const line = editor.getLine(i)
-
-					if (/^~~~/.test(line)) {
-						if (!inBlock) {
-							inBlock = true
-							blockStart = i
-							h6LinesInBlock = []
-						} else if (/^~~~\s*$/.test(line)) {
-							// 结束块时处理折叠
-							for (let j = 0; j < h6LinesInBlock.length; j++) {
-								const from = h6LinesInBlock[j]
-								const to =
-									j + 1 < h6LinesInBlock.length ? h6LinesInBlock[j + 1] - 1 : i - 1 // 不包含结尾 ~~~
-
-								// 如果光标在这个标题范围内，跳过折叠
-								if (cursorLine >= from && cursorLine <= to) {
-									continue
-								}
-
-								if (to > from) {
-									folds.push({ from, to })
-								}
-							}
-							inBlock = false
-						}
-					} else if (inBlock && /^######\s/.test(line)) {
-						h6LinesInBlock.push(i)
-					}
-				}
-
-				// YAML 折叠（位于顶部且包围在 --- 中）
-				if (/^---\s*$/.test(editor.getLine(0))) {
-					for (let i = 1; i < lines; i++) {
-						if (/^---\s*$/.test(editor.getLine(i))) {
-							folds.push({ from: 0, to: i })
-							break
-						}
-					}
-				}
-
-				// 应用折叠
-				// @ts-ignore
-				view.currentMode?.applyFoldInfo({
-					folds,
-					lines,
-				})
+				*/
 			},
 		})
-
-		const jumpToImageInPreview = async (mdView: MarkdownView) => {
-			const editor = mdView.editor
-			const line = editor.getLine(editor.getCursor().line)
-
-			const urlMatch = line.match(/!\[(.*?)\]\((.*?)\)(?=\s*$)/)
-			if (!urlMatch) {
-				console.log('未找到图片地址')
-				return
-			}
-
-			const imageUrl = urlMatch[2].split('|')[0]
-
-			if (!mdView.file) return
-
-			await this.app.workspace.getLeaf().openFile(mdView.file, {
-				state: { mode: 'preview' },
-				active: true,
-			})
-
-			window.setTimeout(() => {
-				const previewView = this.app.workspace.getActiveViewOfType(MarkdownView)
-				if (!previewView) return
-
-				const container = previewView.contentEl
-
-				const elements = container.querySelectorAll<HTMLElement>('[style]')
-				for (const el of elements) {
-					el.classList.remove('flashing-mask') // 先删除
-					const bg = el.style.backgroundImage
-					if (bg && bg.includes(imageUrl)) {
-						el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-						el.classList.add('flashing-mask')
-
-						window.setTimeout(() => {
-							el.classList.remove('flashing-mask')
-						}, 2100)
-
-						return
-					}
-				}
-			}, 0)
-		}
 
 		const openNoteByPath = async (notePath: string) => {
 			const abstractFile = this.app.vault.getAbstractFileByPath(notePath)
@@ -841,32 +753,6 @@ export default class CyuToolkitPlugin extends Plugin {
 				newLeaf.setPinned(true)
 			}
 		}
-
-		this.addCommand({
-			id: 'open-specific-note',
-			name: '打开主页笔记',
-			hotkeys: [{ modifiers: ['Alt'], key: '`' }],
-			callback: async () => {
-				openNoteByPath('Kanban/Home/Home.kanban.md') // ← 修改成你的路径
-
-				/*
-				const leftmostLeaf = this.app.workspace.getLeaf(false)
-				const newLeaf = this.app.workspace.createLeafBySplit(leftmostLeaf, false)
-
-				const abstractFile = this.app.vault.getAbstractFileByPath(
-					'Kanban/Home/Home.kanban.md'
-				)
-
-				if (abstractFile && abstractFile instanceof TFile) {
-					// 这里确定是文件
-					await newLeaf.openFile(abstractFile)
-					this.app.workspace.setActiveLeaf(newLeaf, { focus: true })
-				} else {
-					console.log('指定路径不是文件，或文件不存在')
-				}
-				*/
-			},
-		})
 	}
 
 	async loadSettings() {
