@@ -12,7 +12,7 @@ import {
 	parseFrontMatterEntry,
 	parseFrontMatterStringArray,
 } from 'obsidian'
-import { CyuToolkitSettingTab } from './settings/settingsTab'
+import { CyuToolkitSettingTab } from './setting/settingsTab'
 import { CyuTookitSettings, DEFAULT_SETTINGS } from 'src/settings/settingsData'
 import ClickCopyBlock from './core/ClickCopyBlock'
 import renderColorGallery from './core/ColorGallery'
