@@ -5,57 +5,49 @@
 		"out": "${workspaceRoot}\\", // 输出文件目录 这里为css文件夹
 		"outExt": ".css" // 输出文件的后缀
 	},
-
-	"editor.tabSize": 4, // 这是您要设置的缩进符长度，例如这里设置为 4
-	"editor.insertSpaces": false, // 如果为 true，将使用空格进行缩进；如果为 false，将使用制表符进行缩进
+	"editor.tabSize": 4, // 制表符长度
+	"editor.insertSpaces": false, // true: 空格缩进 false:制表符缩进
+	"flow-icons.folders.associations": {
+		"cyu": "jinja",
+		"obsidian": "home",
+	},
 	"svg.preview.background": "dark-transparent",
-	"better-comments.tags": [
-		{
-			"tag": "!",
-			"color": "#FF2D00",
-			"strikethrough": false,
-			"underline": false,
-			"backgroundColor": "transparent",
-			"bold": false,
-			"italic": false
-		},
-		{
-			"tag": "?",
-			"color": "#3498DB",
-			"strikethrough": false,
-			"underline": false,
-			"backgroundColor": "transparent",
-			"bold": false,
-			"italic": false
-		},
-		{
-			"tag": "//",
-			"color": "#474747",
-			"strikethrough": true,
-			"underline": false,
-			"backgroundColor": "transparent",
-			"bold": false,
-			"italic": false
-		},
-		{
-			"tag": "todo",
-			"color": "#FF8C00",
-			"strikethrough": false,
-			"underline": false,
-			"backgroundColor": "transparent",
-			"bold": false,
-			"italic": false
-		},
-		{
-			"tag": "*",
-			"color": "#98C379",
-			"strikethrough": false,
-			"underline": false,
-			"backgroundColor": "transparent",
-			"bold": false,
-			"italic": false
-		}
+	"todo-tree.general.tags": [
+		"TODO ",
+		"FIXME ",
+		"HACK ",
+		"NOTE ",
+		" - ",
+		"#region ! "
 	],
+	"todo-tree.highlights.customHighlight": {
+		" - ": {
+			"icon": "note",
+			"type": "whole-line",
+			"foreground": "#ffffff",
+			"background": "#181926",
+			"rulerColour": "#a78bfa",
+			"iconColour": "#a78bfa"
+		},
+		"TODO ": {
+			"icon": "alert",
+			// "type": "whole-line",
+			// "type": "text",
+			"type": "tag-and-comment",
+			"foreground": "#fff",
+			"background": "#673ab7",
+			"rulerColour": "#673ab7",
+			"iconColour": "#673ab7"
+		},
+		"#region ! ": {
+			"icon": "versions",
+			"type": "whole-line",
+			"foreground": "#fff",
+			"background": "#673ab7",
+			"rulerColour": "#673ab7",
+			"iconColour": "#673ab7"
+		}
+	},
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "never" // 导入未使用不报错
 	}

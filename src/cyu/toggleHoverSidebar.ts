@@ -1,11 +1,11 @@
 import { App } from 'obsidian'
-import { CyuTookitSettings } from '../setting/settingsData'
+import { CyuTookitSettings } from '../setting/SettingData'
 
 /**
  * Manages sidebar hover/collapse behavior.
  * Returns a `destroy()` to remove all listeners on unload.
  */
-export function UseHoverSidebar(app: App, settings: CyuTookitSettings) {
+export function toggleHoverSidebar(app: App, settings: CyuTookitSettings) {
 	const leftRibbon = document.querySelector<HTMLElement>('.side-dock-settings')
 	const rightRibbon = document.querySelector<HTMLElement>(
 		'.workspace-ribbon.side-dock-ribbon.mod-right'

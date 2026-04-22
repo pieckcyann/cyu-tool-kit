@@ -1,11 +1,11 @@
 import { App } from 'obsidian'
-import { CyuTookitSettings } from '../setting/settingsData'
+import { CyuTookitSettings } from '../setting/SettingData'
 
 /**
  * Pins every currently open markdown leaf if `enable_auto_pin` is on.
  * Call once after layout is ready, or re-call on demand via the returned function.
  */
-export function useAutoPinned(app: App, settings: CyuTookitSettings) {
+export function setAutoPinned(app: App, settings: CyuTookitSettings) {
 	function pinAll() {
 		if (!settings.enable_auto_pin) return
 

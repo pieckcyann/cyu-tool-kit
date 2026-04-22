@@ -1,4 +1,4 @@
-import { TemplaterError } from './Error'
+import { TemplaterError } from '../setting/suggesters/Error'
 import { App, normalizePath, TAbstractFile, TFile, TFolder, Vault } from 'obsidian'
 
 export function delay(ms: number): Promise<void> {

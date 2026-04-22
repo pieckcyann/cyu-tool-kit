@@ -1,7 +1,5 @@
 // 默认的设置选项属性
 export interface CyuTookitSettings {
-	// 添加一个字符串索引签名，允许使用字符串来索引属性
-	[key: string]: boolean | string
 	setup_enable_hover_sider: boolean
 	enable_clickCopy_block: boolean
 	enable_auto_pin: boolean
@@ -10,6 +8,9 @@ export interface CyuTookitSettings {
 	folder_color_gallery: string
 	enable_icon_gallery: boolean
 	folder_icon_gallery: string
+
+	// 添加一个字符串索引签名，允许使用字符串来索引属性
+	[key: string]: boolean | string
 }
 
 export const DEFAULT_SETTINGS: CyuTookitSettings = {

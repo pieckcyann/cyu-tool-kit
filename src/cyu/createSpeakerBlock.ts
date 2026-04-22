@@ -12,7 +12,7 @@ const audioCache = new Map<string, HTMLAudioElement>()
  *
  * Call inside `registerMarkdownPostProcessor`.
  */
-export async function useSpeaker(container: HTMLElement): Promise<void> {
+export async function createSpeakerBlock(container: HTMLElement): Promise<void> {
 	const elements = container.querySelectorAll<HTMLElement>('[data-speaker]')
 	if (!elements.length) return
 

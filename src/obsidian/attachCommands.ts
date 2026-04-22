@@ -1,19 +1,19 @@
-import { Notice, TFile } from 'obsidian'
-import type CyuToolkitPlugin from '../main'
-import { useAutoPinned } from './useAutoPinned'
-import { sortHeadings } from '../core/sortHeadings'
-import { UseHoverSidebar } from './UseHoverSidebar'
+import { App, Notice, TFile } from 'obsidian'
+import { setAutoPinned } from '../cyu/setAutopinned'
+import { toggleHoverSidebar } from '../cyu/toggleHoverSidebar'
+import { sortHeadings } from '../helper/sortHeadings'
+import CyuToolkitPlugin from '../main'
 
 /**
  * Registers all plugin commands.
  * Call once after layout is ready.
  */
-export function useCommands(plugin: CyuToolkitPlugin) {
+export function attachCommands(plugin: CyuToolkitPlugin) {
 	const { app, settings } = plugin
 
 	// Sidebar toggle — tracks mode between calls
 	let toggleMode = 0 // 0 = hover on, 1 = off
-	const sidebar = UseHoverSidebar(app, settings)
+	const sidebar = toggleHoverSidebar(app, settings)
 
 	// ── hover sidebar toggle ──────────────────────────────────────────────────
 	plugin.addCommand({
@@ -38,7 +38,7 @@ export function useCommands(plugin: CyuToolkitPlugin) {
 	plugin.addCommand({
 		id: 'auto-pin-note',
 		name: 'Auto pin all notes',
-		callback: () => useAutoPinned(app, settings).pinAll(),
+		callback: () => setAutoPinned(app, settings).pinAll(),
 	})
 
 	// ── sort headings ─────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ export function useCommands(plugin: CyuToolkitPlugin) {
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-async function openNoteByPath(app: any, notePath: string): Promise<void> {
+async function openNoteByPath(app: App, notePath: string): Promise<void> {
 	const file = app.vault.getAbstractFileByPath(notePath)
 	if (!(file instanceof TFile)) {
 		console.warn('File not found:', notePath)

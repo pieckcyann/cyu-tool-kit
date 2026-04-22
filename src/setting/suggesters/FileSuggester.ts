@@ -2,9 +2,9 @@
 
 import { TAbstractFile, TFile } from 'obsidian'
 import { TextInputSuggest } from './suggest'
-import { get_tfiles_from_folder } from 'src/utils/Utils'
-import { errorWrapperSync } from 'src/utils/Error'
-import CyuToolkitPlugin from 'src/main'
+import { get_tfiles_from_folder } from '../../util/cyuUtil'
+import { errorWrapperSync } from './Error'
+import CyuToolkitPlugin from '../../main'
 
 export enum FileSuggestMode {
 	TemplateFiles,
@@ -21,13 +21,12 @@ export class FileSuggest extends TextInputSuggest<TFile> {
 	}
 
 	get_folder(mode: FileSuggestMode): string {
-		// switch (mode) {
-		//     case FileSuggestMode.TemplateFiles:
-		//         return this.plugin.settings.articles_folder ?? ''
-		//     case FileSuggestMode.ScriptFiles:
-		//         return this.plugin.settings.user_scripts_folder ?? ''
-		// }
-		return ''
+		switch (mode) {
+			case FileSuggestMode.TemplateFiles:
+				return (this.plugin.settings.articles_folder ?? '') as string
+			case FileSuggestMode.ScriptFiles:
+				return (this.plugin.settings.user_scripts_folder ?? '') as string
+		}
 	}
 
 	get_error_msg(mode: FileSuggestMode): string {
