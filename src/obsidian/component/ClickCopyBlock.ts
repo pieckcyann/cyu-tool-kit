@@ -10,15 +10,11 @@ export default class ClickCopyBlock extends MarkdownRenderChild {
 	}
 
 	async onload() {
-		this.renderClickCopyBlock(this.containerEl)
-	}
-
-	renderClickCopyBlock(container: HTMLElement) {
-		const cpbs = container.findAll('.cpb') as HTMLLabelElement[]
-		const enable_clickCopy_block = this.settings.enable_clickCopy_block
+		const cpbs = this.containerEl.findAll('.cpb') as HTMLLabelElement[]
+		const enable = this.settings.enable_clickCopy_block
 
 		for (const cpb of cpbs) {
-			if (enable_clickCopy_block) {
+			if (enable) {
 				cpb.removeEventListener('click', this.clickHandler)
 				cpb.addEventListener('click', this.clickHandler)
 			} else {
@@ -28,7 +24,7 @@ export default class ClickCopyBlock extends MarkdownRenderChild {
 	}
 
 	// 点击事件处理
-	clickHandler(event: MouseEvent): void {
+	clickHandler = (event: MouseEvent) => {
 		const clickedSpan = (event.target as HTMLElement)?.closest(
 			'span.cpb:not(:has(*))'
 		) as HTMLElement
@@ -54,7 +50,7 @@ export default class ClickCopyBlock extends MarkdownRenderChild {
 	}
 
 	// 复制文本
-	handleCopyText(text: string) {
+	handleCopyText = (text: string) => {
 		navigator.clipboard
 			.writeText(text)
 			.then(() => {

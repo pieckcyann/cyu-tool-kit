@@ -19,20 +19,19 @@ import { wrapExternalImages } from './wrapExternalImages'
 export function registerMarkdownProcessors(plugin: CyuToolkitPlugin) {
 	const { app, settings } = plugin
 
-	// 1. Click-copy blocks
-	plugin.registerMarkdownPostProcessor((el, ctx) => {
-		ctx.addChild(new ClickCopyBlock(settings, el))
-	})
-
-	// 2. Color / Icon galleries
 	plugin.registerMarkdownPostProcessor((el, ctx) => {
 		const view = app.workspace.getActiveViewOfType(MarkdownView)
 		if (!view) return
 
+		// Click-copy blocks
+		ctx.addChild(new ClickCopyBlock(settings, el))
+
+		// Color galleries
 		if (ctx.sourcePath === settings.folder_color_gallery) {
 			ctx.addChild(new ColorGallery(settings, el))
 		}
 
+		// Icon galleries
 		if (ctx.sourcePath === settings.folder_icon_gallery) {
 			ctx.addChild(new IconGallery(settings, el))
 		}
