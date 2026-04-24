@@ -1,8 +1,8 @@
 import { App, Notice, TFile } from 'obsidian'
-import { setAutoPinned } from '../cyu/setAutopinned'
-import { toggleHoverSidebar } from '../cyu/toggleHoverSidebar'
-import { sortHeadings } from '../helper/sortHeadings'
-import CyuToolkitPlugin from '../main'
+import { setAutoPinned } from '../../cyu/setAutopinned'
+import { toggleHoverSidebar } from '../../cyu/toggleHoverSidebar'
+import { sortHeadings } from '../../helper/sortHeadings'
+import CyuToolkitPlugin from '../../main'
 
 /**
  * Registers all plugin commands.
@@ -37,7 +37,7 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 	// ── auto pin ──────────────────────────────────────────────────────────────
 	plugin.addCommand({
 		id: 'auto-pin-note',
-		name: 'Auto pin all notes',
+		name: '自动固定所有笔记',
 		callback: () => setAutoPinned(app, settings).pinAll(),
 	})
 

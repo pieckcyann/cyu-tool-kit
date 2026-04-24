@@ -74,3 +74,58 @@
 .metadata-property-value {
     transition: width .2s ease;
 }
+
+/* ── 外层 wrapper：相对定位，不改变原有元素的尺寸和流 ── */
+.annotation-wrapper {
+    position: relative;
+}
+
+/* ── 注释列：绝对定位浮在文档两侧，不占文档流空间 ─────── */
+.annotation-col {
+    position: absolute;
+    top: 0;
+    width: var(--annotation-col-width, 140px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.annotation-col--left {
+    /* 向左偏移，留出 gap */
+    right: calc(100% + var(--annotation-gap, 12px));
+}
+
+.annotation-col--right {
+    /* 向右偏移，留出 gap */
+    left: calc(100% + var(--annotation-gap, 12px));
+}
+
+/* ── 注释标签 ──────────────────────────────────────────── */
+.annotation-label {
+    font-size: var(--annotation-font-size, 0.82em);
+    line-height: 1.4;
+    color: var(--annotation-text-color, var(--text-muted));
+    font-family: var(--annotation-font-family, var(--font-text));
+    font-style: italic;
+    padding: 2px 4px;
+    pointer-events: auto;
+}
+
+.annotation-col--left .annotation-label {
+    text-align: right;
+}
+
+.annotation-col--right .annotation-label {
+    text-align: left;
+}
+
+/* ── SVG 箭头层 ────────────────────────────────────────── */
+.annotation-svg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 10;
+}
