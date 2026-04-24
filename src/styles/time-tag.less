@@ -1,0 +1,75 @@
+/* - ── 源码模式 ────────────────────────────────────────── */
+
+.ctk-time-source-line {
+    font-size: 0.85em !important;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+/* - ── 阅读模式 ────────────────────────────────────────── */
+.markdown-rendered {
+    p.ctk-time-container {
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 0 !important;
+        text-align: right;
+        overflow: visible !important;
+        border: none !important;
+        position: relative;
+        z-index: 1;
+
+        .ctk-time-icon {
+            display: flex;
+            opacity: 0.7;
+
+            svg {
+                width: 9px;
+                height: 9px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 1.6;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+        }
+
+        >.ctk-time-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+
+            position: relative;
+            top: -2.5em;
+            right: 0;
+
+            font-size: 10px;
+            font-family: var(--code-font);
+            letter-spacing: 0.02em;
+
+            color: var(--text-faint);
+            background: rgba(160, 130, 90, 0.07);
+            border: 0.5px solid rgba(160, 130, 90, 0.18);
+            border-radius: 4px;
+
+            padding: 3px 6px 5px 5px;
+            white-space: nowrap;
+
+            transition: color 0.15s ease,
+                border-color 0.15s ease,
+                background 0.15s ease;
+            cursor: default;
+            user-select: none;
+
+            &:hover {
+                color: var(--text-accent);
+                border-color: rgba(160, 130, 90, 0.35);
+                background: rgba(160, 130, 90, 0.13);
+
+                .ctk-time-icon {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}

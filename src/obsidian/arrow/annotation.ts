@@ -257,19 +257,17 @@ export function registerAnnotationProcessor(plugin: CyuToolkitPlugin) {
 	)
 }
 
-// ─── DOM 工具函数 ─────────────────────────────────────────────────────────────
+// ─── 工具函数 ─────────────────────────────────────────────────────────────
 
 /**
  * 找到 el 的上一个兄弟块元素。
  *
  * Obsidian 的渲染结构：
- *   div.el-pre          ← annotation fence 外壳（el.parentElement）
- *     div.block-language-annotation  ← containerEl（el）
+ *   div.el-pre                       <- annotation fence 外壳（el.parentElement）
+ *     div.block-language-annotation  <- containerEl（el）
  *
- *   div.el-p / div.el-pre   ← 目标块外壳（el.parentElement.previousElementSibling）
- *     p / pre / ...          ← 真正的内容元素
- *
- * 因此需要向上两层再取 previousElementSibling，然后取其第一个子元素。
+ *   div.el-p / div.el-pre    <- 目标块外壳（el.parentElement.previousElementSibling）
+ *     p / pre / ...          <- 真正的内容元素
  */
 function findPreviousBlock(el: HTMLElement): HTMLElement | null {
 	const elPre = el.parentElement
@@ -288,8 +286,6 @@ function findPreviousBlock(el: HTMLElement): HTMLElement | null {
 	return (prevShell.firstElementChild as HTMLElement) ?? prevShell
 }
 
-const SAFE_GAP = 10
-
 /**
  * 绘制所有箭头：为每条规则在目标块内找到匹配行，
  * 计算 DOMRect 后交给 renderArrows 统一绘制 SVG。
@@ -300,8 +296,8 @@ function drawArrows(
 	labelEls: { el: HTMLElement; rule: AnnotationRule }[]
 ) {
 	const containerRect = wrapper.getBoundingClientRect()
-
 	const arrows: { target: ArrowTarget; seed: string }[] = []
+	const SAFE_GAP = 10
 
 	for (const { el: labelEl, rule } of labelEls) {
 		const lineEl = findMatchingLine(targetBlock, rule.match, rule.matchIndex)

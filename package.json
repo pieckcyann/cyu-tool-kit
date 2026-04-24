@@ -4,7 +4,8 @@
 	"description": "This plugin can help you to achieve a click copy of the specified text",
 	"main": "main.js",
 	"scripts": {
-		"dev": "node esbuild.config.mjs",
+		"dev": "concurrently \"node esbuild.config.mjs\" \"npm run less:watch\"",
+		"less:watch": "node scripts/build-less.js",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
@@ -18,8 +19,11 @@
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
+		"chokidar": "^5.0.0",
+		"concurrently": "^9.2.1",
 		"esbuild": "0.17.3",
 		"hls.js": "^1.5.13",
+		"less": "^4.6.4",
 		"obsidian": "latest",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"

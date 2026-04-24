@@ -1,0 +1,29 @@
+.icon-gallery {
+
+    .HyperMD-list-line.HyperMD-list-line-1.cm-line {
+        max-width: 200vh;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    &.list-cards.markdown-preview-view {
+        div>ul>li {
+            --cards-padding: 20px; // 30px
+            font-size: 24px;
+            aspect-ratio: 1; // 宽高比 1:1，保持正方形
+            width: 100%; // 适应网格单元的宽度
+
+            >ul>li {
+                display: none;
+            }
+        }
+
+        [class*="loader-"] {
+            --loader-size: 100%;
+            --loader-font-size: 1em;
+        }
+
+    }
+
+}

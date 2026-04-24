@@ -1,4 +1,4 @@
-import { App, Notice, TFile } from 'obsidian'
+import { App, Editor, Notice, TFile } from 'obsidian'
 import { setAutoPinned } from '../../cyu/setAutopinned'
 import { toggleHoverSidebar } from '../../cyu/toggleHoverSidebar'
 import { sortHeadings } from '../../helper/sortHeadings'
@@ -34,14 +34,12 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 		},
 	})
 
-	// ── auto pin ──────────────────────────────────────────────────────────────
 	plugin.addCommand({
 		id: 'auto-pin-note',
 		name: '自动固定所有笔记',
 		callback: () => setAutoPinned(app, settings).pinAll(),
 	})
 
-	// ── sort headings ─────────────────────────────────────────────────────────
 	plugin.addCommand({
 		id: 'sort-headings-in-source',
 		name: '源码模式下排序标题',
@@ -49,12 +47,39 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 		editorCallback: () => sortHeadings(app),
 	})
 
-	// ── open home note ────────────────────────────────────────────────────────
 	plugin.addCommand({
 		id: 'open-specific-note',
 		name: '打开主页笔记',
 		hotkeys: [{ modifiers: ['Alt'], key: '`' }],
 		callback: () => openNoteByPath(app, 'Kanban/Home/Home.kanban.md'),
+	})
+
+	plugin.addCommand({
+		id: 'insert-timestamp-under-heading',
+		name: '插入时间戳标签',
+		hotkeys: [{ modifiers: ['Ctrl', 'Shift'], key: 'T' }],
+		editorCallback: (editor: Editor) => {
+			const cursor = editor.getCursor()
+			const lineContent = editor.getLine(cursor.line)
+
+			// 生成符合 @{YYYY-MM-DD HH:mm:ss} 格式的时间戳
+			// @ts-ignore (Obsidian 内置了 moment)
+			const timestamp = `@{${window.moment().format('YYYY-MM-DD HH:mm:ss')}}`
+
+			// 逻辑：如果当前行是标题，则在下一行插入
+			if (lineContent.startsWith('#')) {
+				// 在当前行后面插入换行和时间戳
+				editor.replaceRange(`\n${timestamp}\n`, {
+					line: cursor.line,
+					ch: lineContent.length,
+				})
+				// 将光标移到时间戳下方的空行，方便继续写内容
+				editor.setCursor({ line: cursor.line + 2, ch: 0 })
+			} else {
+				// 如果不是标题，直接在当前位置插入并换行
+				editor.replaceSelection(`${timestamp}\n`)
+			}
+		},
 	})
 }
 

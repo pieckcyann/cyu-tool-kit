@@ -18,6 +18,8 @@ import { setAutoPinned } from './cyu/setAutopinned'
 import { attachCommands } from './obsidian/service/attachCommands'
 import { registerMarkdownProcessors } from './obsidian/service/registerMarkdownProcessors'
 import { registerAnnotationProcessor } from './obsidian/arrow/annotation'
+import { timeTagViewPlugin } from './obsidian/editor/timeTag'
+import { timeTagPostProcessor } from './obsidian/processor/timeTag'
 
 export default class CyuToolkitPlugin extends Plugin {
 	settings: CyuTookitSettings = DEFAULT_SETTINGS
@@ -72,6 +74,12 @@ export default class CyuToolkitPlugin extends Plugin {
 				view.previewMode?.rerender(true)
 			})
 		)
+
+		// 注册 CM6 编辑器插件
+		this.registerEditorExtension(timeTagViewPlugin)
+
+		// 注册阅读模式后处理器
+		this.registerMarkdownPostProcessor(timeTagPostProcessor)
 	}
 
 	onunload() {
