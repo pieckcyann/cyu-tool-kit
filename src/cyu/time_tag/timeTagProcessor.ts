@@ -5,7 +5,8 @@ export function timeTagPostProcessor(
 	context: MarkdownPostProcessorContext
 ) {
 	// 取消了 ^ 和 $，允许在文本中间匹配
-	const regex = /@\{(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\}/g
+	// const regex = /@\{(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\}/g
+	const regex = /@\{(\d{4}-\d{2}-\d{2}(?:\s\d{2}:\d{2}:\d{2})?)\}/g
 
 	// 使用 TreeWalker 只查找文本节点，效率更高且不会破坏现有 DOM 结构
 	const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null)

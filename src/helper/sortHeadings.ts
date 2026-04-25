@@ -1,4 +1,4 @@
-import { App } from 'obsidian'
+import { App, Notice } from 'obsidian'
 
 /**
  * Sorts / re-numbers headings (H1–H3) in the active file.
@@ -14,6 +14,8 @@ import { App } from 'obsidian'
 export function sortHeadings(app: App): void {
 	const file = app.workspace.getActiveFile()
 	if (!file) return
+
+	new Notice('排序了标题')
 
 	app.vault.process(file, (data) => {
 		const H1_LABELS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']

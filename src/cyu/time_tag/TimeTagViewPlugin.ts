@@ -49,7 +49,8 @@ export const timeTagViewPlugin = ViewPlugin.fromClass(
 		buildDecorations(view: EditorView): RangeSet<Decoration> {
 			const builder = new RangeSetBuilder<Decoration>()
 			// 1. 去掉 ^ 锚点，改用全局搜索 g
-			const regex = /@\{(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\}/g
+			// const regex = /@\{(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\}/g
+			const regex = /@\{(\d{4}-\d{2}-\d{2}(?:\s\d{2}:\d{2}:\d{2})?)\}/g
 
 			const currentSelections = view.state.selection.ranges
 
