@@ -1,6 +1,21 @@
 import { TemplaterError } from '../setting/suggesters/Error'
 import { App, normalizePath, TAbstractFile, TFile, TFolder, Vault } from 'obsidian'
 
+/**
+ * 将 string 类型的 seed 转为 number 类型的 seed
+ * @param str
+ * @returns
+ */
+export const hashString = (str: string): number => {
+	let hash = 0
+	for (let i = 0; i < str.length; i++) {
+		const char = str.charCodeAt(i)
+		hash = (hash << 5) - hash + char
+		hash = hash & hash // 转为 32 位整数
+	}
+	return Math.abs(hash)
+}
+
 export function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms))
 }

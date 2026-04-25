@@ -1,4 +1,5 @@
 import {
+	App,
 	Editor,
 	MarkdownPostProcessorContext,
 	MarkdownView,
@@ -13,13 +14,12 @@ import {
 } from 'obsidian'
 import { CyuToolkitPluginSettingTab, PluginSettingTab } from './setting/SettingTab'
 import { CyuTookitSettings, DEFAULT_SETTINGS } from './setting/SettingData'
-import { toggleHoverSidebar } from './cyu/toggleHoverSidebar'
-import { setAutoPinned } from './cyu/setAutopinned'
-import { attachCommands } from './obsidian/service/attachCommands'
-import { registerMarkdownProcessors } from './obsidian/service/registerMarkdownProcessors'
-import { registerAnnotationProcessor } from './obsidian/arrow/annotation'
-import { timeTagViewPlugin } from './obsidian/editor/timeTag'
-import { timeTagPostProcessor } from './obsidian/processor/timeTag'
+import { toggleHoverSidebar } from './obsidian/service/toggleHoverSidebar'
+import { attachCommands } from './obsidian/attachCommands'
+import { registerPreviewProcessors } from './obsidian/registerPreviewProcessors'
+import { timeTagViewPlugin } from './cyu/time_tag/TimeTagViewPlugin'
+import { timeTagPostProcessor } from './cyu/time_tag/timeTagProcessor'
+import { registerCodeblockProcessors } from './obsidian/registerCodeblockProcessor'
 
 export default class CyuToolkitPlugin extends Plugin {
 	settings: CyuTookitSettings = DEFAULT_SETTINGS
@@ -34,17 +34,46 @@ export default class CyuToolkitPlugin extends Plugin {
 
 		this.app.workspace.onLayoutReady(() => {
 			this.sidebar = toggleHoverSidebar(this.app, this.settings)
-			setAutoPinned(this.app, this.settings)
+			// setAutoPinned(this.app, this.settings)
 			attachCommands(this)
 		})
 
-		// 一些后处理器
-		registerMarkdownProcessors(this)
+		// - 注册后处理器
 
-		// 箭头注解代码块
-		registerAnnotationProcessor(this)
-		// 并且我希望箭头可以指着对应的文本，有三种： 1. 如果指向一个短文本，则用手绘风格的圈标出那个文本 2. 如果指向的是一个较长的文本，则使用波浪线标出 3. 如果仅指向一整行，则不特殊处理 可以使用createRange这个api实现吗：
+		// 修改阅读模式样式
+		registerPreviewProcessors(this)
 
+		// 修改代码块
+		registerCodeblockProcessors(this)
+
+		// - 注册事件回调
+
+		// 切换笔记
+		this.registerEvent(
+			this.app.workspace.on('active-leaf-change', (leaf) => {
+				if (leaf?.view instanceof MarkdownView) {
+					// 只有当确定某些自定义状态改变了，且 Obsidian 默认渲染没覆盖到时才调用
+					// 且尽量不要用 rerender(true) 强制清空缓存，除非后处理器依赖全局变量
+					const view = leaf.view
+					requestAnimationFrame(() => {
+						view.previewMode?.rerender(true) // 不带 true，性能更好
+					})
+				}
+			})
+		)
+
+		// 元数据变更
+		// this.registerEvent(
+		// 	this.app.metadataCache.on('changed', (file) => {
+		// 		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
+		// 		if (!view || view.file !== file) return
+		// 		requestAnimationFrame(() => {
+		// 			view.previewMode?.rerender(true)
+		// 		})
+		// 	})
+		// )
+
+		// 笔记内容修改
 		// this.registerEvent(
 		// 	this.app.vault.on('modify', (file) => {
 		// 		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
@@ -56,17 +85,7 @@ export default class CyuToolkitPlugin extends Plugin {
 		// 	})
 		// )
 
-		// this.registerEvent(
-		// 	this.app.metadataCache.on('changed', (file) => {
-		// 		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
-		// 		if (!view || view.file !== file) return
-		// 		// requestAnimationFrame(() => {
-		// 		view.previewMode?.rerender(true)
-		// 		new Notice('xxxxxxxxxxxxxxxxxxxxx')
-		// 		// })
-		// 	})
-		// )
-
+		// 布局加载完毕
 		this.registerEvent(
 			this.app.workspace.on('layout-change', () => {
 				const view = this.app.workspace.getActiveViewOfType(MarkdownView)

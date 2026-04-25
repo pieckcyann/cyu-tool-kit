@@ -1,5 +1,5 @@
 import { App } from 'obsidian'
-import { CyuTookitSettings } from '../setting/SettingData'
+import { CyuTookitSettings } from '../../setting/SettingData'
 
 /**
  * Pins every currently open markdown leaf if `enable_auto_pin` is on.

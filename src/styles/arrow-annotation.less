@@ -1,8 +1,15 @@
-/* - ── 箭头注释 ────────────────────────────────────────── */
+// ─── 基本定位 ─────────────────────────────────────────────────────────────────
 
-/*  外层 wrapper：相对定位，不改变原有元素的尺寸和流  */
+.annotation-wrapper {
+    --ann-color: var(--text-muted);
+    --ann-color-active: var(--text-accent);
+    --ann-highlight: var(--text-accent);
+}
+
+/* 中间列：目标内容块的相对定位，不改变原有元素的尺寸和流) */
 .annotation-wrapper {
     position: relative;
+    display: block;
 }
 
 /* 注释列：绝对定位浮在文档两侧，不占文档流空间 */
@@ -14,38 +21,75 @@
     flex-direction: column;
     gap: 8px;
     pointer-events: none;
-}
 
-.annotation-col--left {
-    /* 向左偏移，留出 gap */
-    right: calc(100% + var(--annotation-gap, 70px));
+    &--left {
+        // right: calc(100% + var(--annotation-gap, 70px));
+        right: 100%;
+        padding-right: 48px;
+        align-items: flex-end;
 
-    .annotation-label {
-        text-align: right;
+        .annotation-label {
+            text-align: right;
+        }
+    }
+
+    &--right {
+        // left: calc(100% + var(--annotation-gap, 70px));
+        left: 100%;
+        padding-left: 48px;
+        align-items: flex-start;
+
+        .annotation-label {
+            text-align: left;
+        }
     }
 }
 
-.annotation-col--right {
-    /* 向右偏移，留出 gap */
-    left: calc(100% + var(--annotation-gap, 70px));
-
-    .annotation-label {
-        text-align: left;
-    }
-}
+// ─── 注释标签 ─────────────────────────────────────────────────────────────────
 
 /* 注释标签  */
 .annotation-label {
     font-size: var(--annotation-font-size, 0.82em);
-    line-height: 1.4;
     color: var(--annotation-text-color, var(--text-muted));
     font-family: var(--annotation-font-family, var(--font-text));
-    font-style: italic;
+    line-height: 1.4;
     padding: 2px 4px;
-    pointer-events: auto;
+    border-radius: 3px;
+    font-style: italic;
+    transform: rotate(3deg); // 斜一点
+
+    white-space: nowrap;
+    // max-width: 16rem;
+    // width: fit-content;
+
+    pointer-events: auto; // 这是可以 hover 的关键
+    cursor: pointer;
+
+    // 用 box-shadow 而非 outline，穿透力更强，不受子元素影响
+    transition:
+        box-shadow 0.18s ease,
+        color 0.18s ease;
+
+    // MarkdownRenderer 渲染的直接子元素（p, span 等）
+    >* {
+        transition: color 0.18s ease;
+    }
+
+    &.ann-label-active {
+        color: var(--ann-color-active);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--ann-color-active) 35%, transparent);
+    }
+
+    // 兼容：MarkdownRenderer 在外层再套了一层时
+    .ann-label-active-inner {
+        color: var(--ann-color-active);
+    }
 }
 
-/* SVG 箭头层 */
+// ─── connector 线段 ─────────────────────────────────────────────────────────────────
+
+
+/* SVG 内容遮罩 */
 .annotation-svg-overlay {
     position: absolute;
     top: 0;
@@ -53,4 +97,94 @@
     pointer-events: none;
     overflow: visible;
     z-index: 10;
+}
+
+.ann-connector {
+    stroke: var(--annotation-arrow-color, var(--text-muted));
+
+    opacity: 0.75;
+    transition:
+        stroke 0.18s ease,
+        opacity 0.18s ease;
+
+    pointer-events: none !important; // 不允许交互
+}
+
+
+/* stub 侧的渐隐用 opacity mask 不好做，改用渐变描边 */
+.ann-connector-stub {
+    opacity: 0.6;
+    // stub 只做渐隐，不参与任何交互
+    pointer-events: none;
+
+}
+
+
+// ─── 高亮联动 ─────────────────────────────────────────────────────────────────
+
+body {
+    // --annotation-highlight-color: white;
+}
+
+/* highlight (目标文本处的 圈/波浪线) */
+.ann-highlight {
+    stroke: var(--annotation-highlight-color, var(--text-accent));
+    opacity: 0.5;
+    transition:
+        opacity 0.18s ease,
+        stroke-width 0.18s ease;
+
+    pointer-events: none; // 不允许交互
+
+}
+
+/* 流向动画 */
+@keyframes ann-flow {
+    from {
+        stroke-dashoffset: 0;
+    }
+
+    to {
+        stroke-dashoffset: -24;
+    }
+}
+
+/* 激活状态 */
+.ann-group {
+    &.active {
+        .ann-connector {
+            stroke: var(--annotation-arrow-color, var(--text-accent));
+            opacity: 1 !important;
+        }
+
+        .ann-connector-full {
+            stroke: var(--ann-color-active);
+            opacity: 1;
+            stroke-dasharray: 6 4;
+            animation: ann-flow 0.45s linear infinite;
+        }
+
+        // .ann-connector-stub {
+        //     stroke-dasharray: none; // stub 不做流向，只做高亮            
+        // }
+
+        .ann-highlight {
+            opacity: 1;
+            stroke-width: 2;
+        }
+
+        .ann-label-highlight {
+            outline: 2px solid var(--annotation-highlight-color, var(--text-accent));
+            outline-offset: 2px;
+            border-radius: 3px;
+        }
+    }
+}
+
+// ─── prefers-reduced-motion ─────────────────────────────────────────────────────────────────
+
+@media (prefers-reduced-motion: reduce) {
+    .ann-group.active .ann-connector-full {
+        animation: none;
+    }
 }

@@ -1,5 +1,5 @@
 import { App } from 'obsidian'
-import { CyuTookitSettings } from '../setting/SettingData'
+import { CyuTookitSettings } from '../../setting/SettingData'
 
 /**
  * Manages sidebar hover/collapse behavior.

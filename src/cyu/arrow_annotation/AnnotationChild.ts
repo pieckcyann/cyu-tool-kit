@@ -1,3 +1,4 @@
+// annotation.ts
 import {
 	App,
 	MarkdownPostProcessorContext,
@@ -5,74 +6,10 @@ import {
 	MarkdownRenderer,
 	Notice,
 } from 'obsidian'
-import { parseAnnotationBlock, AnnotationRule } from './parser'
-import { renderArrows, ArrowTarget } from './renderer'
+import { parseAnnotationBlock, AnnotationRule } from './annParser'
+import { renderArrows, ArrowTarget, HighlightType } from './annRenderer'
 import CyuToolkitPlugin from '../../main'
-
-// ─── CSS 样式（只注入一次）────────────────────────────────────────────────────
-
-// const STYLE_ID = 'cyu-annotation-styles'
-//
-// export function injectAnnotationStyles() {
-// 	if (document.getElementById(STYLE_ID)) return
-//
-// 	const style = document.createElement('style')
-// 	style.id = STYLE_ID
-// 	style.textContent = `
-// 		/* ── 外层 wrapper：相对定位，不改变原有元素的尺寸和流 ── */
-// 		.annotation-wrapper {
-// 			position: relative;
-// 		}
-//
-// 		/* ── 注释列：绝对定位浮在文档两侧，不占文档流空间 ─────── */
-// 		.annotation-col {
-// 			position: absolute;
-// 			top: 0;
-// 			width: var(--annotation-col-width, 140px);
-// 			display: flex;
-// 			flex-direction: column;
-// 			gap: 8px;
-// 			pointer-events: none;
-// 		}
-//
-// 		.annotation-col--left {
-// 			/* 向左偏移，留出 gap */
-// 			right: calc(100% + var(--annotation-gap, 12px));
-// 		}
-//
-// 		.annotation-col--right {
-// 			/* 向右偏移，留出 gap */
-// 			left: calc(100% + var(--annotation-gap, 12px));
-// 		}
-//
-// 		/* ── 注释标签 ──────────────────────────────────────────── */
-// 		.annotation-label {
-// 			font-size: var(--annotation-font-size, 0.82em);
-// 			line-height: 1.4;
-// 			color: var(--annotation-text-color, var(--text-muted));
-// 			font-family: var(--annotation-font-family, var(--font-text));
-// 			font-style: italic;
-// 			padding: 2px 4px;
-// 			pointer-events: auto;
-// 		}
-//
-// 		.annotation-col--left  .annotation-label { text-align: right; }
-// 		.annotation-col--right .annotation-label { text-align: left;  }
-//
-// 		/* ── SVG 箭头层 ────────────────────────────────────────── */
-// 		.annotation-svg-overlay {
-// 			position: absolute;
-// 			top: 0;
-// 			left: 0;
-// 			pointer-events: none;
-// 			overflow: visible;
-// 			z-index: 10;
-// 		}
-// 	`
-// 	document.head.appendChild(style)
-// }
-
-// ─── MarkdownRenderChild ──────────────────────────────────────────────────────
+import { findTextRect } from './annRanger'
 
 /**
  * 每个 annotation 块对应一个实例，生命周期由 Obsidian 管理。
@@ -92,10 +29,8 @@ export class AnnotationChild extends MarkdownRenderChild {
 	private src: string
 	private ctx: MarkdownPostProcessorContext
 	private ro: ResizeObserver | null = null
-	/** 套在目标块外的 wrapper，onunload 时移除 */
-	private wrapper: HTMLElement | null = null
-	/** 被移入 wrapper 的目标块，onunload 时还原 */
-	private targetBlock: HTMLElement | null = null
+	private wrapper: HTMLElement | null = null // 套在目标块外的 wrapper，onunload 时移除
+	private targetBlock: HTMLElement | null = null // 被移入 wrapper 的目标块，onunload 时还原
 
 	constructor(
 		app: App,
@@ -177,7 +112,7 @@ export class AnnotationChild extends MarkdownRenderChild {
 			})
 		})
 
-		// 容器尺寸变化时重绘（侧栏拖拽、窗口缩放等）
+		// 容器尺寸变化时重绘 (侧栏拖拽、窗口缩放等)
 		this.ro = new ResizeObserver(() => {
 			drawArrows(wrapper, targetBlock, labelEls)
 		})
@@ -195,9 +130,9 @@ export class AnnotationChild extends MarkdownRenderChild {
 		col.classList.add('annotation-col', `annotation-col--${side}`)
 
 		for (const rule of rules) {
-			const label = this.createLabel(rule.label)
-			col.appendChild(label)
-			labelEls.push({ el: label, rule })
+			const labelEl = this.createLabel(rule.label)
+			col.appendChild(labelEl)
+			labelEls.push({ el: labelEl, rule })
 		}
 
 		return col
@@ -209,6 +144,7 @@ export class AnnotationChild extends MarkdownRenderChild {
 		const el = document.createElement('div')
 		el.classList.add('annotation-label')
 
+		// 渲染 md 语法
 		MarkdownRenderer.render(this.app, markdownText, el, this.ctx.sourcePath, this)
 
 		const p = el.querySelector('p')
@@ -233,28 +169,6 @@ export class AnnotationChild extends MarkdownRenderChild {
 		if (text.length < 80) return 'long'
 		return 'line'
 	}
-}
-
-// ─── 注册入口 ─────────────────────────────────────────────────────────────────
-
-/**
- * 在插件 onload 里调用，注册 annotation 代码块处理器。
- *
- * 用法：
- *   registerAnnotationProcessor(this)
- */
-export function registerAnnotationProcessor(plugin: CyuToolkitPlugin) {
-	// injectAnnotationStyles()
-
-	plugin.registerMarkdownCodeBlockProcessor(
-		'annotation',
-		(src, el, ctx) => {
-			ctx.addChild(new AnnotationChild(plugin.app, el, src, ctx))
-		},
-		// 优先级设低一点，确保目标块已经渲染完毕
-		100
-		// 0
-	)
 }
 
 // ─── 工具函数 ─────────────────────────────────────────────────────────────
@@ -290,23 +204,18 @@ function findPreviousBlock(el: HTMLElement): HTMLElement | null {
  * 绘制所有箭头：为每条规则在目标块内找到匹配行，
  * 计算 DOMRect 后交给 renderArrows 统一绘制 SVG。
  */
+
 function drawArrows(
 	wrapper: HTMLElement,
 	targetBlock: HTMLElement,
 	labelEls: { el: HTMLElement; rule: AnnotationRule }[]
 ) {
 	const containerRect = wrapper.getBoundingClientRect()
-	const arrows: { target: ArrowTarget; seed: string }[] = []
+	const targets: ArrowTarget[] = []
 	const SAFE_GAP = 10
 
 	for (const { el: labelEl, rule } of labelEls) {
-		const lineEl = findMatchingLine(targetBlock, rule.match, rule.matchIndex)
-		if (!lineEl) continue
-
-		const lineRect = lineEl.getBoundingClientRect()
 		const labelRect = labelEl.getBoundingClientRect()
-
-		// 强制外扩，避免贴边
 		const adjustedLabelRect = new DOMRect(
 			labelRect.x + (rule.side === 'left' ? SAFE_GAP : -SAFE_GAP),
 			labelRect.y,
@@ -314,18 +223,97 @@ function drawArrows(
 			labelRect.height
 		)
 
-		arrows.push({
-			target: {
-				labelRect: adjustedLabelRect,
-				lineRect,
-				side: rule.side,
-				containerRect,
-			},
+		let textRect: DOMRect | null = null
+		let lineRect: DOMRect
+		let highlightType: HighlightType
+
+		let lineEl: HTMLElement | null = null
+
+		if (!rule.match) {
+			// 空 match：指向整行，找行元素
+			const lineEl = findLineElement(targetBlock)
+			if (!lineEl) continue
+			lineRect = lineEl.getBoundingClientRect()
+			highlightType = 'none'
+		} else {
+			// 用 Range 精确定位
+			const result = findTextRect(targetBlock, rule.match, rule.matchIndex)
+			if (!result) continue
+			textRect = result.rect
+
+			// lineRect fallback：取文本所在的行容器
+			lineEl = findLineElementContaining(targetBlock, result.range)
+			lineRect = lineEl ? lineEl.getBoundingClientRect() : textRect
+
+			// 按文本长度分类
+			const charLen = rule.match.length
+			highlightType = charLen < 12 ? 'circle' : charLen < 80 ? 'wave' : 'none'
+		}
+
+		// drawArrows 里构建 target 时加上 labelEl
+		targets.push({
+			labelRect: adjustedLabelRect,
+			lineRect,
+			lineTag: lineEl?.tagName ?? '',
+			textRect,
+			side: rule.side,
+			containerRect,
+			highlightType,
 			seed: rule.match + rule.side,
+			labelEl: labelEl,
 		})
 	}
 
-	renderArrows(wrapper, arrows)
+	renderArrows(wrapper, targets)
+}
+
+/** 找 targetBlock 里第一个视觉行元素（line 模式 fallback） */
+function findLineElement(block: HTMLElement): HTMLElement | null {
+	const LINE_TAGS = [
+		'p',
+		'li',
+		'h1',
+		'h2',
+		'h3',
+		'h4',
+		'h5',
+		'h6',
+		'td',
+		'th',
+		'blockquote',
+		// 'code',
+	]
+	for (const tag of LINE_TAGS) {
+		const el = block.querySelector(tag)
+		if (el) return el as HTMLElement
+	}
+	return block
+}
+
+/** 找包含 range 起点的最近行级祖先元素 */
+function findLineElementContaining(root: HTMLElement, range: Range): HTMLElement | null {
+	const LINE_TAGS = new Set([
+		'P',
+		'LI',
+		'H1',
+		'H2',
+		'H3',
+		'H4',
+		'H5',
+		'H6',
+		'TD',
+		'TH',
+		'BLOCKQUOTE',
+		'CODE',
+	])
+	let node: Node | null = range.startContainer
+	while (node && node !== root) {
+		if (node.nodeType === Node.ELEMENT_NODE && LINE_TAGS.has((node as Element).tagName)) {
+			return node as HTMLElement
+		}
+		node = node.parentNode
+	}
+	return null
 }
 
 /**

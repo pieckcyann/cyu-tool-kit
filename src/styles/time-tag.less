@@ -7,69 +7,126 @@
 }
 
 /* - ── 阅读模式 ────────────────────────────────────────── */
-.markdown-rendered {
-    p.ctk-time-container {
-        height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        line-height: 0 !important;
-        text-align: right;
-        overflow: visible !important;
-        border: none !important;
-        position: relative;
-        z-index: 1;
+@time-theme-color: rgba(160, 130, 90, 1); // 你的手绘感主题色
+@base-font-size: 12.5px; // 标签基础字号
 
-        .ctk-time-icon {
-            display: flex;
-            opacity: 0.7;
 
-            svg {
-                width: 9px;
-                height: 9px;
-                stroke: currentColor;
-                fill: none;
-                stroke-width: 1.6;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-            }
-        }
+// 消失高度的容器重置 (用于吸附到标题行)
+.m-container-invisible() {
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+    text-align: right;
+    overflow: visible !important;
+    border: none !important;
+    position: relative;
+    z-index: 1;
+}
 
-        >.ctk-time-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
+// 标签的基础视觉样式
+.m-time-tag-base() {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: @base-font-size;
+    font-family: 'Dancing Script', 'Carattere', 'Harlow Solid';
+    // color: var(--text-faint);
+    border-radius: 4px;
+    white-space: nowrap;
+    // background: var(--background-secondary);
+    // border: 1px solid var(--background-modifier-border);
 
-            position: relative;
-            top: -2.5em;
-            right: 0;
+    transition: all 0.15s ease;
+    cursor: default;
+    -webkit-user-select: none;
+    user-select: none;
 
-            font-size: 10px;
-            font-family: var(--code-font);
-            letter-spacing: 0.02em;
+    .ctk-time-icon {
+        display: none;
 
-            color: var(--text-faint);
-            background: rgba(160, 130, 90, 0.07);
-            border: 0.5px solid rgba(160, 130, 90, 0.18);
-            border-radius: 4px;
-
-            padding: 3px 6px 5px 5px;
-            white-space: nowrap;
-
-            transition: color 0.15s ease,
-                border-color 0.15s ease,
-                background 0.15s ease;
-            cursor: default;
-            user-select: none;
-
-            &:hover {
-                color: var(--text-accent);
-                border-color: rgba(160, 130, 90, 0.35);
-                background: rgba(160, 130, 90, 0.13);
-
-                .ctk-time-icon {
-                    opacity: 1;
-                }
-            }
+        svg {
+            width: 9px;
+            height: 9px;
+            stroke-width: 1.6;
+            stroke: currentColor; // 确保 SVG 继承文字颜色
+            fill: none;
         }
     }
+
+    &:hover {
+        color: var(--text-accent);
+
+        .ctk-time-icon {
+            opacity: 1;
+        }
+    }
+}
+
+
+/* --- 3. 核心逻辑重构 --- */
+
+.markdown-rendered {
+
+    .after-heading {
+        .m-container-invisible();
+        position: relative;
+        top: -2.5em;
+        right: 0;
+    }
+
+    .ctk-time-tag {
+
+        // 基础样式：通过 BEM 风格组织子元素
+        .m-time-tag-base(); // 注入基础 Mixin
+
+        &--after-heading {
+            background: fade(@time-theme-color, 7%);
+            border: 0.5px solid fade(@time-theme-color, 18%);
+            padding: 3px 6px 5px 5px;
+
+            .ctk-time-icon {
+                display: flex;
+            }
+
+            &:hover {
+                background: fade(@time-theme-color, 13%);
+                border-color: fade(@time-theme-color, 35%);
+            }
+
+        }
+
+        &--h2 {
+            transform: translateY(-25px);
+        }
+
+        &--in-callout {
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: middle;
+
+            background: transparent;
+            border: none;
+            padding: 0;
+            font-style: italic;
+
+            .ctk-time-icon {
+                color: rgba(var(--callout-color), 1);
+                opacity: 1;
+            }
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+
+        &--generic {
+            display: inline-flex;
+            margin: 0 4px;
+            // 可以给普通文本中的时间戳加个微弱的背景区分
+            // background: var(--background-secondary);
+        }
+
+    }
+
 }

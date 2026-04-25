@@ -1,5 +1,5 @@
 import { MarkdownRenderChild, Notice } from 'obsidian'
-import { CyuTookitSettings } from '../../setting/SettingData'
+import { CyuTookitSettings } from '../setting/SettingData'
 
 export default class ColorGallery extends MarkdownRenderChild {
 	constructor(

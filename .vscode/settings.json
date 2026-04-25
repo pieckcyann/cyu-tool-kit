@@ -10,6 +10,10 @@
 	"flow-icons.folders.associations": {
 		"cyu": "jinja",
 		"obsidian": "home",
+		"arrow_annotation": "jinja",
+		"time_tag": "jinja",
+		"editor": "jinja",
+		"processor": "jinja"
 	},
 	"svg.preview.background": "dark-transparent",
 	"todo-tree.general.tags": [
@@ -18,6 +22,7 @@
 		"HACK ",
 		"NOTE ",
 		" - ",
+		" ─── ",
 		"#region ! "
 	],
 	"todo-tree.highlights.customHighlight": {
@@ -44,6 +49,14 @@
 			"type": "whole-line",
 			"foreground": "#fff",
 			"background": "#673ab7",
+			"rulerColour": "#673ab7",
+			"iconColour": "#673ab7"
+		},
+		" ─── ": {
+			"icon": "versions",
+			"type": "whole-line",
+			"foreground": "#ffffffac",
+			"background": "#492686",
 			"rulerColour": "#673ab7",
 			"iconColour": "#673ab7"
 		}

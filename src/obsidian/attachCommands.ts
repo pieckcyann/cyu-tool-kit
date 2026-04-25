@@ -1,8 +1,9 @@
 import { App, Editor, Notice, TFile } from 'obsidian'
-import { setAutoPinned } from '../../cyu/setAutopinned'
-import { toggleHoverSidebar } from '../../cyu/toggleHoverSidebar'
-import { sortHeadings } from '../../helper/sortHeadings'
-import CyuToolkitPlugin from '../../main'
+import { CyuTookitSettings } from '../setting/SettingData'
+import { sortHeadings } from '../helper/sortHeadings'
+import { toggleHoverSidebar } from './service/toggleHoverSidebar'
+import CyuToolkitPlugin from '../main'
+import { setAutoPinned } from './service/setAutopinned'
 
 /**
  * Registers all plugin commands.
