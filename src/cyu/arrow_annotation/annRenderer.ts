@@ -329,7 +329,7 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 			path.setAttribute('marker-end', `url(#${MARKER_ID})`)
 			path.setAttribute('pathLength', '100')
 			path.classList.add('ann-connector', 'ann-connector-full')
-			path.style.pointerEvents = 'stroke' // 只有描边区域响应
+			// path.style.pointerEvents = 'stroke' // 只有描边区域响应
 			group.appendChild(path)
 		} else {
 			// ── 远距离：stub（无 pointer-events）+ 目标侧短箭头（可 hover）──
