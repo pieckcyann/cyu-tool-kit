@@ -20,7 +20,7 @@ const SVG_NS = 'http://www.w3.org/2000/svg'
 const MARKER_ID = 'annotation-arrow-head'
 const MARKER_ACTIVE_ID = 'annotation-arrow-head-active'
 
-const BREAK_THRESHOLD = 180 // 超过此水平距离视为"远距离"，启用断线模式(px)
+const BREAK_THRESHOLD = 200 // 超过此水平距离视为"远距离"，启用断线模式(px)
 const STUB_LENGTH = 36 // 断线模式下，标签侧的短线长度(px)
 
 // ─── 工具 ─────────────────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ function toLocal(cr: DOMRect, x: number, y: number) {
  * @param end
  * @param side
  * @param seed
- * @returns
+ * @returns 路径样式属性
  */
 function buildCurvePath(
 	start: { x: number; y: number },
@@ -58,8 +58,10 @@ function buildCurvePath(
 	const cpOffset = Math.max(dx * 0.42, 20) + seededJitter(seed, 0) * 5
 	const cp1x = side === 'left' ? start.x + cpOffset : start.x - cpOffset
 	const cp2x = side === 'left' ? end.x - cpOffset : end.x + cpOffset
-	const cp1y = start.y + seededJitter(seed, 1) * 4
-	const cp2y = end.y + seededJitter(seed, 2) * 4
+	// const cp1y = start.y + seededJitter(seed, 1) * 4
+	// const cp2y = end.y + seededJitter(seed, 2) * 4
+	const cp1y = start.y + (end.y - start.y) * 0.25 + seededJitter(seed, 1) * 4
+	const cp2y = end.y - (end.y - start.y) * 0.15 + seededJitter(seed, 2) * 4
 	return `M ${start.x},${start.y} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${end.y}`
 }
 

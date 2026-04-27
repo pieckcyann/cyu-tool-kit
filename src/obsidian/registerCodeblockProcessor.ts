@@ -7,7 +7,7 @@ export function registerCodeblockProcessors(plugin: CyuToolkitPlugin) {
 
 	// 箭头注解代码块
 	plugin.registerMarkdownCodeBlockProcessor(
-		'annotation',
+		'annt',
 		(src: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
 			ctx.addChild(new AnnotationChild(plugin.app, el, src, ctx))
 		},
