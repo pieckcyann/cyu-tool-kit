@@ -4,6 +4,10 @@ import { sortHeadings } from '../helper/sortHeadings'
 import { toggleHoverSidebar } from './service/toggleHoverSidebar'
 import CyuToolkitPlugin from '../main'
 import { setAutoPinned } from './service/setAutopinned'
+import {
+	createLeftAnnotation,
+	createRightAnnotation,
+} from '../cyu/arrow_annotation/annCommand'
 
 /**
  * Registers all plugin commands.
@@ -19,7 +23,7 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 	// ── hover sidebar toggle ──────────────────────────────────────────────────
 	plugin.addCommand({
 		id: 'hover-toggle-sidebars-toggle',
-		name: 'Toggle hover sidebars',
+		name: '切换侧边栏的展开触发方式',
 		hotkeys: [{ modifiers: ['Ctrl', 'Alt'], key: 'W' }],
 		callback: () => {
 			sidebar.disable()
@@ -70,7 +74,7 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 			// 逻辑：如果当前行是标题，则在下一行插入
 			if (lineContent.startsWith('#')) {
 				// 在当前行后面插入换行和时间戳
-				editor.replaceRange(`\n${timestamp}\n`, {
+				editor.replaceRange(`\n${timestamp}`, {
 					line: cursor.line,
 					ch: lineContent.length,
 				})
@@ -81,6 +85,18 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 				editor.replaceSelection(`${timestamp}\n`)
 			}
 		},
+	})
+
+	plugin.addCommand({
+		id: 'insert-arrow-annotation-right',
+		name: 'you right 创建右侧注解',
+		editorCallback: createRightAnnotation,
+	})
+
+	plugin.addCommand({
+		id: 'insert-arrow-annotation-left',
+		name: 'zuo left 创建左侧注解',
+		editorCallback: createLeftAnnotation,
 	})
 }
 

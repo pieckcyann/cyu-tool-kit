@@ -10,9 +10,9 @@
 export type AnnotationSide = 'left' | 'right'
 
 export interface AnnotationRule {
-	/** 左还是右 */
+	/** 注释位置，左还是右 */
 	side: AnnotationSide
-	/** 在目标块中匹配的文本(空字符串 = 指向整行) */
+	/** 在目标块中匹配的文本 (空字符串 = 指向整行) */
 	match: string
 	/** 第几次出现 (1-based)，默认 1 */
 	matchIndex: number
