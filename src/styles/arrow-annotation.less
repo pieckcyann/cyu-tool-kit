@@ -94,6 +94,16 @@
     }
 }
 
+/* inline-right label：浮在代码块右侧空白区域，不走 col 布局 */
+.annotation-label--inline-right {
+    // position/top/left/transform 由 positionInlineLabels 动态写入
+    // 这里只覆盖与 col 模式不同的属性
+    text-align: left;
+    // 允许适当换行，避免超出可见区域
+    // white-space: normal;
+    // max-width: 120px;
+}
+
 // ─── connector 线段 ─────────────────────────────────────────────────────────────────
 
 

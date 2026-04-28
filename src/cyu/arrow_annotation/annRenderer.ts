@@ -1,4 +1,4 @@
-// renderer.ts
+// annRenderer.ts
 import rough from 'roughjs'
 import { hashString } from '../../util/cyuUtil'
 
@@ -6,14 +6,19 @@ export type HighlightType = 'circle' | 'wave' | 'none'
 
 export interface ArrowTarget {
 	labelRect: DOMRect
-	lineRect: DOMRect // 整行 rect (fallback / line 模式用)
+	/* 整行 rect (fallback / line 模式用) */
+	lineRect: DOMRect
 	lineTag: String
-	textRect: DOMRect | null // Range 精确 rect (null = line 模式)
+	/* Range 精确 rect (null = line 模式) */
+	textRect: DOMRect | null
 	side: 'left' | 'right'
 	containerRect: DOMRect
 	highlightType: HighlightType
 	seed: string
-	labelEl: HTMLElement // 对应的 label DOM 元素，用于 hover 联动
+	/* 对应的 label DOM 元素，用于 hover 联动 */
+	labelEl: HTMLElement
+
+	isInlineRight?: boolean // 新增
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
@@ -110,7 +115,7 @@ function drawCircle(
 	const node = rc.ellipse(cx, cy, w, h, {
 		seed: hashString(target.seed), // 使用传入的 seed 保持确定性渲染
 		stroke: '#8b5e3c', // 用深棕色或炭灰色模拟手绘笔触
-		strokeWidth: 1.4,
+		strokeWidth: strokeWidth,
 		roughness, // 粗糙度：值越大线越乱，针对长文本建议 1.5 - 2.0
 		bowing: 1.5, // 弯曲度：模拟画长线时的弧度偏离
 		// disableMultiStroke: false, // 双线效果
@@ -316,6 +321,57 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 						}
 		}
 
+		// line-right(代码块右侧)连线特有样式
+		// 		if (t.isInlineRight) {
+		// 			// highlight 照旧
+		// 			let highlightEndX: number
+		// 			let highlightEndY: number
+		//
+		// 			if (t.highlightType === 'circle' && t.textRect) {
+		// 				const res = drawCircle(group, t)
+		// 				highlightEndX = res.x // 圈的右侧 x
+		// 				highlightEndY = res.y
+		// 			} else if (t.highlightType === 'wave' && t.textRect) {
+		// 				const res = drawWave(group, t, t.textRect)
+		// 				highlightEndX = res.x
+		// 				highlightEndY = res.y
+		// 			} else {
+		// 				highlightEndX = t.lineRect.right - cr.left + 4
+		// 				highlightEndY = t.lineRect.top + t.lineRect.height / 2 - cr.top
+		// 			}
+		//
+		// 			// 箭头：从 highlight 右侧 → label 左侧
+		// 			// label 此时已被 positionInlineLabels 定位好
+		// 			const labelLeftX = t.labelRect.left - cr.left - 4
+		// 			const labelMidY = t.labelRect.top + t.labelRect.height / 2 - cr.top
+		//
+		// 			const jitterY = seededJitter(t.seed, 0) * 1.5
+		// 			const path = document.createElementNS(SVG_NS, 'path')
+		// 			// 短的贝塞尔而不是直线，保持手绘感
+		// 			const midX = (highlightEndX + labelLeftX) / 2
+		// 			path.setAttribute(
+		// 				'd',
+		// 				`M ${highlightEndX},${highlightEndY + jitterY} ` +
+		// 					`C ${midX},${highlightEndY + jitterY} ` +
+		// 					`${midX},${labelMidY + jitterY} ` +
+		// 					`${labelLeftX},${labelMidY + jitterY}`
+		// 			)
+		// 			path.setAttribute('fill', 'none')
+		// 			path.setAttribute('stroke-width', '1.5')
+		// 			path.setAttribute('stroke-linecap', 'round')
+		// 			// marker-end 指向 label，视觉上箭头指向 label（注释说明目标）
+		// 			// 如果你想箭头指向文本，把 marker-end 换 marker-start
+		// 			path.setAttribute('marker-end', `url(#${MARKER_ID})`)
+		// 			path.setAttribute('pathLength', '100')
+		// 			path.classList.add('ann-connector', 'ann-connector-full')
+		// 			path.style.pointerEvents = 'stroke'
+		// 			group.appendChild(path)
+		//
+		// 			svg.appendChild(group)
+		// 			setupHover(group, t.labelEl)
+		// 			continue
+		// 		}
+
 		const hDist = Math.abs(endPoint.x - start.x)
 		const isBreak = hDist > BREAK_THRESHOLD
 
@@ -375,7 +431,7 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 			group.appendChild(stub)
 
 			// 目标侧短箭头：可 hover (冒泡激活整组)
-			const arrowLen = 16
+			const arrowLen = 16 // 目标侧线段长度
 			const arrowStartX =
 				t.side === 'left' ? endPoint.x - arrowLen : endPoint.x + arrowLen
 			const arrowPath = document.createElementNS(SVG_NS, 'path')

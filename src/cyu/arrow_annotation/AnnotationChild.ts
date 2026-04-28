@@ -1,4 +1,4 @@
-// annotation.ts
+// Annotation.ts
 import {
 	App,
 	MarkdownPostProcessorContext,
@@ -75,17 +75,26 @@ export class AnnotationChild extends MarkdownRenderChild {
 		}
 	}
 
-	// ─── 构建布局 ──────────────────────────────────────────────────────────────
+	// ─── 构建左中右布局 ──────────────────────────────────────────────────────────────
 
 	private buildLayout(targetBlock: HTMLElement, rules: AnnotationRule[]) {
+		const isCodeBlock =
+			targetBlock.tagName === 'PRE' ||
+			targetBlock.tagName === 'CODE' ||
+			targetBlock.querySelector('pre, code')
+
+		console.log(`isCodeBlock:${isCodeBlock}`)
+
 		const leftRules = rules.filter((r) => r.side === 'left')
 		const rightRules = rules.filter((r) => r.side === 'right')
+		// 右侧：代码块内有足够空间的走 inline，其余走 sidebar
+		const rightInlineRules = isCodeBlock ? rules.filter((r) => r.side === 'right') : []
+		const rightSidebarRules = isCodeBlock ? [] : rules.filter((r) => r.side === 'right')
 
 		// wrapper 套在目标块外，提供相对定位上下文
 		const wrapper = document.createElement('div')
 		wrapper.classList.add('annotation-wrapper')
 		this.wrapper = wrapper
-
 		targetBlock.parentElement!.insertBefore(wrapper, targetBlock)
 		wrapper.appendChild(targetBlock)
 
@@ -100,20 +109,31 @@ export class AnnotationChild extends MarkdownRenderChild {
 			wrapper.appendChild(leftCol)
 		}
 
-		if (rightRules.length > 0) {
-			const rightCol = this.createCol('right', rightRules, labelEls)
+		if (rightSidebarRules.length > 0) {
+			const rightCol = this.createCol('right', rightSidebarRules, labelEls)
 			wrapper.appendChild(rightCol)
 		}
 
+		// inline labels：先创建好挂到 wrapper，drawArrows 里再定位
+		for (const rule of rightInlineRules) {
+			const labelEl = this.createLabel(rule.label)
+			labelEl.classList.add('annotation-label--inline-right')
+			wrapper.appendChild(labelEl)
+			labelEls.push({ el: labelEl, rule })
+		}
+
 		// 等两帧确保 DOM 已绘制，DOMRect 才准确
-		requestAnimationFrame(() => {
-			requestAnimationFrame(() => {
-				drawArrows(wrapper, targetBlock, labelEls)
-			})
-		})
+		// requestAnimationFrame(() => {
+		// requestAnimationFrame(() => {
+		// 定位 inline labels
+		positionInlineLabels(wrapper, targetBlock, labelEls)
+		drawArrows(wrapper, targetBlock, labelEls)
+		// })
+		// })
 
 		// 容器尺寸变化时重绘 (侧栏拖拽、窗口缩放等)
 		this.ro = new ResizeObserver(() => {
+			positionInlineLabels(wrapper, targetBlock, labelEls)
 			drawArrows(wrapper, targetBlock, labelEls)
 		})
 		this.ro.observe(wrapper)
@@ -250,6 +270,8 @@ function drawArrows(
 			highlightType = charLen < 12 ? 'circle' : charLen < 80 ? 'wave' : 'none'
 		}
 
+		const isInline = labelEl.classList.contains('annotation-label--inline-right')
+
 		// drawArrows 里构建 target 时加上 labelEl
 		targets.push({
 			labelRect: adjustedLabelRect,
@@ -261,6 +283,7 @@ function drawArrows(
 			highlightType,
 			seed: rule.match + rule.side,
 			labelEl: labelEl,
+			isInlineRight: isInline,
 		})
 	}
 
@@ -388,4 +411,46 @@ function domDepth(el: Element): number {
 		cur = cur.parentElement
 	}
 	return depth
+}
+
+function positionInlineLabels(
+	wrapper: HTMLElement,
+	targetBlock: HTMLElement,
+	labelEls: { el: HTMLElement; rule: AnnotationRule }[]
+) {
+	const INLINE_GAP = 100 // 距代码块文本右边缘的间距
+	const wrapperRect = wrapper.getBoundingClientRect()
+	const blockRect = targetBlock.getBoundingClientRect()
+	// 代码块右边缘相对 wrapper 的 x
+	const blockRightLocal = blockRect.right - wrapperRect.left
+
+	for (const { el, rule } of labelEls) {
+		if (!el.classList.contains('annotation-label--inline-right')) continue
+
+		// 找目标文本的 y 位置
+		let targetY = blockRect.top + blockRect.height / 2 - wrapperRect.top
+		let textRight = 0
+
+		if (rule.match) {
+			const result = findTextRect(targetBlock, rule.match, rule.matchIndex ?? 1)
+			if (result) {
+				textRight = result.rect.right - wrapperRect.left
+				targetY = result.rect.top + result.rect.height / 2 - wrapperRect.top
+			}
+		}
+
+		// 如果匹配到文本(没有指定目标字符串)，用代码块右边缘
+		if (textRight === 0) {
+			// const blockRect = targetBlock.getBoundingClientRect()
+			// textRight = blockRect.right - wrapperRect.left
+			// targetY = blockRect.top + blockRect.height / 2 - wrapperRect.top
+			textRight = blockRect.width
+		}
+
+		el.style.position = 'absolute'
+		el.style.left = `${textRight + INLINE_GAP}px` // 紧跟文本右边
+		el.style.top = `${targetY}px`
+		el.style.transform = 'translateY(-50%) rotate(2deg)'
+		el.style.pointerEvents = 'auto'
+	}
 }
