@@ -1,4 +1,4 @@
-import { App, Editor, Notice, TFile } from 'obsidian'
+import { App, Editor, MarkdownView, Notice, TFile } from 'obsidian'
 import { CyuTookitSettings } from '../setting/SettingData'
 import { sortHeadings } from '../helper/sortHeadings'
 import { toggleHoverSidebar } from './service/toggleHoverSidebar'
@@ -97,6 +97,45 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 		id: 'insert-arrow-annotation-left',
 		name: 'zuo left 创建左侧注解',
 		editorCallback: createLeftAnnotation,
+	})
+
+	plugin.addCommand({
+		id: 'sync-headings-to-aliases-overwrite',
+		name: '同步所有标题到 YAML Aliases (全覆盖)',
+		// 使用 callback 确保在非编辑模式下（如纯预览模式）点击菜单或快捷键也能触发
+		callback: async () => {
+			// 1. 获取当前活跃的 Markdown 视图
+			const activeView = app.workspace.getActiveViewOfType(MarkdownView)
+
+			if (!activeView || !activeView.file) {
+				new Notice('请先打开一个 Markdown 文件')
+				return
+			}
+
+			const file = activeView.file
+
+			// 2. 从缓存获取所有标题
+			const cache = app.metadataCache.getFileCache(file)
+			const headings = cache?.headings?.map((h) => h.heading) || []
+
+			if (headings.length === 0) {
+				new Notice('未发现标题，未执行更新')
+				return
+			}
+
+			try {
+				// 3. 安全更新 YAML 区
+				await app.fileManager.processFrontMatter(file, (frontmatter) => {
+					// 直接赋值，实现全覆盖
+					frontmatter.aliases = headings
+				})
+
+				new Notice(`已成功覆盖 aliases，共 ${headings.length} 个标题`)
+			} catch (e) {
+				console.error('更新 YAML 失败:', e)
+				new Notice('更新 Aliases 失败，请检查文件格式')
+			}
+		},
 	})
 }
 

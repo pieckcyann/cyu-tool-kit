@@ -63,27 +63,27 @@ export default class CyuToolkitPlugin extends Plugin {
 		)
 
 		// 元数据变更
-		// this.registerEvent(
-		// 	this.app.metadataCache.on('changed', (file) => {
-		// 		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
-		// 		if (!view || view.file !== file) return
-		// 		requestAnimationFrame(() => {
-		// 			view.previewMode?.rerender(true)
-		// 		})
-		// 	})
-		// )
+		this.registerEvent(
+			this.app.metadataCache.on('changed', (file) => {
+				const view = this.app.workspace.getActiveViewOfType(MarkdownView)
+				if (!view || view.file !== file) return
+				requestAnimationFrame(() => {
+					view.previewMode?.rerender(true)
+				})
+			})
+		)
 
 		// 笔记内容修改
-		// this.registerEvent(
-		// 	this.app.vault.on('modify', (file) => {
-		// 		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
-		// 		if (!view || view.file !== file) return
-		// 		// 延迟一帧，确保 Obsidian 已完成 DOM 更新
-		// 		requestAnimationFrame(() => {
-		// 			view.previewMode?.rerender(true)
-		// 		})
-		// 	})
-		// )
+		this.registerEvent(
+			this.app.vault.on('modify', (file) => {
+				const view = this.app.workspace.getActiveViewOfType(MarkdownView)
+				if (!view || view.file !== file) return
+				// 延迟一帧，确保 Obsidian 已完成 DOM 更新
+				requestAnimationFrame(() => {
+					view.previewMode?.rerender(true)
+				})
+			})
+		)
 
 		// 布局加载完毕
 		this.registerEvent(
