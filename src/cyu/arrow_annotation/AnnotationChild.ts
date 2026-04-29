@@ -124,11 +124,11 @@ export class AnnotationChild extends MarkdownRenderChild {
 
 		// 等两帧确保 DOM 已绘制，DOMRect 才准确
 		// requestAnimationFrame(() => {
-		// requestAnimationFrame(() => {
-		// 定位 inline labels
-		positionInlineLabels(wrapper, targetBlock, labelEls)
-		drawArrows(wrapper, targetBlock, labelEls)
-		// })
+		requestAnimationFrame(() => {
+			// 定位 inline labels
+			positionInlineLabels(wrapper, targetBlock, labelEls)
+			drawArrows(wrapper, targetBlock, labelEls)
+		})
 		// })
 
 		// 容器尺寸变化时重绘 (侧栏拖拽、窗口缩放等)

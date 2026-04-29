@@ -27,6 +27,9 @@ export default class CyuToolkitPlugin extends Plugin {
 	// Sidebar hook instance — holds refs and cleanup
 	private sidebar: ReturnType<typeof toggleHoverSidebar> | null = null
 
+	private observer: MutationObserver | null = null
+	private timeoutId: number | null = null
+
 	async onload() {
 		await this.loadSettings()
 
@@ -85,12 +88,44 @@ export default class CyuToolkitPlugin extends Plugin {
 		// 	})
 		// )
 
-		// 布局加载完毕
+		// 布局加载完毕 (例如切换模式时)
 		this.registerEvent(
 			this.app.workspace.on('layout-change', () => {
-				const view = this.app.workspace.getActiveViewOfType(MarkdownView)
-				if (!view) return
-				view.previewMode?.rerender(true)
+				const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
+				if (!activeView) return
+
+				activeView.previewMode.rerender() // 不用 true 性能更好
+				// 				if (activeView.getState().mode === 'preview') {
+				// 					const container = activeView.contentEl
+				//
+				// 					// 1. 立即锁定布局，防止滚动条乱跳
+				// 					container.style.overflow = 'hidden'
+				// 					container.classList.add('fast-transition-blur')
+				//
+				// 					// 2. 快速检测逻辑：只要核心预览层挂载，就开始淡入
+				// 					const checkInterval = setInterval(() => {
+				// 						const previewEl = container.querySelector('.markdown-rendered')
+				//
+				// 						// 如果找到了渲染层，或者时间超过了 400ms (人类感知的延迟极限)
+				// 						if (previewEl || Date.now() - startTime > 400) {
+				// 							clearInterval(checkInterval)
+				//
+				// 							// 3. 执行平滑渐显
+				// 							requestAnimationFrame(() => {
+				// 								container.classList.remove('fast-transition-blur')
+				// 								container.classList.add('fast-transition-in')
+				//
+				// 								// 恢复滚动
+				// 								setTimeout(() => {
+				// 									container.style.overflow = ''
+				// 									container.classList.remove('fast-transition-in')
+				// 								}, 300)
+				// 							})
+				// 						}
+				// 					}, 50) // 每 50ms 检查一次，比 Observer 响应更快
+				//
+				// 					const startTime = Date.now()
+				// 				}
 			})
 		)
 
@@ -99,6 +134,17 @@ export default class CyuToolkitPlugin extends Plugin {
 
 		// 注册阅读模式后处理器
 		this.registerMarkdownPostProcessor(timeTagPostProcessor)
+	}
+
+	forceShow(el: HTMLElement) {
+		el.classList.remove('is-transitioning-hidden')
+		el.classList.add('is-transitioning-fade-in')
+		this.cleanup()
+	}
+
+	cleanup() {
+		if (this.observer) this.observer.disconnect()
+		if (this.timeoutId) window.clearTimeout(this.timeoutId)
 	}
 
 	onunload() {

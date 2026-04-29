@@ -1,0 +1,59 @@
+/* 容器布局 */
+.font-gallery-item-container {
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: var(--background-primary-alt);
+}
+
+/* 顶部栏：字体名和链接并排 */
+.font-gallery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* 字体名按钮样式 */
+.font-gallery-name-button {
+    font-weight: bold;
+    font-size: 1.1em;
+    cursor: pointer;
+    background-color: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+/* 链接组 */
+.font-gallery-links {
+    display: flex;
+    gap: 8px;
+}
+
+.font-gallery-link-item {
+    font-size: 0.85em;
+    padding: 2px 8px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    text-decoration: none !important;
+    color: var(--text-muted);
+}
+
+.font-gallery-link-item:hover {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+/* 预览区：这是展示长文本的核心 */
+.font-gallery-preview {
+    padding: 15px;
+    background-color: var(--background-primary);
+    border-radius: 4px;
+    font-size: 1.2em;
+    /* 稍微调大一点看细节 */
+    line-height: 1.6;
+    color: var(--text-normal);
+    border: 1px inset var(--background-modifier-border);
+}

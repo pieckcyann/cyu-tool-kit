@@ -137,6 +137,20 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 			}
 		},
 	})
+
+	// 	plugin.addCommand({
+	// 		id: 'smooth-toggle-preview',
+	// 		name: 'Toggle preview (smooth)',
+	// 		callback: () => {
+	// 			const view = app.workspace.getActiveViewOfType(MarkdownView)
+	// 			if (!view) return
+	//
+	// 			triggerTransition(view.containerEl)
+	//
+	// 			// 执行原命令
+	// 			;(app as any).commands.executeCommandById('markdown:toggle-preview')
+	// 		},
+	// 	})
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────

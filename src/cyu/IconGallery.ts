@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { MarkdownRenderChild, Notice } from 'obsidian'
-import { CyuTookitSettings } from 'src/settings/settingsData'
+import { CyuTookitSettings } from '../setting/SettingData'
 
 export default class IconGallery extends MarkdownRenderChild {
-	constructor(public settings: CyuTookitSettings, public renderedDiv: HTMLElement) {
+	constructor(
+		public settings: CyuTookitSettings,
+		public renderedDiv: HTMLElement
+	) {
 		super(renderedDiv)
 	}
 

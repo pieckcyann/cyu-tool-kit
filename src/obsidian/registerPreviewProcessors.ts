@@ -10,6 +10,7 @@ import ColorGallery from '../cyu/ColorGallery'
 import IconGallery from '../cyu/IconGallery'
 import { createSpeakerBlock } from './service/createSpeakerBlock'
 import CyuToolkitPlugin from './../main'
+import FontGallery from '../cyu/FontGallery'
 
 /**
  * Single entry-point for all `registerMarkdownPostProcessor` calls.
@@ -35,6 +36,10 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 		// Icon galleries
 		if (ctx.sourcePath === settings.folder_icon_gallery) {
 			ctx.addChild(new IconGallery(settings, el))
+		}
+
+		if (ctx.sourcePath === settings.folder_font_gallery) {
+			ctx.addChild(new FontGallery(settings, el))
 		}
 	})
 

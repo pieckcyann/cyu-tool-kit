@@ -4,10 +4,13 @@ export interface CyuTookitSettings {
 	enable_clickCopy_block: boolean
 	enable_auto_pin: boolean
 	enable_parse_m3u8: boolean
+
 	enable_color_gallery: boolean
 	folder_color_gallery: string
 	enable_icon_gallery: boolean
 	folder_icon_gallery: string
+	enable_font_gallery: boolean
+	folder_font_gallery: string
 
 	// 添加一个字符串索引签名，允许使用字符串来索引属性
 	[key: string]: boolean | string
@@ -22,6 +25,8 @@ export const DEFAULT_SETTINGS: CyuTookitSettings = {
 	folder_color_gallery: '',
 	enable_icon_gallery: true,
 	folder_icon_gallery: '',
+	enable_font_gallery: true,
+	folder_font_gallery: '',
 }
 
 export const DEFAULT_SHAPES = {

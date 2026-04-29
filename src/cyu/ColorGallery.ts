@@ -63,8 +63,16 @@ export default class ColorGallery extends MarkdownRenderChild {
 				)
 			}
 
+			// console.log('listItem:', listItem)
+
 			// 清空原本的文字节点（保留 button）
-			listItem.childNodes.forEach((node) => {
+			// listItem.childNodes.forEach((node) => {
+			// 	console.log('node:', node)
+			// 	if (node !== colorButton) node.remove()
+			// })
+
+			// 做快照，稳定删除
+			Array.from(listItem.childNodes).forEach((node) => {
 				if (node !== colorButton) node.remove()
 			})
 		})

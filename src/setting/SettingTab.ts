@@ -65,6 +65,21 @@ export class CyuToolkitPluginSettingTab extends PluginSettingTab {
 			'file',
 			'示例：folder1/folder2/file1'
 		)
+
+		this.containerEl.createEl('hr')
+
+		this.addToggle(
+			'字体展廊',
+			'用于创建一个可视化的字体展示廊笔记页面',
+			'enable_icon_gallery'
+		)
+		this.addPathSuggest(
+			'字体展廊的笔记路径',
+			'在这里指定字体展廊的笔记路径',
+			'folder_font_gallery',
+			'file',
+			'示例：folder1/folder2/file1'
+		)
 	}
 
 	// ---------- core helpers ----------
@@ -139,4 +154,3 @@ export class CyuToolkitPluginSettingTab extends PluginSettingTab {
 	}
 }
 export { PluginSettingTab }
-

@@ -1,4 +1,4 @@
-// parser.ts
+// annParser.ts
 
 /**
  * 支持三种语法：

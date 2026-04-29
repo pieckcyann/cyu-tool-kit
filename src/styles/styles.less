@@ -1,10 +1,12 @@
-// hover toggle sidebars
+// ─── over toggle sidebars ────────────────────────────────────────────────────────────
+
 // right ribbon
 .workspace-ribbon.side-dock-ribbon.mod-right {
     --ribbon-width: 10px;
     width: var(--ribbon-width);
     display: flex;
 }
+
 
 // TODO 有卡顿的bug
 // 强制改变侧边栏 toggle 过渡效果 
@@ -21,3 +23,41 @@
 .metadata-property-value {
     transition: width .2s ease;
 }
+
+/* 切换时的遮罩效果 */
+.mod-rich-view.is-transitioning,
+.markdown-source-view.is-transitioning {
+    opacity: 0;
+    filter: blur(2px);
+    transition: opacity 0.25s ease-in-out, filter 0.25s ease-in-out;
+}
+
+// ─── 切换后的进入动画 ────────────────────────────────────────────────────────────
+
+/* 切换后的进入动画 */
+/* 初始状态：完全透明且不占位（或保持位置但不可见） */
+// .is-transitioning-hidden {
+//     opacity: 0 !important;
+//     transition: none !important;
+// }
+// 
+// /* 渐显效果 */
+// .is-transitioning-fade-in {
+//     opacity: 1 !important;
+//     transition: opacity 0.4s ease-in-out !important;
+// }
+// 
+// /* 模糊过渡，掩盖渲染细节 */
+// .fast-transition-blur {
+//     filter: blur(10px);
+//     opacity: 0.7;
+//     transition: none;
+//     /* 切换瞬间无过渡，立即模糊 */
+// }
+// 
+// /* 快速恢复 */
+// .fast-transition-in {
+//     filter: blur(0);
+//     opacity: 1;
+//     transition: filter 0.1s ease-out, opacity 0.1s ease-out;
+// }
