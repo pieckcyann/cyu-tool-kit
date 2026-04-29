@@ -390,7 +390,7 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 			// path.style.pointerEvents = 'stroke' // 只有描边区域响应
 			group.appendChild(path)
 		} else {
-			// ── 远距离：stub（无 pointer-events）+ 目标侧短箭头（可 hover）──
+			// ── 远距离：stub + 目标侧短箭头 ──
 
 			// stub：pointer-events 完全关闭，真正"消失"
 			const curveDrop = seededJitter(t.seed, 3) * 3
@@ -427,11 +427,11 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 			stub.setAttribute('stroke-width', '1.5')
 			stub.setAttribute('stroke-linecap', 'round')
 			stub.classList.add('ann-connector', 'ann-connector-stub')
-			stub.style.pointerEvents = 'none' // ← 关键：stub 完全不响应鼠标
+			stub.style.pointerEvents = 'none' // stub 不响应鼠标
 			group.appendChild(stub)
 
 			// 目标侧短箭头：可 hover (冒泡激活整组)
-			const arrowLen = 16 // 目标侧线段长度
+			const arrowLen = 26 // 目标侧线段长度
 			const arrowStartX =
 				t.side === 'left' ? endPoint.x - arrowLen : endPoint.x + arrowLen
 			const arrowPath = document.createElementNS(SVG_NS, 'path')

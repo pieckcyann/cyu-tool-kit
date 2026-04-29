@@ -49,41 +49,41 @@ export default class CyuToolkitPlugin extends Plugin {
 		// - 注册事件回调
 
 		// 切换笔记
-		this.registerEvent(
-			this.app.workspace.on('active-leaf-change', (leaf) => {
-				if (leaf?.view instanceof MarkdownView) {
-					// 只有当确定某些自定义状态改变了，且 Obsidian 默认渲染没覆盖到时才调用
-					// 且尽量不要用 rerender(true) 强制清空缓存，除非后处理器依赖全局变量
-					const view = leaf.view
-					requestAnimationFrame(() => {
-						view.previewMode?.rerender(true) // 不带 true，性能更好
-					})
-				}
-			})
-		)
+		// this.registerEvent(
+		// 	this.app.workspace.on('active-leaf-change', (leaf) => {
+		// 		if (leaf?.view instanceof MarkdownView) {
+		// 			// 只有当确定某些自定义状态改变了，且 Obsidian 默认渲染没覆盖到时才调用
+		// 			// 且尽量不要用 rerender(true) 强制清空缓存，除非后处理器依赖全局变量
+		// 			const view = leaf.view
+		// 			requestAnimationFrame(() => {
+		// 				view.previewMode?.rerender(true) // 不带 true，性能更好
+		// 			})
+		// 		}
+		// 	})
+		// )
 
 		// 元数据变更
-		this.registerEvent(
-			this.app.metadataCache.on('changed', (file) => {
-				const view = this.app.workspace.getActiveViewOfType(MarkdownView)
-				if (!view || view.file !== file) return
-				requestAnimationFrame(() => {
-					view.previewMode?.rerender(true)
-				})
-			})
-		)
+		// this.registerEvent(
+		// 	this.app.metadataCache.on('changed', (file) => {
+		// 		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
+		// 		if (!view || view.file !== file) return
+		// 		requestAnimationFrame(() => {
+		// 			view.previewMode?.rerender(true)
+		// 		})
+		// 	})
+		// )
 
 		// 笔记内容修改
-		this.registerEvent(
-			this.app.vault.on('modify', (file) => {
-				const view = this.app.workspace.getActiveViewOfType(MarkdownView)
-				if (!view || view.file !== file) return
-				// 延迟一帧，确保 Obsidian 已完成 DOM 更新
-				requestAnimationFrame(() => {
-					view.previewMode?.rerender(true)
-				})
-			})
-		)
+		// this.registerEvent(
+		// 	this.app.vault.on('modify', (file) => {
+		// 		const view = this.app.workspace.getActiveViewOfType(MarkdownView)
+		// 		if (!view || view.file !== file) return
+		// 		// 延迟一帧，确保 Obsidian 已完成 DOM 更新
+		// 		requestAnimationFrame(() => {
+		// 			view.previewMode?.rerender(true)
+		// 		})
+		// 	})
+		// )
 
 		// 布局加载完毕
 		this.registerEvent(
