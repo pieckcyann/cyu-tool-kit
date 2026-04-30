@@ -15,7 +15,7 @@ export function sortHeadings(app: App): void {
 	const file = app.workspace.getActiveFile()
 	if (!file) return
 
-	new Notice('排序了标题')
+	removeHeadingPrefix(app)
 
 	app.vault.process(file, (data) => {
 		const H1_LABELS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
@@ -31,19 +31,6 @@ export function sortHeadings(app: App): void {
 		let insideCodeBlock = false
 		let skipNextH3 = false
 
-		// ── strip old numbering ───────────────────────────────────────────────
-		const clean = (line: string) =>
-			line
-				.replace(/^(#) 第.*?章/g, '$1')
-				.replace(/^(#|##|###) (\[\[.*?\|)\d{1,2}\.?\d?\.?\d?\s+/u, '$1 $2')
-				.replace(/^(#|##|###) (\[\[.*?\])\d{1,2}\.?\d?\.?\d?\s+/u, '$1 $2')
-				.replace(/^(#|##|###) (\[)\d{1,2}\.?\d?\.?\d?\s+/u, '$1 $2')
-				.replace(/^(#|##|###) \d{1,2}\.?\d?\.?\d?\s+/u, '$1 ')
-				.replace(/^(#|##|###) \d{1,2}\.?\d?\.?\d?\s+/u, '$1 ')
-				.replace(/(?:I|II|III|IV|V|VI|VII|VIII|IX|X)、/g, '')
-				.replace(/[①②③④⑤⑥⑦⑧⑨⑩] /g, '')
-				.replace(/[①②③④⑤⑥⑦⑧⑨⑩]/g, '')
-
 		// ── heading patterns ──────────────────────────────────────────────────
 		const H_PLAIN = /^(#{1,3}) (?!\[\[)(\[)?(.*?)]?$/
 		const H_LINK = /^(#{1,3}) (\[\[)([^\|]+)$/
@@ -56,7 +43,7 @@ export function sortHeadings(app: App): void {
 			}
 			if (insideCodeBlock) return raw
 
-			const line = clean(raw)
+			const line = raw
 
 			// H1
 			if (/^# /.test(line)) {
@@ -101,4 +88,27 @@ function addLabel(line: string, level: number, label: string): string {
 	const hashes = '#'.repeat(level) + ' '
 	// Insert label right after the hashes (before any [[ or [ or plain text)
 	return line.replace(new RegExp(`^#{${level}} `), `${hashes}${label}`)
+}
+
+export function removeHeadingPrefix(app: App): void {
+	const file = app.workspace.getActiveFile()
+	if (!file) return
+
+	app.vault.process(file, (data) => {
+		// ── strip old numbering ───────────────────────────────────────────────
+		const clean = (line: string) =>
+			line
+				.replace(/^(#) 第.*?章/g, '$1')
+				.replace(/^(#|##|###) (\[\[.*?\|)\d{1,2}\.?\d?\.?\d?\s+/u, '$1 $2')
+				.replace(/^(#|##|###) (\[\[.*?\])\d{1,2}\.?\d?\.?\d?\s+/u, '$1 $2')
+				.replace(/^(#|##|###) (\[)\d{1,2}\.?\d?\.?\d?\s+/u, '$1 $2')
+				.replace(/^(#|##|###) \d{1,2}\.?\d?\.?\d?\s+/u, '$1 ')
+				.replace(/^(#|##|###) \d{1,2}\.?\d?\.?\d?\s+/u, '$1 ')
+				.replace(/(?:I|II|III|IV|V|VI|VII|VIII|IX|X)、/g, '')
+				.replace(/[①②③④⑤⑥⑦⑧⑨⑩] /g, '')
+				.replace(/[①②③④⑤⑥⑦⑧⑨⑩]/g, '')
+
+		const lines = data.split('\n').map((raw) => clean(raw))
+		return lines.join('\n')
+	})
 }

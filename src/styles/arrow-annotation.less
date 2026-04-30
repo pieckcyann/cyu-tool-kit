@@ -163,7 +163,11 @@ body {
     }
 
     to {
-        stroke-dashoffset: -24;
+        // stroke-dashoffset 的改变量必须是 stroke-dasharray 周期长度（实线+空隙）的 整数倍
+        // abs(to_offset - from_offset) % (dash + gap) === 0
+        // 10 的倍数
+        stroke-dashoffset: -20;
+        // stroke-dashoffset: 20; // 从目标流向注释
     }
 }
 
@@ -179,7 +183,7 @@ body {
         .ann-connector-full {
             stroke: var(--ann-color-active);
             opacity: 1;
-            stroke-dasharray: 6 4;
+            stroke-dasharray: 6 4; // 完整的“实线+空隙”单元长度是 6+4=10
             animation: ann-flow 0.45s linear infinite;
         }
 

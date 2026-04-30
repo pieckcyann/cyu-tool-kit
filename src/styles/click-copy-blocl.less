@@ -1,0 +1,40 @@
+// <span class="cpb"></span>
+
+body {
+    --cyu-cpb-color: rgb(221, 96, 11);
+    --cyu-cpb-color: rgb(210, 116, 54);
+    --cyu-cpb-color: rgb(187, 109, 57);
+}
+
+// click-copy block
+// span.cpb:not(:has(*)) {
+span.cpb {
+    color: white;
+    font-size: 0.85em;
+    // white-space: nowrap;
+    padding: 0px 5px 1px 5px; // 手札体-简
+    // padding: 0px 5px 2px 5px; // Playpen Sans
+    border-radius: 0.2em;
+    // box-shadow: 1px 1px 2px #cccccc;
+    background-color: var(--cyu-cpb-color);
+    cursor: pointer;
+
+    vertical-align: middle;
+    white-space: nowrap;
+
+    &:active {
+        box-shadow: -1px -1.5px 2px #333333 inset;
+        text-shadow: -1px -1.5px 2px #333333;
+    }
+
+    code {
+        --code-normal: white;
+        --code-size: 0.9em;
+        --code-background: transparent;
+    }
+
+    // 类 “标签” 样式
+    // background-color: var(--tag-background);
+    // border: var(--tag-border-width) solid var(--tag-border-color);
+    // color: var(--tag-color);
+}

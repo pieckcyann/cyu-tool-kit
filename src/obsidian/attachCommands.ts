@@ -1,6 +1,6 @@
 import { App, Editor, MarkdownView, Notice, TFile } from 'obsidian'
 import { CyuTookitSettings } from '../setting/SettingData'
-import { sortHeadings } from '../helper/sortHeadings'
+import { removeHeadingPrefix, sortHeadings } from '../helper/sortHeadings'
 import { toggleHoverSidebar } from './service/toggleHoverSidebar'
 import CyuToolkitPlugin from '../main'
 import { setAutoPinned } from './service/setAutopinned'
@@ -49,7 +49,19 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 		id: 'sort-headings-in-source',
 		name: '源码模式下排序标题',
 		hotkeys: [{ modifiers: ['Ctrl', 'Shift'], key: 'Q' }],
-		editorCallback: () => sortHeadings(app),
+		editorCallback: () => {
+			sortHeadings(app)
+			new Notice('排序了标题')
+		},
+	})
+
+	plugin.addCommand({
+		id: 'delete-headings-prefix-in-source',
+		name: '源码模式下删除标题前缀',
+		editorCallback: () => {
+			removeHeadingPrefix(app)
+			new Notice('删除了标题前缀')
+		},
 	})
 
 	plugin.addCommand({

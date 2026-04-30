@@ -31,7 +31,7 @@ class TimeTagWidget extends WidgetType {
 	}
 }
 
-export const timeTagViewPlugin = ViewPlugin.fromClass(
+export const TimeTagViewPlugin = ViewPlugin.fromClass(
 	class {
 		decorations: DecorationSet
 

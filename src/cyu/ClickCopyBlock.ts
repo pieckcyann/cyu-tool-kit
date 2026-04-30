@@ -15,6 +15,15 @@ export default class ClickCopyBlock extends MarkdownRenderChild {
 
 		for (const cpb of cpbs) {
 			if (enable) {
+				const codeElement = cpb.querySelector('code')
+				// 如果包裹了行内代码，调整样式
+				if (codeElement) {
+					cpb.style.fontFamily = 'var(--code-font)'
+					cpb.style.paddingTop = '2px'
+					cpb.style.paddingBottom = '4px'
+					cpb.innerText = codeElement.innerText
+				}
+
 				cpb.removeEventListener('click', this.clickHandler)
 				cpb.addEventListener('click', this.clickHandler)
 			} else {
@@ -26,7 +35,8 @@ export default class ClickCopyBlock extends MarkdownRenderChild {
 	// 点击事件处理
 	clickHandler = (event: MouseEvent) => {
 		const clickedSpan = (event.target as HTMLElement)?.closest(
-			'span.cpb:not(:has(*))'
+			// 'span.cpb:not(:has(*))'
+			'span.cpb'
 		) as HTMLElement
 
 		const clickedImg = (event.target as HTMLElement)?.closest(

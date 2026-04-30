@@ -1,6 +1,7 @@
 import { TemplaterError } from '../setting/suggesters/Error'
 import { App, normalizePath, TAbstractFile, TFile, TFolder, Vault } from 'obsidian'
 
+
 /**
  * 将 string 类型的 seed 转为 number 类型的 seed
  * @param str

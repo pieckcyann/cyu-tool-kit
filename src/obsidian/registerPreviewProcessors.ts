@@ -11,6 +11,7 @@ import IconGallery from '../cyu/IconGallery'
 import { createSpeakerBlock } from './service/createSpeakerBlock'
 import CyuToolkitPlugin from './../main'
 import FontGallery from '../cyu/FontGallery'
+import { TimeTagChild } from '../cyu/time_tag/TimeTagChild'
 
 /**
  * Single entry-point for all `registerMarkdownPostProcessor` calls.
@@ -24,6 +25,9 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 	plugin.registerMarkdownPostProcessor((el, ctx) => {
 		const view = app.workspace.getActiveViewOfType(MarkdownView)
 		if (!view) return
+
+		// Time tag hint
+		ctx.addChild(new TimeTagChild(el, ctx))
 
 		// Click-copy blocks
 		ctx.addChild(new ClickCopyBlock(settings, el))
@@ -39,9 +43,17 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 		}
 
 		if (ctx.sourcePath === settings.folder_font_gallery) {
-			ctx.addChild(new FontGallery(settings, el))
+			ctx.addChild(new FontGallery(app, settings, el, ctx))
 		}
 	})
+
+	// 	plugin.registerEvent(
+	// 		app.workspace.on('layout-change', () => {
+	// 			const activeView = app.workspace.getActiveViewOfType(MarkdownView)
+	// 			if (!activeView) return
+	// 			timeTag?.reload()
+	// 		})
+	// 	)
 
 	// Shared per-element processor (images, m3u8, TTS)
 	plugin.registerMarkdownPostProcessor(

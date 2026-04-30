@@ -6,10 +6,18 @@ import {
 	MarkdownRenderer,
 	Notice,
 } from 'obsidian'
-import { parseAnnotationBlock, AnnotationRule } from './annParser'
+import { parseAnnotationBlock, AnnotationRule, AnnotationSide } from './annParser'
 import { renderArrows, ArrowTarget, HighlightType } from './annRenderer'
 import CyuToolkitPlugin from '../../main'
 import { findTextRect } from './annRanger'
+
+const InlineRightClassName = 'annotation-label--inline-right'
+const InlineLeftClassName = 'annotation-label--inline-left'
+
+export type LabelElementInfos = {
+	el: HTMLElement
+	rule: AnnotationRule
+}[]
 
 /**
  * 每个 annotation 块对应一个实例，生命周期由 Obsidian 管理。
@@ -44,17 +52,19 @@ export class AnnotationChild extends MarkdownRenderChild {
 		this.ctx = ctx
 	}
 
-	onload() {
+	async onload() {
+		// 尝试解析语法，如果符合则获得规则
 		const { rules } = parseAnnotationBlock(this.src)
 		if (rules.length === 0) {
 			this.containerEl.style.display = 'none'
 			return
 		}
 
-		// 找目标块
-		const targetBlock = findPreviousBlock(this.containerEl)
+		// 找目标块 (上一个完整的块)
+		const targetBlock = await findPreviousBlockAsync(this.containerEl)
 		if (!targetBlock) {
 			this.containerEl.style.display = 'none'
+			new Notice('没找到注释目标块')
 			return
 		}
 
@@ -62,8 +72,12 @@ export class AnnotationChild extends MarkdownRenderChild {
 		this.buildLayout(targetBlock, rules)
 	}
 
+	/**
+	 * 断开监听、还原 DOM 结构
+	 */
 	onunload() {
 		this.ro?.disconnect()
+		this.ro = null // 记得重置为 null
 
 		// 把目标块从 wrapper 里还原到 wrapper 之前，再删除 wrapper
 		// 这样下次 onload 时 findPreviousBlock 仍能正确找到目标块
@@ -75,6 +89,22 @@ export class AnnotationChild extends MarkdownRenderChild {
 		}
 	}
 
+	/**
+	 * 外部调用的重载方法
+	 * @param newSrc 可选：如果注解内容变了，可以传入新的源码
+	 */
+	public reload(newSrc?: string) {
+		if (newSrc !== undefined) {
+			this.src = newSrc
+		}
+
+		// 1. 执行现有的卸载逻辑
+		this.onunload()
+
+		// 2. 重新执行加载逻辑
+		this.onload()
+	}
+
 	// ─── 构建左中右布局 ──────────────────────────────────────────────────────────────
 
 	private buildLayout(targetBlock: HTMLElement, rules: AnnotationRule[]) {
@@ -83,15 +113,18 @@ export class AnnotationChild extends MarkdownRenderChild {
 			targetBlock.tagName === 'CODE' ||
 			targetBlock.querySelector('pre, code')
 
-		console.log(`isCodeBlock:${isCodeBlock}`)
+		const leftBlockRules = rules.filter((r) => r.side === 'left' && r.display === 'block')
+		const leftInlineRules = rules.filter(
+			(r) => r.side === 'left' && r.display === 'inline'
+		)
+		const rightBlockRules = rules.filter(
+			(r) => r.side === 'right' && r.display === 'block'
+		)
+		const rightInlineRules = rules.filter(
+			(r) => r.side === 'right' && r.display === 'inline'
+		)
 
-		const leftRules = rules.filter((r) => r.side === 'left')
-		const rightRules = rules.filter((r) => r.side === 'right')
-		// 右侧：代码块内有足够空间的走 inline，其余走 sidebar
-		const rightInlineRules = isCodeBlock ? rules.filter((r) => r.side === 'right') : []
-		const rightSidebarRules = isCodeBlock ? [] : rules.filter((r) => r.side === 'right')
-
-		// wrapper 套在目标块外，提供相对定位上下文
+		/* wrapper 套在目标块外，提供相对定位上下文 */
 		const wrapper = document.createElement('div')
 		wrapper.classList.add('annotation-wrapper')
 		this.wrapper = wrapper
@@ -104,32 +137,41 @@ export class AnnotationChild extends MarkdownRenderChild {
 		// 渲染标签并记录对应规则，供箭头定位使用
 		const labelEls: { el: HTMLElement; rule: AnnotationRule }[] = []
 
-		if (leftRules.length > 0) {
-			const leftCol = this.createCol('left', leftRules, labelEls)
+		/* 块级注释：直接创建对应的元素挂载 wrapper 下 */
+		if (leftBlockRules.length > 0) {
+			const leftCol = this.createCol('left', leftBlockRules, labelEls)
 			wrapper.appendChild(leftCol)
 		}
 
-		if (rightSidebarRules.length > 0) {
-			const rightCol = this.createCol('right', rightSidebarRules, labelEls)
+		if (rightBlockRules.length > 0) {
+			const rightCol = this.createCol('right', rightBlockRules, labelEls)
 			wrapper.appendChild(rightCol)
 		}
 
-		// inline labels：先创建好挂到 wrapper，drawArrows 里再定位
+		/* 行内注释：先创建好挂到 wrapper，drawArrows 里再定位 */
 		for (const rule of rightInlineRules) {
 			const labelEl = this.createLabel(rule.label)
-			labelEl.classList.add('annotation-label--inline-right')
+			labelEl.classList.add(InlineRightClassName)
+			wrapper.appendChild(labelEl)
+			labelEls.push({ el: labelEl, rule }) // 注释块元素、语法规则
+		}
+
+		for (const rule of leftInlineRules) {
+			const labelEl = this.createLabel(rule.label)
+			labelEl.classList.add(InlineLeftClassName)
 			wrapper.appendChild(labelEl)
 			labelEls.push({ el: labelEl, rule })
 		}
 
+		// 已收集完所有的注释块
 		// 等两帧确保 DOM 已绘制，DOMRect 才准确
-		// requestAnimationFrame(() => {
 		requestAnimationFrame(() => {
-			// 定位 inline labels
-			positionInlineLabels(wrapper, targetBlock, labelEls)
-			drawArrows(wrapper, targetBlock, labelEls)
+			requestAnimationFrame(() => {
+				// 定位 inline labels
+				positionInlineLabels(wrapper, targetBlock, labelEls)
+				drawArrows(wrapper, targetBlock, labelEls)
+			})
 		})
-		// })
 
 		// 容器尺寸变化时重绘 (侧栏拖拽、窗口缩放等)
 		this.ro = new ResizeObserver(() => {
@@ -139,10 +181,17 @@ export class AnnotationChild extends MarkdownRenderChild {
 		this.ro.observe(wrapper)
 	}
 
-	// ─── 创建注释列 ────────────────────────────────────────────────────────────
+	// ─── 创建块级注释列 ────────────────────────────────────────────────────────────
 
+	/**
+	 *
+	 * @param side 方向
+	 * @param rules
+	 * @param labelEls
+	 * @returns
+	 */
 	private createCol(
-		side: 'left' | 'right',
+		side: AnnotationSide,
 		rules: AnnotationRule[],
 		labelEls: { el: HTMLElement; rule: AnnotationRule }[]
 	): HTMLElement {
@@ -152,14 +201,19 @@ export class AnnotationChild extends MarkdownRenderChild {
 		for (const rule of rules) {
 			const labelEl = this.createLabel(rule.label)
 			col.appendChild(labelEl)
-			labelEls.push({ el: labelEl, rule })
+			labelEls.push({ el: labelEl, rule }) // 注释块元素、语法规则
 		}
 
 		return col
 	}
 
-	// ─── 渲染 inline markdown 标签 ────────────────────────────────────────────
+	// ─── 渲染注释 + 渲染 markdown 语法 ────────────────────────────────────────────
 
+	/**
+	 * 注释块
+	 * @param markdownText 解析出的注释文本
+	 * @returns 新创建的注释块
+	 */
 	private createLabel(markdownText: string): HTMLElement {
 		const el = document.createElement('div')
 		el.classList.add('annotation-label')
@@ -178,7 +232,7 @@ export class AnnotationChild extends MarkdownRenderChild {
 		el.dataset.annotationType = type
 
 		// short：稍后 renderer 画圈
-		// long：波浪线
+		// long：稍后 renderer 画波浪线
 		// line：不处理
 		return el
 	}
@@ -218,6 +272,41 @@ function findPreviousBlock(el: HTMLElement): HTMLElement | null {
 
 	// 取外壳里的第一个子元素（el-p 里的 p，el-pre 里的 pre 等）
 	return (prevShell.firstElementChild as HTMLElement) ?? prevShell
+}
+
+/**
+ * 异步寻找前一个块，如果没找到会重试指定的次数
+ * @param el 当前元素
+ * @param retries 重试次数，默认 5 次
+ */
+async function findPreviousBlockAsync(
+	el: HTMLElement,
+	retries = 20
+): Promise<HTMLElement | null> {
+	const elPre = el.parentElement
+	if (!elPre) return null
+
+	let prevShell = elPre.previousElementSibling as HTMLElement | null
+
+	// 跳过已处理的 annotation-wrapper
+	while (prevShell && prevShell.classList.contains('annotation-wrapper')) {
+		prevShell = prevShell.previousElementSibling as HTMLElement | null
+	}
+
+	if (prevShell) {
+		// 找到了，直接返回
+		return (prevShell.firstElementChild as HTMLElement) ?? prevShell
+	}
+
+	// 如果没找到且还有重试次数
+	if (retries > 0) {
+		// 等待下一帧绘制
+		await new Promise((resolve) => requestAnimationFrame(resolve))
+		// 递归重试
+		return findPreviousBlockAsync(el, retries - 1)
+	}
+
+	return null
 }
 
 /**
@@ -413,10 +502,15 @@ function domDepth(el: Element): number {
 	return depth
 }
 
+/**
+ * @param wrapper 目标块的包装
+ * @param targetBlock 目标块
+ * @param labelElInfos 所有注释块信息
+ */
 function positionInlineLabels(
 	wrapper: HTMLElement,
 	targetBlock: HTMLElement,
-	labelEls: { el: HTMLElement; rule: AnnotationRule }[]
+	labelElInfos: LabelElementInfos
 ) {
 	const INLINE_GAP = 100 // 距代码块文本右边缘的间距
 	const wrapperRect = wrapper.getBoundingClientRect()
@@ -424,8 +518,12 @@ function positionInlineLabels(
 	// 代码块右边缘相对 wrapper 的 x
 	const blockRightLocal = blockRect.right - wrapperRect.left
 
-	for (const { el, rule } of labelEls) {
-		if (!el.classList.contains('annotation-label--inline-right')) continue
+	for (const { el, rule } of labelElInfos) {
+		if (
+			!el.classList.contains(InlineLeftClassName) ||
+			!el.classList.contains(InlineRightClassName)
+		)
+			continue
 
 		// 找目标文本的 y 位置
 		let targetY = blockRect.top + blockRect.height / 2 - wrapperRect.top

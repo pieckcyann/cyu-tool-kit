@@ -17,9 +17,11 @@ import { CyuTookitSettings, DEFAULT_SETTINGS } from './setting/SettingData'
 import { toggleHoverSidebar } from './obsidian/service/toggleHoverSidebar'
 import { attachCommands } from './obsidian/attachCommands'
 import { registerPreviewProcessors } from './obsidian/registerPreviewProcessors'
-import { timeTagViewPlugin } from './cyu/time_tag/TimeTagViewPlugin'
-import { timeTagPostProcessor } from './cyu/time_tag/timeTagProcessor'
+import { TimeTagViewPlugin } from './cyu/time_tag/TimeTagViewPlugin'
+import { TimeTagChild } from './cyu/time_tag/TimeTagChild'
 import { registerCodeblockProcessors } from './obsidian/registerCodeblockProcessor'
+import { AnnotationChild } from './cyu/arrow_annotation/AnnotationChild'
+import { customFoldExtension, autoFoldPlugin } from './cyu/AutoFoldViewPlugin'
 
 export default class CyuToolkitPlugin extends Plugin {
 	settings: CyuTookitSettings = DEFAULT_SETTINGS
@@ -89,51 +91,77 @@ export default class CyuToolkitPlugin extends Plugin {
 		// )
 
 		// 布局加载完毕 (例如切换模式时)
-		this.registerEvent(
-			this.app.workspace.on('layout-change', () => {
-				const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
-				if (!activeView) return
-
-				activeView.previewMode.rerender() // 不用 true 性能更好
-				// 				if (activeView.getState().mode === 'preview') {
-				// 					const container = activeView.contentEl
-				//
-				// 					// 1. 立即锁定布局，防止滚动条乱跳
-				// 					container.style.overflow = 'hidden'
-				// 					container.classList.add('fast-transition-blur')
-				//
-				// 					// 2. 快速检测逻辑：只要核心预览层挂载，就开始淡入
-				// 					const checkInterval = setInterval(() => {
-				// 						const previewEl = container.querySelector('.markdown-rendered')
-				//
-				// 						// 如果找到了渲染层，或者时间超过了 400ms (人类感知的延迟极限)
-				// 						if (previewEl || Date.now() - startTime > 400) {
-				// 							clearInterval(checkInterval)
-				//
-				// 							// 3. 执行平滑渐显
-				// 							requestAnimationFrame(() => {
-				// 								container.classList.remove('fast-transition-blur')
-				// 								container.classList.add('fast-transition-in')
-				//
-				// 								// 恢复滚动
-				// 								setTimeout(() => {
-				// 									container.style.overflow = ''
-				// 									container.classList.remove('fast-transition-in')
-				// 								}, 300)
-				// 							})
-				// 						}
-				// 					}, 50) // 每 50ms 检查一次，比 Observer 响应更快
-				//
-				// 					const startTime = Date.now()
-				// 				}
-			})
-		)
+		// 		this.registerEvent(
+		// 			this.app.workspace.on('layout-change', () => {
+		// 				const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
+		// 				if (!activeView) return
+		//
+		// 				// 刷新注释
+		// 				// 				// 1. 获取预览模式（阅读模式）的渲染器
+		// 				// 				const previewMode = activeView.previewMode
+		// 				//
+		// 				// 				// 2. 访问隐藏在渲染器内部的 renderer.childComponents
+		// 				// 				// 注意：这是 Obsidian 的内部属性，需要进行类型断言
+		// 				// 				const renderer = (previewMode as any).renderer
+		// 				// 				if (renderer && renderer.childComponents) {
+		// 				// 					const children = renderer.childComponents as any[]
+		// 				//
+		// 				// 					// 3. 筛选并执行实例
+		// 				// 					children.forEach((child) => {
+		// 				// 						console.log("child:",child)
+		// 				// 						// 判断 child 是否为 AnnotationChild 实例
+		// 				// 						// 建议在 AnnotationChild 类里加一个标识符，或者直接用 instanceof
+		// 				// 						if (child instanceof AnnotationChild) {
+		// 				// 							child.reload()
+		// 				// 						}
+		// 				// 					})
+		// 				// }
+		//
+		// 				activeView.previewMode.rerender() // 不用 true 性能更好
+		//
+		// 				// 页面过渡
+		// 				// 				if (activeView.getState().mode === 'preview') {
+		// 				// 					const container = activeView.contentEl
+		// 				//
+		// 				// 					// 1. 立即锁定布局，防止滚动条乱跳
+		// 				// 					container.style.overflow = 'hidden'
+		// 				// 					container.classList.add('fast-transition-blur')
+		// 				//
+		// 				// 					// 2. 快速检测逻辑：只要核心预览层挂载，就开始淡入
+		// 				// 					const checkInterval = setInterval(() => {
+		// 				// 						const previewEl = container.querySelector('.markdown-rendered')
+		// 				//
+		// 				// 						// 如果找到了渲染层，或者时间超过了 400ms (人类感知的延迟极限)
+		// 				// 						if (previewEl || Date.now() - startTime > 400) {
+		// 				// 							clearInterval(checkInterval)
+		// 				//
+		// 				// 							// 3. 执行平滑渐显
+		// 				// 							requestAnimationFrame(() => {
+		// 				// 								container.classList.remove('fast-transition-blur')
+		// 				// 								container.classList.add('fast-transition-in')
+		// 				//
+		// 				// 								// 恢复滚动
+		// 				// 								setTimeout(() => {
+		// 				// 									container.style.overflow = ''
+		// 				// 									container.classList.remove('fast-transition-in')
+		// 				// 								}, 300)
+		// 				// 							})
+		// 				// 						}
+		// 				// 					}, 50) // 每 50ms 检查一次，比 Observer 响应更快
+		// 				//
+		// 				// 					const startTime = Date.now()
+		// 				// 				}
+		// 			})
+		// 		)
 
 		// 注册 CM6 编辑器插件
-		this.registerEditorExtension(timeTagViewPlugin)
+		// this.registerEditorExtension(TimeTagViewPlugin)
 
-		// 注册阅读模式后处理器
-		this.registerMarkdownPostProcessor(timeTagPostProcessor)
+		this.registerEditorExtension([
+			TimeTagViewPlugin, // 时间戳语法文本渲染
+			customFoldExtension, // 自定义折叠区域
+			autoFoldPlugin,
+		])
 	}
 
 	forceShow(el: HTMLElement) {
