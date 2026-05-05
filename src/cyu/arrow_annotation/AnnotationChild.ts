@@ -9,7 +9,13 @@ import {
 import { parseAnnotationBlock, AnnotationRule, AnnotationSide } from './annParser'
 import { renderArrows, ArrowTarget, HighlightType } from './annRenderer'
 import CyuToolkitPlugin from '../../main'
-import { findTextRect } from './annRanger'
+import {
+	findLineEndRect,
+	findLineEndRectPrism,
+	findLineRect,
+	findLineStartRect,
+	findTextRect,
+} from './annRanger'
 
 const InlineRightClassName = 'annotation-label--inline-right'
 const InlineLeftClassName = 'annotation-label--inline-left'
@@ -39,20 +45,26 @@ export class AnnotationChild extends MarkdownRenderChild {
 	private ro: ResizeObserver | null = null
 	private wrapper: HTMLElement | null = null // 套在目标块外的 wrapper，onunload 时移除
 	private targetBlock: HTMLElement | null = null // 被移入 wrapper 的目标块，onunload 时还原
+	private prevEl: HTMLElement | null // 直接传入，不再查找
 
 	constructor(
 		app: App,
 		containerEl: HTMLElement,
 		src: string,
-		ctx: MarkdownPostProcessorContext
+		ctx: MarkdownPostProcessorContext,
+		prevEl: HTMLElement | null // 上一个目标元素块
 	) {
 		super(containerEl)
 		this.app = app
 		this.src = src
 		this.ctx = ctx
+		this.prevEl = prevEl
 	}
 
-	async onload() {
+	onload() {
+		// new Notice('加载')
+		// console.log('prevEl:', this.prevEl)
+
 		// 尝试解析语法，如果符合则获得规则
 		const { rules } = parseAnnotationBlock(this.src)
 		if (rules.length === 0) {
@@ -60,16 +72,69 @@ export class AnnotationChild extends MarkdownRenderChild {
 			return
 		}
 
-		// 找目标块 (上一个完整的块)
-		const targetBlock = await findPreviousBlockAsync(this.containerEl)
-		if (!targetBlock) {
+		if (!this.prevEl) {
 			this.containerEl.style.display = 'none'
 			new Notice('没找到注释目标块')
 			return
 		}
 
+		// 找目标块 (上一个完整的块)
+		// const targetBlock = findPreviousBlock(this.containerEl)
+		// if (!targetBlock) {
+		// 	this.containerEl.style.display = 'none'
+		// 	new Notice('没找到注释目标块')
+		// 	return
+		// }
+
+		// prevEl 是外壳 el，取第一个子元素才是真正的内容块
+		// console.log('this.prevEl:', this.prevEl)
+		const targetBlock = (this.prevEl.firstElementChild as HTMLElement) ?? this.prevEl
+		// console.log('targetBlock:', targetBlock)
 		this.targetBlock = targetBlock
 		this.buildLayout(targetBlock, rules)
+
+		// 监听文件变化，目标块更新时重载
+		this.registerFileChangeListener()
+	}
+
+	private registerFileChangeListener() {
+		// editor-change 在每次击键后触发
+		this.registerEvent(
+			this.app.workspace.on('editor-change', (editor, info) => {
+				if (info.file?.path !== this.ctx.sourcePath) return
+				// new Notice('文件修改，已刷新')
+				this.scheduleReload()
+				// this.onload()
+			})
+		)
+	}
+
+	private reloadTimer: ReturnType<typeof setTimeout> | null = null
+
+	private scheduleReload() {
+		if (this.reloadTimer) clearTimeout(this.reloadTimer)
+		this.reloadTimer = setTimeout(() => {
+			this.reloadTimer = null
+			// reload 时直接传入当前 DOM 里找到的 prevEl
+			this.onunload()
+
+			const { rules } = parseAnnotationBlock(this.src)
+			if (rules.length === 0) {
+				this.containerEl.style.display = 'none'
+				return
+			}
+
+			// 此时 containerEl 还在 DOM 里，可以直接找兄弟
+			const targetBlock = findPreviousBlock(this.containerEl)
+			// console.log('targetBlock:', targetBlock)
+			if (!targetBlock) {
+				this.containerEl.style.display = 'none'
+				return
+			}
+
+			this.targetBlock = targetBlock
+			this.buildLayout(targetBlock, rules)
+		}, 500)
 	}
 
 	/**
@@ -184,7 +249,7 @@ export class AnnotationChild extends MarkdownRenderChild {
 	// ─── 创建块级注释列 ────────────────────────────────────────────────────────────
 
 	/**
-	 *
+	 * [块级]：创建对应方向的侧列 + 填充对应的注释 (flex 布局包装不重叠)
 	 * @param side 方向
 	 * @param rules
 	 * @param labelEls
@@ -281,7 +346,7 @@ function findPreviousBlock(el: HTMLElement): HTMLElement | null {
  */
 async function findPreviousBlockAsync(
 	el: HTMLElement,
-	retries = 20
+	retries = 0
 ): Promise<HTMLElement | null> {
 	const elPre = el.parentElement
 	if (!elPre) return null
@@ -306,14 +371,19 @@ async function findPreviousBlockAsync(
 		return findPreviousBlockAsync(el, retries - 1)
 	}
 
+	// 最后再试一次！
+	window.setTimeout(() => {
+		findPreviousBlockAsync(el, 0)
+	}, 500)
+
 	return null
 }
 
 /**
  * 绘制所有箭头：为每条规则在目标块内找到匹配行，
  * 计算 DOMRect 后交给 renderArrows 统一绘制 SVG。
+ * 在这里决定箭头位置
  */
-
 function drawArrows(
 	wrapper: HTMLElement,
 	targetBlock: HTMLElement,
@@ -332,6 +402,10 @@ function drawArrows(
 			labelRect.height
 		)
 
+		labelEl.addEventListener('click', () => {
+			console.log('rule:', rule)
+		})
+
 		let textRect: DOMRect | null = null
 		let lineRect: DOMRect
 		let highlightType: HighlightType
@@ -339,14 +413,21 @@ function drawArrows(
 		let lineEl: HTMLElement | null = null
 
 		if (!rule.match) {
-			// 空 match：指向整行，找行元素
-			const lineEl = findLineElement(targetBlock)
-			if (!lineEl) continue
-			lineRect = lineEl.getBoundingClientRect()
+			// 空 match → 指向指定行（matchIndex 默认 1）
+			const lineIndex = rule.matchIndex ?? 1
+
+			let rect
+			if (rule.side === 'right') rect = findLineEndRect(targetBlock, lineIndex)
+			else rect = findLineStartRect(targetBlock, lineIndex)
+
+			if (!rect) continue
+			lineRect = rect
+
+			textRect = null
 			highlightType = 'none'
 		} else {
 			// 用 Range 精确定位
-			const result = findTextRect(targetBlock, rule.match, rule.matchIndex)
+			const result = findTextRect(targetBlock, rule.match, rule.matchIndex ?? 1)
 			if (!result) continue
 			textRect = result.rect
 
@@ -379,29 +460,6 @@ function drawArrows(
 	renderArrows(wrapper, targets)
 }
 
-/** 找 targetBlock 里第一个视觉行元素（line 模式 fallback） */
-function findLineElement(block: HTMLElement): HTMLElement | null {
-	const LINE_TAGS = [
-		'p',
-		'li',
-		'h1',
-		'h2',
-		'h3',
-		'h4',
-		'h5',
-		'h6',
-		'td',
-		'th',
-		'blockquote',
-		// 'code',
-	]
-	for (const tag of LINE_TAGS) {
-		const el = block.querySelector(tag)
-		if (el) return el as HTMLElement
-	}
-	return block
-}
-
 /** 找包含 range 起点的最近行级祖先元素 */
 function findLineElementContaining(root: HTMLElement, range: Range): HTMLElement | null {
 	const LINE_TAGS = new Set([
@@ -417,6 +475,7 @@ function findLineElementContaining(root: HTMLElement, range: Range): HTMLElement
 		'TH',
 		'BLOCKQUOTE',
 		'CODE',
+		// 'SVG', // TODO 新增 mermaid 支持
 	])
 	let node: Node | null = range.startContainer
 	while (node && node !== root) {
@@ -428,83 +487,107 @@ function findLineElementContaining(root: HTMLElement, range: Range): HTMLElement
 	return null
 }
 
+// /** 找 targetBlock 里第一个视觉行元素（line 模式 fallback） */
+// function findLineElement(block: HTMLElement): HTMLElement | null {
+// 	const LINE_TAGS = [
+// 		'p',
+// 		'li',
+// 		'h1',
+// 		'h2',
+// 		'h3',
+// 		'h4',
+// 		'h5',
+// 		'h6',
+// 		'td',
+// 		'th',
+// 		'blockquote',
+// 		// 'code',
+// 	]
+// 	for (const tag of LINE_TAGS) {
+// 		const el = block.querySelector(tag)
+// 		if (el) return el as HTMLElement
+// 	}
+// 	return block
+// }
+//
+// /**
+//  * 在 block 内找到 textContent 包含 matchText 的第 matchIndex 个元素。
+//  * 优先返回最深层的元素，使箭头尽可能精确地指向目标文本所在行。
+//  */
+// function findMatchingLine(
+// 	block: HTMLElement,
+// 	matchText: string,
+// 	matchIndex: number
+// ): HTMLElement | null {
+// 	const candidates = collectVisualLines(block)
+//
+// 	let count = 0
+// 	for (const el of candidates) {
+// 		if (el.textContent?.includes(matchText)) {
+// 			count++
+// 			if (count === matchIndex) return el
+// 		}
+// 	}
+//
+// 	return null
+// }
+//
+// /**
+//  * 收集 root 内所有"视觉行"元素，按 DOM 深度降序排列（最深优先）。
+//  * 视觉行定义：特定标签且 textContent 非空的元素。
+//  */
+// function collectVisualLines(root: HTMLElement): HTMLElement[] {
+// 	const VISUAL_LINE_TAGS = new Set([
+// 		'p',
+// 		'li',
+// 		'td',
+// 		'th',
+// 		'h1',
+// 		'h2',
+// 		'h3',
+// 		'h4',
+// 		'h5',
+// 		'h6',
+// 		'blockquote',
+// 		'code',
+// 		'span',
+// 		'a',
+// 		'strong',
+// 		'em',
+// 	])
+//
+// 	const results: HTMLElement[] = []
+// 	const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT)
+//
+// 	let node = walker.nextNode() as HTMLElement | null
+// 	while (node) {
+// 		const tag = node.tagName.toLowerCase()
+// 		if (VISUAL_LINE_TAGS.has(tag) && node.textContent?.trim()) {
+// 			results.push(node)
+// 		}
+// 		node = walker.nextNode() as HTMLElement | null
+// 	}
+//
+// 	// 深度越深优先级越高，匹配更精确的子元素
+// 	results.sort((a, b) => domDepth(b) - domDepth(a))
+//
+// 	return results
+// }
+//
+// function domDepth(el: Element): number {
+// 	let depth = 0
+// 	let cur: Element | null = el
+// 	while (cur) {
+// 		depth++
+// 		cur = cur.parentElement
+// 	}
+// 	return depth
+// }
+
 /**
- * 在 block 内找到 textContent 包含 matchText 的第 matchIndex 个元素。
- * 优先返回最深层的元素，使箭头尽可能精确地指向目标文本所在行。
- */
-function findMatchingLine(
-	block: HTMLElement,
-	matchText: string,
-	matchIndex: number
-): HTMLElement | null {
-	const candidates = collectVisualLines(block)
-
-	let count = 0
-	for (const el of candidates) {
-		if (el.textContent?.includes(matchText)) {
-			count++
-			if (count === matchIndex) return el
-		}
-	}
-
-	return null
-}
-
-/**
- * 收集 root 内所有"视觉行"元素，按 DOM 深度降序排列（最深优先）。
- * 视觉行定义：特定标签且 textContent 非空的元素。
- */
-function collectVisualLines(root: HTMLElement): HTMLElement[] {
-	const VISUAL_LINE_TAGS = new Set([
-		'p',
-		'li',
-		'td',
-		'th',
-		'h1',
-		'h2',
-		'h3',
-		'h4',
-		'h5',
-		'h6',
-		'blockquote',
-		'code',
-		'span',
-		'a',
-		'strong',
-		'em',
-	])
-
-	const results: HTMLElement[] = []
-	const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT)
-
-	let node = walker.nextNode() as HTMLElement | null
-	while (node) {
-		const tag = node.tagName.toLowerCase()
-		if (VISUAL_LINE_TAGS.has(tag) && node.textContent?.trim()) {
-			results.push(node)
-		}
-		node = walker.nextNode() as HTMLElement | null
-	}
-
-	// 深度越深优先级越高，匹配更精确的子元素
-	results.sort((a, b) => domDepth(b) - domDepth(a))
-
-	return results
-}
-
-function domDepth(el: Element): number {
-	let depth = 0
-	let cur: Element | null = el
-	while (cur) {
-		depth++
-		cur = cur.parentElement
-	}
-	return depth
-}
-
-/**
+ * 调整每个行内注释块的位置
  * @param wrapper 目标块的包装
- * @param targetBlock 目标块
+ * @param targetBlock 目标整块
  * @param labelElInfos 所有注释块信息
  */
 function positionInlineLabels(
@@ -512,43 +595,81 @@ function positionInlineLabels(
 	targetBlock: HTMLElement,
 	labelElInfos: LabelElementInfos
 ) {
-	const INLINE_GAP = 100 // 距代码块文本右边缘的间距
+	const INLINE_GAP = 50 // 距行内文本的间距
+	const MIN_GAP = 20 // 最小垂直间距，防重叠
 	const wrapperRect = wrapper.getBoundingClientRect()
 	const blockRect = targetBlock.getBoundingClientRect()
-	// 代码块右边缘相对 wrapper 的 x
-	const blockRightLocal = blockRect.right - wrapperRect.left
 
-	for (const { el, rule } of labelElInfos) {
-		if (
-			!el.classList.contains(InlineLeftClassName) ||
-			!el.classList.contains(InlineRightClassName)
+	// 分左右处理，分别记录上一条 Y
+	const lastYMap: Record<'left' | 'right', number> = {
+		left: -Infinity,
+		right: -Infinity,
+	}
+
+	// 按 targetY 排序可以减少叠加跳跃
+	const sortedLabels = labelElInfos
+		.filter(
+			({ el }) =>
+				el.classList.contains(InlineLeftClassName) ||
+				el.classList.contains(InlineRightClassName)
 		)
-			continue
+		.map(({ el, rule }) => {
+			let targetY = 0
+			let anchorX = 0
+			let found = false
+			const isLeft = rule.side === 'left'
 
-		// 找目标文本的 y 位置
-		let targetY = blockRect.top + blockRect.height / 2 - wrapperRect.top
-		let textRight = 0
-
-		if (rule.match) {
-			const result = findTextRect(targetBlock, rule.match, rule.matchIndex ?? 1)
-			if (result) {
-				textRight = result.rect.right - wrapperRect.left
-				targetY = result.rect.top + result.rect.height / 2 - wrapperRect.top
+			// 1. 文本匹配
+			if (rule.match) {
+				const result = findTextRect(targetBlock, rule.match, rule.matchIndex ?? 1)
+				if (result) {
+					anchorX = isLeft ? result.rect.left : result.rect.right
+					targetY = result.rect.top + result.rect.height / 2
+					found = true
+				}
 			}
-		}
 
-		// 如果匹配到文本(没有指定目标字符串)，用代码块右边缘
-		if (textRight === 0) {
-			// const blockRect = targetBlock.getBoundingClientRect()
-			// textRight = blockRect.right - wrapperRect.left
-			// targetY = blockRect.top + blockRect.height / 2 - wrapperRect.top
-			textRight = blockRect.width
+			// 2. 行定位 fallback
+			if (!found) {
+				const lineIndex = rule.matchIndex ?? 1
+				let rect
+				if (rule.side === 'right') rect = findLineEndRect(targetBlock, lineIndex)
+				else rect = findLineStartRect(targetBlock, lineIndex)
+
+				if (rect) {
+					anchorX = isLeft ? rect.left : rect.right
+					targetY = rect.top + rect.height / 2
+					found = true
+				}
+			}
+
+			return { el, rule, targetY, anchorX, isLeft }
+		})
+		.sort((a, b) => a.targetY - b.targetY) // 上到下排序
+
+	for (const info of sortedLabels) {
+		const { el, rule, isLeft } = info
+
+		// 防重叠
+		if (info.targetY - lastYMap[isLeft ? 'left' : 'right'] < MIN_GAP) {
+			info.targetY = lastYMap[isLeft ? 'left' : 'right'] + MIN_GAP
 		}
+		lastYMap[isLeft ? 'left' : 'right'] = info.targetY
+
+		const relativeX = info.anchorX - wrapperRect.left
+		const relativeY = info.targetY - wrapperRect.top
 
 		el.style.position = 'absolute'
-		el.style.left = `${textRight + INLINE_GAP}px` // 紧跟文本右边
-		el.style.top = `${targetY}px`
+		el.style.top = `${relativeY}px`
 		el.style.transform = 'translateY(-50%) rotate(2deg)'
-		el.style.pointerEvents = 'auto'
+
+		if (isLeft) {
+			el.style.left = 'auto'
+			el.style.right = `${wrapperRect.width - relativeX + INLINE_GAP}px`
+		} else {
+			el.style.right = 'auto'
+			el.style.left = `${relativeX + INLINE_GAP}px`
+		}
+		// el.style.backgroundColor = 'cyan' // 行内注释
 	}
 }

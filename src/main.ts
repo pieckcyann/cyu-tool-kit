@@ -43,7 +43,7 @@ export default class CyuToolkitPlugin extends Plugin {
 			attachCommands(this)
 		})
 
-		// - 注册后处理器
+		// - 注册阅读模式后处理器
 
 		// 修改阅读模式样式
 		registerPreviewProcessors(this)
@@ -51,7 +51,28 @@ export default class CyuToolkitPlugin extends Plugin {
 		// 修改代码块
 		registerCodeblockProcessors(this)
 
+		// - 注册源码模式的编辑器扩展
+
+		// 注册 CM6 编辑器插件
+		this.registerEditorExtension([
+			TimeTagViewPlugin, // 时间戳语法文本渲染
+			customFoldExtension, // 自定义折叠区域
+			autoFoldPlugin,
+		])
+
 		// - 注册事件回调
+
+		// 	plugin.registerEvent(
+		// 		plugin.app.workspace.on('layout-change', () => {
+		// 			// 每次布局变化后触发，包括初始渲染完成
+		// 		})
+		// 	)
+		//
+		// 	plugin.registerEvent(
+		// 		plugin.app.metadataCache.on('resolved', () => {
+		// 			// 文件的 metadata 全部解析完，此时渲染也基本稳定
+		// 		})
+		// 	)
 
 		// 切换笔记
 		// this.registerEvent(
@@ -153,15 +174,6 @@ export default class CyuToolkitPlugin extends Plugin {
 		// 				// 				}
 		// 			})
 		// 		)
-
-		// 注册 CM6 编辑器插件
-		// this.registerEditorExtension(TimeTagViewPlugin)
-
-		this.registerEditorExtension([
-			TimeTagViewPlugin, // 时间戳语法文本渲染
-			customFoldExtension, // 自定义折叠区域
-			autoFoldPlugin,
-		])
 	}
 
 	forceShow(el: HTMLElement) {

@@ -15,8 +15,8 @@ export interface AnnotationRule {
 	side: AnnotationSide
 	/** 在目标块中匹配的文本 (空字符串 = 指向整行) */
 	match: string
-	/** 第几次出现 (1-based)，默认 1 */
-	matchIndex: number
+	/** 第几次出现 (1-based)，默认为 null (未指定) */
+	matchIndex: number | null
 	/** 注释内容，支持 inline markdown */
 	label: string
 	/** 注释应该在行内还是栏外 */
@@ -38,7 +38,8 @@ export interface ParsedAnnotation {
  */
 const LINE_WITH_MATCH_RE =
 	/^(left|right)\s+(["'])((?:(?!\2)[^\\]|\\.)*)\2\s*(?:#(\d+))?\s+([\s\S]+)$/
-const LINE_NO_MATCH_RE = /^(left|right)\s+([\s\S]+)$/
+// const LINE_NO_MATCH_RE = /^(left|right)\s+([\s\S]+)$/
+const NO_QUOTE_WITH_INDEX_RE = /^(left|right)\s*(?:#(\d+))?\s+([\s\S]+)$/
 
 export function parseAnnotationBlock(source: string): ParsedAnnotation {
 	const rules: AnnotationRule[] = []
@@ -71,22 +72,22 @@ function parseLine(line: string): AnnotationRule | null {
 		return {
 			side: side as AnnotationSide,
 			match: unescapedMatch,
-			matchIndex: indexStr ? parseInt(indexStr, 10) : 1,
+			matchIndex: indexStr ? parseInt(indexStr, 10) : null,
 			label: label.trim(),
 			display: displayMode,
 		}
 	}
 
 	// 2. 尝试匹配不带引号的简写语法 (left/right label)
-	const m2 = LINE_NO_MATCH_RE.exec(line)
+	const m2 = NO_QUOTE_WITH_INDEX_RE.exec(line)
 	if (m2) {
-		const [, side, label] = m2
+		const [, side, indexStr, label] = m2
 		return {
 			side: side as AnnotationSide,
 			match: '',
-			matchIndex: 1,
+			matchIndex: indexStr ? parseInt(indexStr, 10) : null,
 			label: label.trim(),
-			display: 'block', // 简写语法默认设为 block
+			display: 'block', // 默认 block
 		}
 	}
 

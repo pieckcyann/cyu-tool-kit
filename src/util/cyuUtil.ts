@@ -1,6 +1,88 @@
 import { TemplaterError } from '../setting/suggesters/Error'
 import { App, normalizePath, TAbstractFile, TFile, TFolder, Vault } from 'obsidian'
 
+let singletonDot: HTMLDivElement | null = null
+
+/**
+ * 在页面上绘制一个红点，用于指示坐标
+ */
+
+export function debugPoint(x: number, y: number, isSingleton = false, color = 'red') {
+	// 如果是单例模式，先尝试复用旧元素
+	let dot: HTMLDivElement
+
+	if (isSingleton) {
+		if (!singletonDot) {
+			singletonDot = document.createElement('div')
+			document.body.appendChild(singletonDot)
+		}
+		dot = singletonDot
+	} else {
+		dot = document.createElement('div')
+		document.body.appendChild(dot)
+		// 非单例版：3秒后自动消失
+		// setTimeout(() => dot.remove(), 3000)
+	}
+
+	// 绘制样式
+	applyBaseStyle(dot, { left: x, top: y, width: 8, height: 8 })
+	dot.style.borderRadius = '50%'
+	dot.style.backgroundColor = color
+	dot.style.transform = 'translate(-50%, -50%)'
+	dot.style.border = '2px solid white'
+}
+
+/**
+ * 根据 DOMRect 在页面上显示一个半透明的高亮块
+ */
+export function showRectIndicator(
+	rect: DOMRect | null,
+	isSingleton = false,
+	color = 'rgba(0, 120, 215, 0.3)'
+) {
+	if (!rect) return
+
+	const SINGLETON_ID = 'debug-rect-singleton'
+	let mask: HTMLDivElement
+
+	if (isSingleton) {
+		// 单例模式：通过 ID 查找复用
+		let existing = document.getElementById(SINGLETON_ID) as HTMLDivElement
+		if (!existing) {
+			existing = document.createElement('div')
+			existing.id = SINGLETON_ID
+			document.body.appendChild(existing)
+		}
+		mask = existing
+	} else {
+		// 普通模式：直接创建
+		mask = document.createElement('div')
+		document.body.appendChild(mask)
+		// setTimeout(() => mask.remove(), 2000)
+	}
+
+	// 复用绘制逻辑
+	applyBaseStyle(mask, rect)
+	mask.style.backgroundColor = color
+	mask.style.border = `1px solid ${color.replace('0.3', '0.8')}`
+}
+
+// 内部通用的样式注入函数
+function applyBaseStyle(
+	el: HTMLElement,
+	rect: { left: number; top: number; width: number; height: number }
+) {
+	Object.assign(el.style, {
+		position: 'fixed',
+		left: `${rect.left}px`,
+		top: `${rect.top}px`,
+		width: `${rect.width}px`,
+		height: `${rect.height}px`,
+		zIndex: '10000',
+		pointerEvents: 'none',
+		boxSizing: 'border-box',
+	})
+}
 
 /**
  * 将 string 类型的 seed 转为 number 类型的 seed

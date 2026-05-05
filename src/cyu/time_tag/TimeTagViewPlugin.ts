@@ -14,7 +14,7 @@ import { RangeSet, RangeSetBuilder } from '@codemirror/state'
 // })
 
 // 源码模式下，正在编辑中的文本样式
-const timestampEditingDeco = Decoration.mark({
+const TimestampEditingDeco = Decoration.mark({
 	attributes: { class: 'ctk-time-editing-text' },
 })
 
@@ -91,7 +91,7 @@ export const TimeTagViewPlugin = ViewPlugin.fromClass(
 							// builder.add(line.from, line.from, timestampLineDeco)
 
 							// 关键改动：只给匹配到的 @{...} 这一段文本加样式
-							builder.add(startPos, endPos, timestampEditingDeco)
+							builder.add(startPos, endPos, TimestampEditingDeco)
 						}
 					}
 					pos = line.to + 1

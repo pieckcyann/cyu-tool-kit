@@ -1,6 +1,7 @@
 // annRenderer.ts
 import rough from 'roughjs'
-import { hashString } from '../../util/cyuUtil'
+import { debugPoint, hashString, showRectIndicator } from '../../util/cyuUtil'
+import { AnnotationSide } from './annParser'
 
 export type HighlightType = 'circle' | 'wave' | 'none'
 
@@ -11,14 +12,14 @@ export interface ArrowTarget {
 	lineTag: String
 	/* Range 精确 rect (null = line 模式) */
 	textRect: DOMRect | null
-	side: 'left' | 'right'
+	side: AnnotationSide
 	containerRect: DOMRect
 	highlightType: HighlightType
 	seed: string
-	/* 对应的 label DOM 元素，用于 hover 联动 */
+	/* 对应的 label DOM 元素(用于悬浮联动) */
 	labelEl: HTMLElement
-
-	isInlineRight?: boolean // 新增
+	/* 是否是行内注释 */
+	isInlineRight?: boolean
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
@@ -41,6 +42,14 @@ function seededJitter(seed: string, index: number): number {
 	return ((h >>> 0) / 0xffffffff) * 2 - 1
 }
 
+/**
+ * 将一个基于浏览器视口 (Viewport)的绝对坐标，
+ * 	 转换为相对于某个特定 HTML 元素内部的相对坐标
+ * @param cr
+ * @param x
+ * @param y
+ * @returns
+ */
 function toLocal(cr: DOMRect, x: number, y: number) {
 	return { x: x - cr.left, y: y - cr.top }
 }
@@ -302,23 +311,39 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 		let endPoint: { x: number; y: number }
 		let highlightEl: SVGElement | null = null
 
+		const ARROW_OFFSET = 6 // 箭头尖端距离文字的距离
+
 		if (t.highlightType === 'circle' && t.textRect) {
+			// 短文本
 			const res = drawCircle(group, t)
 			endPoint = { x: res.x, y: res.y }
 			highlightEl = res.el
 		} else if (t.highlightType === 'wave' && t.textRect) {
+			// 长文本
 			const res = drawWave(group, t, t.textRect)
 			endPoint = { x: res.x, y: res.y }
 			highlightEl = res.el
 		} else {
+			// 整行
 			const lineLocal = toLocal(cr, t.lineRect.left, t.lineRect.top)
-			endPoint =
-				t.side === 'left'
-					? { x: lineLocal.x - 4, y: lineLocal.y + t.lineRect.height / 2 }
-					: {
-							x: lineLocal.x + t.lineRect.width + 4,
-							y: lineLocal.y + t.lineRect.height / 2,
-						}
+
+			// showRectIndicator(t.lineRect, true)
+
+			const lineMidY = lineLocal.y + t.lineRect.height / 2
+			if (t.side === 'left') {
+				// 行首：x 坐标就是 lineRect 的 left 转换后的 local.x
+				endPoint = {
+					x: lineLocal.x - ARROW_OFFSET, // 向左偏移一点，给箭头留空间
+					y: lineMidY,
+				}
+			} else {
+				// 行尾：x 坐标是 lineRect 的 left + 宽度
+				endPoint = {
+					x: lineLocal.x + t.lineRect.width + ARROW_OFFSET,
+					y: lineMidY,
+				}
+			}
+			// debugPoint(endPoint.x, endPoint.y, false)
 		}
 
 		// line-right(代码块右侧)连线特有样式
@@ -375,13 +400,15 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 		const hDist = Math.abs(endPoint.x - start.x)
 		const isBreak = hDist > BREAK_THRESHOLD
 
+		const STROKE_WIDTH = 1.5 // 线条粗细
+
 		if (!isBreak) {
 			// ── 近距离：贝塞尔，整条线可 hover ──
 			const d = buildCurvePath(start, endPoint, t.side, t.seed)
 			const path = document.createElementNS(SVG_NS, 'path')
 			path.setAttribute('d', d)
 			path.setAttribute('fill', 'none')
-			path.setAttribute('stroke-width', '1.5')
+			path.setAttribute('stroke-width', `'${STROKE_WIDTH}'`)
 			path.setAttribute('stroke-linecap', 'round')
 			path.setAttribute('stroke-linejoin', 'round')
 			path.setAttribute('marker-end', `url(#${MARKER_ID})`)
@@ -424,7 +451,7 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 			)
 			stub.setAttribute('fill', 'none')
 			stub.setAttribute('stroke', `url(#${gradId})`)
-			stub.setAttribute('stroke-width', '1.5')
+			stub.setAttribute('stroke-width', `'${STROKE_WIDTH}'`)
 			stub.setAttribute('stroke-linecap', 'round')
 			stub.classList.add('ann-connector', 'ann-connector-stub')
 			stub.style.pointerEvents = 'none' // stub 不响应鼠标

@@ -10,7 +10,6 @@
 @time-theme-color: rgba(160, 130, 90, 1); // 的手绘感主题色
 @base-font-size: 12.5px; // 标签基础字号
 
-
 // 消失高度的容器重置 (用于吸附到标题行)
 .m-container-invisible() {
     height: 0 !important;
@@ -36,6 +35,7 @@
     white-space: nowrap;
     // background: var(--background-secondary);
     // border: 1px solid var(--background-modifier-border);
+    color: fade(@time-theme-color, 80%);
 
     transition: all 0.15s ease;
     cursor: default;
@@ -81,8 +81,8 @@
         .m-time-tag-base(); // 注入基础 Mixin
 
         &--after-heading {
-            background: fade(@time-theme-color, 7%);
-            border: 0.5px solid fade(@time-theme-color, 18%);
+            // background: fade(@time-theme-color, 7%);
+            // border: 0.5px solid fade(@time-theme-color, 18%);
             padding: 3px 6px 5px 5px;
 
             .ctk-time-icon {
