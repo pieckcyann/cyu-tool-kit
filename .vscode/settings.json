@@ -38,9 +38,9 @@
 			"icon": "alert",
 			// "type": "whole-line",
 			// "type": "text",
-			"type": "tag-and-comment",
-			"foreground": "#fff",
-			"background": "#673ab7",
+			"type": "text-and-comment",
+			"foreground": "#ffffffac",
+			"background": "#492686",
 			"rulerColour": "#673ab7",
 			"iconColour": "#673ab7"
 		},

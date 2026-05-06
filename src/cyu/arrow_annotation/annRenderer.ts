@@ -3,7 +3,7 @@ import rough from 'roughjs'
 import { debugPoint, hashString, showRectIndicator } from '../../util/cyuUtil'
 import { AnnotationSide } from './annParser'
 
-export type HighlightType = 'circle' | 'wave' | 'none'
+export type HighlightType = 'circle' | 'wave' | 'none' | 'whole'
 
 export interface ArrowTarget {
 	labelRect: DOMRect
@@ -28,6 +28,8 @@ const MARKER_ACTIVE_ID = 'annotation-arrow-head-active'
 
 const BREAK_THRESHOLD = 200 // 超过此水平距离视为"远距离"，启用断线模式(px)
 const STUB_LENGTH = 36 // 断线模式下，标签侧的短线长度(px)
+
+const ARROW_OFFSET = 6 // 箭头尖端距离文字的距离
 
 // ─── 工具 ─────────────────────────────────────────────────────────────────────
 
@@ -311,8 +313,6 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 		let endPoint: { x: number; y: number }
 		let highlightEl: SVGElement | null = null
 
-		const ARROW_OFFSET = 6 // 箭头尖端距离文字的距离
-
 		if (t.highlightType === 'circle' && t.textRect) {
 			// 短文本
 			const res = drawCircle(group, t)
@@ -323,6 +323,21 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 			const res = drawWave(group, t, t.textRect)
 			endPoint = { x: res.x, y: res.y }
 			highlightEl = res.el
+		} else if (t.highlightType === 'whole' && t.textRect) {
+			const lineMidY = cr.y * 0.5 // y 始终指向整块的中间
+			if (t.side === 'left') {
+				// 行首：x 坐标就是左边界
+				endPoint = {
+					x: cr.x - ARROW_OFFSET, // 向左偏移一点，给箭头留空间
+					y: lineMidY,
+				}
+			} else {
+				// 行尾：x 坐标是左边界 + 宽度
+				endPoint = {
+					x: cr.x + cr.width + ARROW_OFFSET,
+					y: lineMidY,
+				}
+			}
 		} else {
 			// 整行
 			const lineLocal = toLocal(cr, t.lineRect.left, t.lineRect.top)

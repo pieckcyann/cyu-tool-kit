@@ -70,8 +70,51 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 
 			// 单词发音
 			createSpeakerBlock(el)
+
+			// 表格设置
+			processTableFlags(el)
 		}
 	)
+}
+
+function processTableFlags(container: HTMLElement): void {
+	// 1. 找到当前容器下的所有表格
+	const tables = container.querySelectorAll('table')
+
+	tables.forEach((table: HTMLTableElement) => {
+		// 2. 定位第一个表头单元格 (th)
+		const firstTh = table.querySelector('th')
+		if (!firstTh) return
+
+		// 3. 获取第一个文本节点（避免误伤嵌套的 HTML 标签）
+		const firstChild = firstTh.firstChild
+		if (!firstChild || firstChild.nodeType !== Node.TEXT_NODE) return
+
+		const text = firstChild.textContent || ''
+
+		// 4. 定义你的语法符号与类名的映射关系
+		const flags: Record<string, string> = {
+			'-': 'table-not-full-width', // 不全宽
+			'~': 'table-half-full-width', // 半全宽
+			'/': 'table-', //
+			'!': 'table-important', // 高亮显式
+			'^': 'table-narrow', // 紧凑模式
+		}
+
+		// 5. 检查开头字符
+		const firstChar = text.trimStart()[0]
+
+		if (flags[firstChar]) {
+			// 添加对应的类名
+			table.classList.add(flags[firstChar])
+
+			// 移除该符号：修改文本节点内容，保留剩余部分
+			// 使用 replace 确保只删掉第一个匹配到的符号
+			firstChild.textContent = text.replace(firstChar, '').trimStart()
+
+			// 如果删掉符号后单元格空了，可以根据需要处理（通常保持原样即可）
+		}
+	})
 }
 
 /**

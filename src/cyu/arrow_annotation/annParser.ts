@@ -1,14 +1,10 @@
 // annParser.ts
 
-/**
- * 支持三种语法：
- * left|right "match text"#2 label
- * left|right "" label          <- 空 match，指向整行
- * left|right label             <- 省略引号，指向整行
- */
-
 export type AnnotationSide = 'left' | 'right'
-export type AnnotationDisplay = 'block' | 'inline'
+export type AnnotationDisplay =
+	| 'block' // 栏外
+	| 'inline' // 行内
+	| 'whole' // 整块
 
 export interface AnnotationRule {
 	/** 注释位置，左还是右 */
@@ -21,6 +17,7 @@ export interface AnnotationRule {
 	label: string
 	/** 注释应该在行内还是栏外 */
 	display: AnnotationDisplay
+	/** 注释是否是仅指向整块 */
 }
 
 export interface ParsedAnnotation {
@@ -78,7 +75,7 @@ function parseLine(line: string): AnnotationRule | null {
 		}
 	}
 
-	// 2. 尝试匹配不带引号的简写语法 (left/right label)
+	// 2. 尝试匹配不带引号的整行语法 (left/right label)
 	const m2 = NO_QUOTE_WITH_INDEX_RE.exec(line)
 	if (m2) {
 		const [, side, indexStr, label] = m2
@@ -87,7 +84,7 @@ function parseLine(line: string): AnnotationRule | null {
 			match: '',
 			matchIndex: indexStr ? parseInt(indexStr, 10) : null,
 			label: label.trim(),
-			display: 'block', // 默认 block
+			display: 'whole',
 		}
 	}
 

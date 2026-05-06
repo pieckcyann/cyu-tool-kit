@@ -178,16 +178,24 @@ export class AnnotationChild extends MarkdownRenderChild {
 			targetBlock.tagName === 'CODE' ||
 			targetBlock.querySelector('pre, code')
 
-		const leftBlockRules = rules.filter((r) => r.side === 'left' && r.display === 'block')
+		const leftBlockAndWholeRules = rules.filter(
+			(r) => r.side === 'left' && (r.display === 'block' || r.display === 'whole')
+		)
+		const rightBlockAndWholeRules = rules.filter(
+			(r) => r.side === 'right' && (r.display === 'block' || r.display === 'whole')
+		)
+
 		const leftInlineRules = rules.filter(
 			(r) => r.side === 'left' && r.display === 'inline'
-		)
-		const rightBlockRules = rules.filter(
-			(r) => r.side === 'right' && r.display === 'block'
 		)
 		const rightInlineRules = rules.filter(
 			(r) => r.side === 'right' && r.display === 'inline'
 		)
+
+		// const leftWholeRules = rules.filter((r) => r.side === 'left' && r.display === 'whole')
+		// const rightWholeRules = rules.filter(
+		// 	(r) => r.side === 'right' && r.display === 'whole'
+		// )
 
 		/* wrapper 套在目标块外，提供相对定位上下文 */
 		const wrapper = document.createElement('div')
@@ -203,13 +211,13 @@ export class AnnotationChild extends MarkdownRenderChild {
 		const labelEls: { el: HTMLElement; rule: AnnotationRule }[] = []
 
 		/* 块级注释：直接创建对应的元素挂载 wrapper 下 */
-		if (leftBlockRules.length > 0) {
-			const leftCol = this.createCol('left', leftBlockRules, labelEls)
+		if (leftBlockAndWholeRules.length > 0) {
+			const leftCol = this.createCol('left', leftBlockAndWholeRules, labelEls)
 			wrapper.appendChild(leftCol)
 		}
 
-		if (rightBlockRules.length > 0) {
-			const rightCol = this.createCol('right', rightBlockRules, labelEls)
+		if (rightBlockAndWholeRules.length > 0) {
+			const rightCol = this.createCol('right', rightBlockAndWholeRules, labelEls)
 			wrapper.appendChild(rightCol)
 		}
 
@@ -218,7 +226,7 @@ export class AnnotationChild extends MarkdownRenderChild {
 			const labelEl = this.createLabel(rule.label)
 			labelEl.classList.add(InlineRightClassName)
 			wrapper.appendChild(labelEl)
-			labelEls.push({ el: labelEl, rule }) // 注释块元素、语法规则
+			labelEls.push({ el: labelEl, rule }) // 注释元素 & 语法规则
 		}
 
 		for (const rule of leftInlineRules) {
@@ -234,14 +242,14 @@ export class AnnotationChild extends MarkdownRenderChild {
 			requestAnimationFrame(() => {
 				// 定位 inline labels
 				positionInlineLabels(wrapper, targetBlock, labelEls)
-				drawArrows(wrapper, targetBlock, labelEls)
+				positionAndDrawArrows(wrapper, targetBlock, labelEls)
 			})
 		})
 
 		// 容器尺寸变化时重绘 (侧栏拖拽、窗口缩放等)
 		this.ro = new ResizeObserver(() => {
 			positionInlineLabels(wrapper, targetBlock, labelEls)
-			drawArrows(wrapper, targetBlock, labelEls)
+			positionAndDrawArrows(wrapper, targetBlock, labelEls)
 		})
 		this.ro.observe(wrapper)
 	}
@@ -275,7 +283,7 @@ export class AnnotationChild extends MarkdownRenderChild {
 	// ─── 渲染注释 + 渲染 markdown 语法 ────────────────────────────────────────────
 
 	/**
-	 * 注释块
+	 * 绘制注释块(通用)
 	 * @param markdownText 解析出的注释文本
 	 * @returns 新创建的注释块
 	 */
@@ -344,47 +352,47 @@ function findPreviousBlock(el: HTMLElement): HTMLElement | null {
  * @param el 当前元素
  * @param retries 重试次数，默认 5 次
  */
-async function findPreviousBlockAsync(
-	el: HTMLElement,
-	retries = 0
-): Promise<HTMLElement | null> {
-	const elPre = el.parentElement
-	if (!elPre) return null
-
-	let prevShell = elPre.previousElementSibling as HTMLElement | null
-
-	// 跳过已处理的 annotation-wrapper
-	while (prevShell && prevShell.classList.contains('annotation-wrapper')) {
-		prevShell = prevShell.previousElementSibling as HTMLElement | null
-	}
-
-	if (prevShell) {
-		// 找到了，直接返回
-		return (prevShell.firstElementChild as HTMLElement) ?? prevShell
-	}
-
-	// 如果没找到且还有重试次数
-	if (retries > 0) {
-		// 等待下一帧绘制
-		await new Promise((resolve) => requestAnimationFrame(resolve))
-		// 递归重试
-		return findPreviousBlockAsync(el, retries - 1)
-	}
-
-	// 最后再试一次！
-	window.setTimeout(() => {
-		findPreviousBlockAsync(el, 0)
-	}, 500)
-
-	return null
-}
+// async function findPreviousBlockAsync(
+// 	el: HTMLElement,
+// 	retries = 0
+// ): Promise<HTMLElement | null> {
+// 	const elPre = el.parentElement
+// 	if (!elPre) return null
+//
+// 	let prevShell = elPre.previousElementSibling as HTMLElement | null
+//
+// 	// 跳过已处理的 annotation-wrapper
+// 	while (prevShell && prevShell.classList.contains('annotation-wrapper')) {
+// 		prevShell = prevShell.previousElementSibling as HTMLElement | null
+// 	}
+//
+// 	if (prevShell) {
+// 		// 找到了，直接返回
+// 		return (prevShell.firstElementChild as HTMLElement) ?? prevShell
+// 	}
+//
+// 	// 如果没找到且还有重试次数
+// 	if (retries > 0) {
+// 		// 等待下一帧绘制
+// 		await new Promise((resolve) => requestAnimationFrame(resolve))
+// 		// 递归重试
+// 		return findPreviousBlockAsync(el, retries - 1)
+// 	}
+//
+// 	// 最后再试一次！
+// 	window.setTimeout(() => {
+// 		findPreviousBlockAsync(el, 0)
+// 	}, 500)
+//
+// 	return null
+// }
 
 /**
  * 绘制所有箭头：为每条规则在目标块内找到匹配行，
- * 计算 DOMRect 后交给 renderArrows 统一绘制 SVG。
+ * 计算 DOMRect 后交给 renderArrows 统一绘制 SVG
  * 在这里决定箭头位置
  */
-function drawArrows(
+function positionAndDrawArrows(
 	wrapper: HTMLElement,
 	targetBlock: HTMLElement,
 	labelEls: { el: HTMLElement; rule: AnnotationRule }[]
@@ -402,9 +410,10 @@ function drawArrows(
 			labelRect.height
 		)
 
-		labelEl.addEventListener('click', () => {
-			console.log('rule:', rule)
-		})
+		// 测试每个注释的规则
+		// labelEl.addEventListener('click', () => {
+		// 	console.log('rule:', rule)
+		// })
 
 		let textRect: DOMRect | null = null
 		let lineRect: DOMRect
@@ -413,18 +422,25 @@ function drawArrows(
 		let lineEl: HTMLElement | null = null
 
 		if (!rule.match) {
-			// 空 match → 指向指定行（matchIndex 默认 1）
-			const lineIndex = rule.matchIndex ?? 1
+			if (rule.display !== 'whole') {
+				// 空 match -> 指向指定行
+				const lineIndex = rule.matchIndex ?? 1
 
-			let rect
-			if (rule.side === 'right') rect = findLineEndRect(targetBlock, lineIndex)
-			else rect = findLineStartRect(targetBlock, lineIndex)
+				let rect
+				if (rule.side === 'right') rect = findLineEndRect(targetBlock, lineIndex)
+				else rect = findLineStartRect(targetBlock, lineIndex)
+				if (!rect) continue
 
-			if (!rect) continue
-			lineRect = rect
-
-			textRect = null
-			highlightType = 'none'
+				lineRect = rect
+				textRect = null
+				highlightType = 'none'
+			} else {
+				console.log('xxxxxxxxxxxxxxxxxxxx')
+				// 整块模式
+				lineRect = targetBlock.getBoundingClientRect()
+				textRect = null
+				highlightType = 'whole'
+			}
 		} else {
 			// 用 Range 精确定位
 			const result = findTextRect(targetBlock, rule.match, rule.matchIndex ?? 1)
@@ -440,9 +456,9 @@ function drawArrows(
 			highlightType = charLen < 12 ? 'circle' : charLen < 80 ? 'wave' : 'none'
 		}
 
-		const isInline = labelEl.classList.contains('annotation-label--inline-right')
+		// const isInline = labelEl.classList.contains('annotation-label--inline-right')
+		const isInline = rule.display === 'inline'
 
-		// drawArrows 里构建 target 时加上 labelEl
 		targets.push({
 			labelRect: adjustedLabelRect,
 			lineRect,

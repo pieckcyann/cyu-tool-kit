@@ -24,7 +24,7 @@ const createAnAnnotation = (direction: 'left' | 'right') => {
 			// 如果找到了空行，直接在该行插入
 			editor.replaceRange(contentToInsert, { line: targetLine, ch: 0 })
 
-			const cursorLine = targetLine - 1
+			const cursorLine = targetLine + 1
 			const cursorLineContent = editor.getLine(cursorLine) // 获取这行的内容
 
 			// 3. 移动光标：移动到该行内容的末尾

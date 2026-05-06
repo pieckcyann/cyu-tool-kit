@@ -163,6 +163,25 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 	// 			;(app as any).commands.executeCommandById('markdown:toggle-preview')
 	// 		},
 	// 	})
+
+	plugin.addCommand({
+		id: 'refresh-current-note',
+		name: '刷新当前笔记',
+		hotkeys: [{ modifiers: ['Ctrl'], key: 'R' }],
+		checkCallback: (checking: boolean) => {
+			const activeView = app.workspace.getActiveViewOfType(MarkdownView)
+
+			if (activeView) {
+				if (!checking) {
+					// 强制视图重建
+					// @ts-ignore - 访问内部 API
+					activeView.leaf.rebuildView()
+				}
+				return true
+			}
+			return false
+		},
+	})
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────

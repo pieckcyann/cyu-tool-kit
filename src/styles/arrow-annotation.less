@@ -22,10 +22,16 @@
     gap: 8px;
     pointer-events: none;
 
+    /* 使得各个注释从中间开始排列 */
+    height: 100%; // 必须设定高度，否则 center 没有参考空间
+    justify-content: center;
+    // top: 50%; // 将容器顶部放在父容器的 50% 处
+    // transform: translateY(-50%); // 将容器向上位移自身高度的 50%，实现完美居中
+
     &--left {
         // right: calc(100% + var(--annotation-gap, 70px));
         right: 100%;
-        padding-right: 70px;
+        padding-right: 50px;
         align-items: flex-end; // 子元素贴着文档边缘向左长 
 
         .annotation-label {
@@ -36,7 +42,7 @@
     &--right {
         // left: calc(100% + var(--annotation-gap, 70px));
         left: 100%;
-        padding-left: 70px;
+        padding-left: 50px;
         align-items: flex-start;
 
         .annotation-label {
@@ -72,8 +78,7 @@
     cursor: pointer;
 
     // 用 box-shadow 而非 outline，穿透力更强，不受子元素影响
-    transition:
-        box-shadow 0.1s ease,
+    transition: box-shadow 0.1s ease,
         opacity 0.1s ease,
         color 0.1s ease;
 
@@ -99,13 +104,15 @@
         color: var(--ann-color-active);
     }
 
+    mix-blend-mode: multiply;
+
     img {
-        // display: block;
-        // width: 500px !important;
         max-width: none !important;
         transform: translate(0);
+
     }
 }
+
 
 /* 针对包含图片的特殊处理 */
 // .annotation-label:has(img) {
