@@ -101,8 +101,9 @@ function drawCircle(
 
 	let roughness = 1
 	let strokeWidth = 1.4
+
 	if (lineTag == 'CODE') {
-		roughness = 0.2
+		roughness = 0.5
 		strokeWidth = 1
 	}
 	// console.log('lineTag:', lineTag)
