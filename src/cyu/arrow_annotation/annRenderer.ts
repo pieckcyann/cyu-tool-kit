@@ -427,7 +427,7 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 			path.setAttribute('stroke-linecap', 'round')
 			path.setAttribute('stroke-linejoin', 'round')
 			path.setAttribute('marker-end', `url(#${MARKER_ID})`)
-			path.setAttribute('pathLength', '100')
+			// path.setAttribute('pathLength', '100') // 会导致流向动画中每截线段的长度是动态的
 			path.classList.add('ann-connector', 'ann-connector-full')
 			// path.style.pointerEvents = 'stroke' // 只有描边区域响应
 			group.appendChild(path)
@@ -485,7 +485,7 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 			arrowPath.setAttribute('stroke-width', '1.5')
 			arrowPath.setAttribute('stroke-linecap', 'round')
 			arrowPath.setAttribute('marker-end', `url(#${MARKER_ID})`)
-			arrowPath.setAttribute('pathLength', '100')
+			// arrowPath.setAttribute('pathLength', '100') // 会导致流向动画中每截线段的长度是动态的
 			arrowPath.classList.add('ann-connector', 'ann-connector-full')
 			arrowPath.style.pointerEvents = 'stroke'
 			group.appendChild(arrowPath)

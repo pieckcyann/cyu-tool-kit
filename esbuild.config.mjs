@@ -75,7 +75,7 @@ const context = await esbuild.context({
 	treeShaking: true,
 	outfile: "main.js",
 	// 将插件添加到配置中
-	plugins: [copyToTargetPlugin],
+	// plugins: [copyToTargetPlugin],
 })
 
 if (prod) {

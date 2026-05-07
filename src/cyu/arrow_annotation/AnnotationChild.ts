@@ -11,11 +11,12 @@ import { renderArrows, ArrowTarget, HighlightType } from './annRenderer'
 import CyuToolkitPlugin from '../../main'
 import {
 	findLineEndRect,
-	findLineEndRectPrism,
-	findLineRect,
+	findLineEndRectByText,
 	findLineStartRect,
+	findLineStartRectByText,
 	findTextRect,
 } from './annRanger'
+import { showRectIndicator } from '../../util/cyuUtil'
 
 const InlineRightClassName = 'annotation-label--inline-right'
 const InlineLeftClassName = 'annotation-label--inline-left'
@@ -633,24 +634,42 @@ function positionInlineLabels(
 			let targetY = 0
 			let anchorX = 0
 			let found = false
+
 			const isLeft = rule.side === 'left'
+			const finalMatchIndex = rule.matchIndex ?? 1 // text or line
 
 			// 1. 文本匹配
 			if (rule.match) {
-				const result = findTextRect(targetBlock, rule.match, rule.matchIndex ?? 1)
-				if (result) {
-					anchorX = isLeft ? result.rect.left : result.rect.right
-					targetY = result.rect.top + result.rect.height / 2
+				const rectForX = isLeft
+					? findLineStartRectByText(targetBlock, rule.match, finalMatchIndex)
+					: findLineEndRectByText(targetBlock, rule.match, finalMatchIndex)
+				// ? findLineStartRect(targetBlock, finalMatchIndex)
+				// : findLineEndRect(targetBlock, finalMatchIndex)
+
+				const rectForY = findTextRect(targetBlock, rule.match, finalMatchIndex)?.rect
+
+				if (rectForX && rectForY) {
+					// anchorX = isLeft ? rectForY.left : rectForY.right
+					anchorX = isLeft ? rectForX.left : rectForX.right
+					targetY = rectForY.top + rectForY.height / 2
 					found = true
+
+					el.addEventListener('click', () => {
+						showRectIndicator(rectForX)
+					})
+				} else {
+					new Notice(`有没匹配到的规则文本:${rule.match}`)
+					console.log('rectForX:', rectForX)
+					console.log('rectForY:', rectForY)
+					console.log('rule:', rule)
 				}
 			}
 
 			// 2. 行定位 fallback
-			if (!found) {
-				const lineIndex = rule.matchIndex ?? 1
-				let rect
-				if (rule.side === 'right') rect = findLineEndRect(targetBlock, lineIndex)
-				else rect = findLineStartRect(targetBlock, lineIndex)
+			else if (!found) {
+				const rect = isLeft
+					? findLineStartRect(targetBlock, finalMatchIndex)
+					: findLineEndRect(targetBlock, finalMatchIndex)
 
 				if (rect) {
 					anchorX = isLeft ? rect.left : rect.right
