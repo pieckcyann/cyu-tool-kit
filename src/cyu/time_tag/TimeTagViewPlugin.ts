@@ -87,7 +87,7 @@ export const TimeTagViewPlugin = ViewPlugin.fromClass(
 							)
 						} else {
 							// 如果正在编辑，我们不替换 Widget，而是给这部分文字加个高亮类名（可选）
-							// 或者维持你原来的逻辑给整行加样式
+							// 或者维持原来的逻辑给整行加样式
 							// builder.add(line.from, line.from, timestampLineDeco)
 
 							// 关键改动：只给匹配到的 @{...} 这一段文本加样式

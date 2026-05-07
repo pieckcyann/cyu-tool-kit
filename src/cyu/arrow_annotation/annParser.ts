@@ -34,18 +34,57 @@ export interface ParsedAnnotation {
  * 6. ([\s\S]+): 剩余的 label 内容
  */
 const LINE_WITH_MATCH_RE =
-	/^(left|right)\s+(["'])((?:(?!\2)[^\\]|\\.)*)\2\s*(?:#(\d+))?\s+([\s\S]+)$/
+	/^(left|right)\s+(["'])((?:(?!\2)[^\\]|\\.)*)\2\s*(?:#(\d+))?(?:\s+([\s\S]*))?$/
+
 // const LINE_NO_MATCH_RE = /^(left|right)\s+([\s\S]+)$/
-const NO_QUOTE_WITH_INDEX_RE = /^(left|right)\s*(?:#(\d+))?\s+([\s\S]+)$/
+const NO_QUOTE_WITH_INDEX_RE = /^(left|right)\s*(?:#(\d+))?(?:\s+([\s\S]*))?$/
 
 export function parseAnnotationBlock(source: string): ParsedAnnotation {
 	const rules: AnnotationRule[] = []
-	for (const rawLine of source.split('\n')) {
-		const line = rawLine.trim()
-		if (!line || line.startsWith('#')) continue
-		const rule = parseLine(line)
-		if (rule) rules.push(rule)
+
+	const lines = source.split('\n')
+
+	let currentRule: AnnotationRule | null = null
+
+	function flushCurrentRule() {
+		if (currentRule) {
+			currentRule.label = currentRule.label.trim()
+			rules.push(currentRule)
+			currentRule = null
+		}
 	}
+
+	for (const rawLine of lines) {
+		const trimmed = rawLine.trim()
+
+		// 空行：保留到当前 label 中
+		if (!trimmed) {
+			if (currentRule) {
+				currentRule.label += '\n'
+			}
+			continue
+		}
+
+		// 注释行
+		if (trimmed.startsWith('#')) continue
+
+		// 尝试解析为新规则
+		const rule = parseLine(trimmed)
+
+		if (rule) {
+			flushCurrentRule()
+			currentRule = rule
+			continue
+		}
+
+		// 否则视为上一条规则的 label 续行
+		if (currentRule) {
+			currentRule.label += '\n' + rawLine.trimEnd()
+		}
+	}
+
+	flushCurrentRule()
+
 	return { rules }
 }
 
@@ -58,7 +97,7 @@ function parseLine(line: string): AnnotationRule | null {
 	// 1. 尝试匹配带引号的情况
 	const m = LINE_WITH_MATCH_RE.exec(line)
 	if (m) {
-		const [, side, quote, rawMatch, indexStr, label] = m
+		const [, side, quote, rawMatch, indexStr, label = ''] = m
 
 		// 根据引号类型决定 displayMode
 		const displayMode: AnnotationDisplay = quote === "'" ? 'inline' : 'block'
@@ -78,7 +117,8 @@ function parseLine(line: string): AnnotationRule | null {
 	// 2. 尝试匹配不带引号的整行语法 (left/right label)
 	const m2 = NO_QUOTE_WITH_INDEX_RE.exec(line)
 	if (m2) {
-		const [, side, indexStr, label] = m2
+		const [, side, indexStr, label = ''] = m2
+
 		return {
 			side: side as AnnotationSide,
 			match: '',

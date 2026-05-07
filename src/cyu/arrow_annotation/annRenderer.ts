@@ -91,7 +91,6 @@ function buildCurvePath(
  * @param textRect
  * @returns
  */
-
 function drawCircle(
 	parent: SVGElement,
 	target: ArrowTarget
@@ -99,8 +98,8 @@ function drawCircle(
 	const textRect = target.textRect!!
 	const lineTag = target.lineTag
 
-	let roughness = 1
-	let strokeWidth = 1.4
+	let roughness = 0.6
+	let strokeWidth = 1
 
 	if (lineTag == 'CODE') {
 		roughness = 0.5
@@ -401,7 +400,7 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 		// 			path.setAttribute('stroke-width', '1.5')
 		// 			path.setAttribute('stroke-linecap', 'round')
 		// 			// marker-end 指向 label，视觉上箭头指向 label（注释说明目标）
-		// 			// 如果你想箭头指向文本，把 marker-end 换 marker-start
+		// 			// 如果想箭头指向文本，把 marker-end 换 marker-start
 		// 			path.setAttribute('marker-end', `url(#${MARKER_ID})`)
 		// 			path.setAttribute('pathLength', '100')
 		// 			path.classList.add('ann-connector', 'ann-connector-full')

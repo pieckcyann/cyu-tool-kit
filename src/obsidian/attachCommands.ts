@@ -49,9 +49,12 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 		id: 'sort-headings-in-source',
 		name: '源码模式下排序标题',
 		hotkeys: [{ modifiers: ['Ctrl', 'Shift'], key: 'Q' }],
-		editorCallback: () => {
-			sortHeadings(app)
-			new Notice('排序了标题')
+		editorCallback: async () => {
+			if (await sortHeadings(app)) {
+				new Notice('标题和引用都已更新')
+			} else {
+				new Notice('没有需要更新的标题')
+			}
 		},
 	})
 
@@ -59,7 +62,9 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 		id: 'delete-headings-prefix-in-source',
 		name: '源码模式下删除标题前缀',
 		editorCallback: () => {
-			removeHeadingPrefix(app)
+			const file = app.workspace.getActiveFile()
+			if (!file) return
+			app.vault.process(file, removeHeadingPrefix)
 			new Notice('删除了标题前缀')
 		},
 	})
@@ -180,6 +185,14 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 				return true
 			}
 			return false
+		},
+	})
+
+	plugin.addCommand({
+		id: 'ctk-test',
+		name: '测试测试测试',
+		callback: () => {
+			// renameTheHeading(app, '测试标题', '新测试标题')
 		},
 	})
 }

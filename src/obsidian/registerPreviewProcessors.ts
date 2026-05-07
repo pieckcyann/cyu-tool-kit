@@ -92,13 +92,13 @@ function processTableFlags(container: HTMLElement): void {
 
 		const text = firstChild.textContent || ''
 
-		// 4. 定义你的语法符号与类名的映射关系
+		// 4. 定义语法符号与类名的映射关系
 		const flags: Record<string, string> = {
 			'-': 'table-not-full-width', // 不全宽
 			'~': 'table-half-full-width', // 半全宽
-			'/': 'table-', //
-			'!': 'table-important', // 高亮显式
-			'^': 'table-narrow', // 紧凑模式
+			// '/': 'table-', //
+			// '!': 'table-important', // 高亮显式
+			// '^': 'table-narrow', // 紧凑模式
 		}
 
 		// 5. 检查开头字符
