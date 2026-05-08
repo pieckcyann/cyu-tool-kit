@@ -210,78 +210,72 @@ export function findLineStartRectByText(
 ): DOMRect | null {
 	const skip = options?.skipLeadingWhitespace ?? true
 	const walker = document.createTreeWalker(targetBlock, NodeFilter.SHOW_TEXT)
+	const buffer: { node: Text; text: string; startAt: number }[] = []
 
-	let node = walker.nextNode() as Text | null
-	let foundCount = 0
-	let buffer: { node: Text; text: string }[] = []
-
-	while (node) {
-		const text = node.textContent || ''
-		if (text.length > 0) buffer.push({ node, text })
-		node = walker.nextNode() as Text | null
+	let totalLen = 0
+	let node: Text | null
+	while ((node = walker.nextNode() as Text)) {
+		const t = node.textContent || ''
+		buffer.push({ node, text: t, startAt: totalLen })
+		totalLen += t.length
 	}
 
-	// 累计跨节点匹配
-	let i = 0 // buffer index
-	let offsetInNode = 0
-	let matchPos: { startNode: Text; startOffset: number } | null = null
-	let matchedCount = 0
-
-	let globalOffset = 0
 	const flatText = buffer.map((b) => b.text).join('')
 
-	while (globalOffset <= flatText.length - matchText.length) {
-		if (flatText.substr(globalOffset, matchText.length) === matchText) {
-			matchedCount++
-			if (matchedCount === matchIndex) {
-				// 找到对应全局 offset，映射到具体 node
-				let remaining = globalOffset
-				for (const b of buffer) {
-					if (remaining <= b.text.length) {
-						matchPos = { startNode: b.node, startOffset: remaining }
-						break
-					}
-					remaining -= b.text.length
-				}
-				break
-			}
-		}
-		globalOffset++
+	// 1. 找到匹配文本的全局起点
+	let matchGlobalPos = -1
+	let foundCount = 0
+	while ((matchGlobalPos = flatText.indexOf(matchText, matchGlobalPos + 1)) !== -1) {
+		foundCount++
+		if (foundCount === matchIndex) break
 	}
 
-	if (!matchPos) return null
+	if (matchGlobalPos === -1) return null
 
-	// 找行首
-	let lineStartNode = matchPos.startNode
-	let lineStartOffset = 0
-	let nodeText = lineStartNode.textContent || ''
-	for (let j = 0; j < matchPos.startOffset; j++) {
-		if (nodeText[j] === '\n') lineStartOffset = j + 1
+	// 2. 核心修正：在全局文本中向前找行首 (\n)
+	// 这样无论 \n 在哪个节点，都能找到
+	let lineStartGlobalPos = flatText.lastIndexOf('\n', matchGlobalPos)
+	if (lineStartGlobalPos === -1) {
+		lineStartGlobalPos = 0 // 没找到换行，说明在第一行
+	} else {
+		lineStartGlobalPos += 1 // 跳过 \n 字符本身
 	}
 
-	if (skip) {
-		while (
-			lineStartOffset < nodeText.length &&
-			(nodeText[lineStartOffset] === ' ' || nodeText[lineStartOffset] === '\t')
+	// 3. 将全局索引映射回具体的 Node 和 Offset
+	let targetNode: Text | null = null
+	let targetOffset = 0
+	for (const b of buffer) {
+		if (
+			lineStartGlobalPos >= b.startAt &&
+			lineStartGlobalPos < b.startAt + b.text.length
 		) {
-			lineStartOffset++
+			targetNode = b.node
+			targetOffset = lineStartGlobalPos - b.startAt
+			break
 		}
 	}
 
-	try {
-		const range = document.createRange()
-		range.setStart(lineStartNode, lineStartOffset)
-		range.setEnd(lineStartNode, lineStartOffset)
-		let rect = range.getBoundingClientRect()
-		if (rect.height === 0 || rect.width === 0) {
-			if (lineStartOffset + 1 <= nodeText.length)
-				range.setEnd(lineStartNode, lineStartOffset + 1)
-			rect = range.getBoundingClientRect()
+	if (!targetNode) return null
+
+	// 4. 处理跳过空格
+	const nodeText = targetNode.textContent || ''
+	if (skip) {
+		while (targetOffset < nodeText.length && /[ \t]/.test(nodeText[targetOffset])) {
+			targetOffset++
 		}
-		return rect
-	} catch {
-		return null
 	}
+
+	// 5. 测量位置
+	const range = document.createRange()
+	range.setStart(targetNode, targetOffset)
+	range.setEnd(targetNode, targetOffset)
+	// ... 后续 getBoundingClientRect 逻辑保持不变
+	let rect = range.getBoundingClientRect()
+	if (rect.width === 0 && targetOffset < nodeText.length) {
+		range.setEnd(targetNode, targetOffset + 1)
+		rect = range.getBoundingClientRect()
+	}
+	return rect
 }
 
 /**
@@ -299,91 +293,79 @@ export function findLineEndRectByText(
 	matchIndex: number
 ): DOMRect | null {
 	const walker = document.createTreeWalker(targetBlock, NodeFilter.SHOW_TEXT)
-	let node = walker.nextNode() as Text | null
-	let buffer: { node: Text; text: string }[] = []
+	const buffer: { node: Text; text: string; startAt: number }[] = []
 
-	while (node) {
-		const text = node.textContent || ''
-		if (text.length > 0) buffer.push({ node, text })
-		node = walker.nextNode() as Text | null
+	let totalLen = 0
+	let node: Text | null
+	while ((node = walker.nextNode() as Text)) {
+		const t = node.textContent || ''
+		buffer.push({ node, text: t, startAt: totalLen })
+		totalLen += t.length
 	}
-
-	// 累计跨节点匹配
-	let globalOffset = 0
-	let matchedCount = 0
-	let matchStartGlobal = -1
 
 	const flatText = buffer.map((b) => b.text).join('')
-	while (globalOffset <= flatText.length - matchText.length) {
-		if (flatText.substr(globalOffset, matchText.length) === matchText) {
-			matchedCount++
-			if (matchedCount === matchIndex) {
-				matchStartGlobal = globalOffset
-				break
-			}
-		}
-		globalOffset++
+
+	// 1. 找到匹配文本第 N 次出现的全局起始位置
+	let matchGlobalPos = -1
+	let foundCount = 0
+	while ((matchGlobalPos = flatText.indexOf(matchText, matchGlobalPos + 1)) !== -1) {
+		foundCount++
+		if (foundCount === matchIndex) break
 	}
 
-	if (matchStartGlobal === -1) return null
+	if (matchGlobalPos === -1) return null
 
-	// 找对应节点和offset
-	let remaining = matchStartGlobal + matchText.length
-	let endNode: Text | null = null
-	let endOffsetInNode = 0
+	// 2. 计算匹配文本之后的全局索引
+	const endOfMatchPos = matchGlobalPos + matchText.length
+
+	// 3. 在全局文本中向后找第一个换行符 \n
+	let lineEndGlobalPos = flatText.indexOf('\n', endOfMatchPos)
+
+	// 如果后面没有换行符了，则行尾就是整个块的文本末尾
+	if (lineEndGlobalPos === -1) {
+		lineEndGlobalPos = flatText.length
+	}
+
+	// 4. 将全局索引映射回具体的 Node 和 Offset
+	let targetNode: Text | null = null
+	let targetOffset = 0
+
 	for (const b of buffer) {
-		if (remaining <= b.text.length) {
-			endNode = b.node
-			endOffsetInNode = remaining
+		// 注意：行尾可能指向节点末尾，所以用 <=
+		if (lineEndGlobalPos >= b.startAt && lineEndGlobalPos <= b.startAt + b.text.length) {
+			targetNode = b.node
+			targetOffset = lineEndGlobalPos - b.startAt
 			break
 		}
-		remaining -= b.text.length
 	}
 
-	if (!endNode) return null
+	if (!targetNode) return null
 
-	// 找行尾（遇到 \n 停止）
-	const walkerForEnd = document.createTreeWalker(targetBlock, NodeFilter.SHOW_TEXT)
-	let foundStart = false
-	let prevNode: Text = endNode
-	let prevOffset = endOffsetInNode
-	node = walkerForEnd.nextNode() as Text | null
-	while (node) {
-		if (node === endNode) {
-			foundStart = true
-			node = walkerForEnd.nextNode() as Text | null
-			continue
-		}
-		if (!foundStart) {
-			node = walkerForEnd.nextNode() as Text | null
-			continue
-		}
-
-		const text = node.textContent || ''
-		let newlineIndex = text.indexOf('\n')
-		if (newlineIndex !== -1) {
-			endNode = node
-			endOffsetInNode = newlineIndex
-			break
-		}
-		prevNode = node
-		prevOffset = text.length
-		endNode = node
-		endOffsetInNode = text.length
-		node = walkerForEnd.nextNode() as Text | null
-	}
-
+	// 5. 测量位置
 	try {
 		const range = document.createRange()
-		range.setStart(endNode, endOffsetInNode)
-		range.setEnd(endNode, endOffsetInNode)
+		range.setStart(targetNode, targetOffset)
+		range.setEnd(targetNode, targetOffset)
+
 		let rect = range.getBoundingClientRect()
+
+		// 容错处理：如果正好在行尾且 rect 宽高为 0
+		// 尝试向前取一个字符来获取当前行的位置信息
 		if (rect.height === 0 || rect.width === 0) {
-			if (endOffsetInNode > 0) range.setStart(endNode, endOffsetInNode - 1)
+			if (targetOffset > 0) {
+				range.setStart(targetNode, targetOffset - 1)
+			} else {
+				// 如果当前节点开头就是行尾，尝试向后取一个字符（通常不会发生，除非是空行）
+				if (targetOffset + 1 <= targetNode.textContent!.length) {
+					range.setEnd(targetNode, targetOffset + 1)
+				}
+			}
 			rect = range.getBoundingClientRect()
 		}
+
 		return rect
-	} catch {
+	} catch (e) {
+		console.error('Failed to get rect:', e)
 		return null
 	}
 }

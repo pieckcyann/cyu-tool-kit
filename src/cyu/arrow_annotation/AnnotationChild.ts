@@ -436,7 +436,6 @@ function positionAndDrawArrows(
 				textRect = null
 				highlightType = 'none'
 			} else {
-				console.log('xxxxxxxxxxxxxxxxxxxx')
 				// 整块模式
 				lineRect = targetBlock.getBoundingClientRect()
 				textRect = null
@@ -654,14 +653,14 @@ function positionInlineLabels(
 					targetY = rectForY.top + rectForY.height / 2
 					found = true
 
-					el.addEventListener('click', () => {
-						showRectIndicator(rectForX)
-					})
+					// el.addEventListener('click', () => {
+					// 	showRectIndicator(rectForX)
+					// 	console.log('rectForX:', rectForX)
+					// 	console.log('rectForY:', rectForY)
+					// 	console.log('rule:', rule)
+					// })
 				} else {
-					new Notice(`有没匹配到的规则文本:${rule.match}`)
-					console.log('rectForX:', rectForX)
-					console.log('rectForY:', rectForY)
-					console.log('rule:', rule)
+					// new Notice(`有没匹配到的规则文本:${rule.match}`)
 				}
 			}
 

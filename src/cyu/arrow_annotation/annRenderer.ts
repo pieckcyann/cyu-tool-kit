@@ -28,6 +28,7 @@ const MARKER_ACTIVE_ID = 'annotation-arrow-head-active'
 
 const BREAK_THRESHOLD = 200 // 超过此水平距离视为"远距离"，启用断线模式(px)
 const STUB_LENGTH = 36 // 断线模式下，标签侧的短线长度(px)
+const STROKE_WIDTH = 1.5 // 线条粗细
 
 const ARROW_OFFSET = 6 // 箭头尖端距离文字的距离
 
@@ -99,11 +100,11 @@ function drawCircle(
 	const lineTag = target.lineTag
 
 	let roughness = 0.6
-	let strokeWidth = 1
+	let strokeWidth = STROKE_WIDTH
 
 	if (lineTag == 'CODE') {
 		roughness = 0.5
-		strokeWidth = 1
+		strokeWidth = STROKE_WIDTH
 	}
 	// console.log('lineTag:', lineTag)
 
@@ -415,8 +416,6 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 		const hDist = Math.abs(endPoint.x - start.x)
 		const isBreak = hDist > BREAK_THRESHOLD
 
-		const STROKE_WIDTH = 1.5 // 线条粗细
-
 		if (!isBreak) {
 			// ── 近距离：贝塞尔，整条线可 hover ──
 			const d = buildCurvePath(start, endPoint, t.side, t.seed)
@@ -468,7 +467,8 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 			stub.setAttribute('stroke', `url(#${gradId})`)
 			stub.setAttribute('stroke-width', `'${STROKE_WIDTH}'`)
 			stub.setAttribute('stroke-linecap', 'round')
-			stub.classList.add('ann-connector', 'ann-connector-stub')
+			// stub.classList.add('ann-connector', 'ann-connector-stub')
+			stub.classList.add('ann-connector', 'ann-connector-stub', 'ann-connector-full')
 			stub.style.pointerEvents = 'none' // stub 不响应鼠标
 			group.appendChild(stub)
 
