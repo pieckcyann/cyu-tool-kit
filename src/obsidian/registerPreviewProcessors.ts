@@ -82,38 +82,66 @@ function processTableFlags(container: HTMLElement): void {
 	const tables = container.querySelectorAll('table')
 
 	tables.forEach((table: HTMLTableElement) => {
-		// 2. 定位第一个表头单元格 (th)
+		// 2. 处理表格级 flag（只看第一个 th）
 		const firstTh = table.querySelector('th')
-		if (!firstTh) return
+		if (firstTh) {
+			const firstChild = firstTh.firstChild
 
-		// 3. 获取第一个文本节点（避免误伤嵌套的 HTML 标签）
-		const firstChild = firstTh.firstChild
-		if (!firstChild || firstChild.nodeType !== Node.TEXT_NODE) return
+			if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
+				const text = firstChild.textContent || ''
 
-		const text = firstChild.textContent || ''
+				// 语法符号与类名的映射关系
+				const flags: Record<string, string> = {
+					'-': 'table-not-full-width', // 不全宽
+					'~': 'table-half-full-width', // 半全宽
+					// '/': 'table-', //
+					// '!': 'table-important', // 高亮显式
+					// '^': 'table-narrow', // 紧凑模式
+				}
 
-		// 4. 定义语法符号与类名的映射关系
-		const flags: Record<string, string> = {
-			'-': 'table-not-full-width', // 不全宽
-			'~': 'table-half-full-width', // 半全宽
-			// '/': 'table-', //
-			// '!': 'table-important', // 高亮显式
-			// '^': 'table-narrow', // 紧凑模式
+				const firstChar = text.trimStart()[0]
+
+				if (flags[firstChar]) {
+					table.classList.add(flags[firstChar])
+
+					// 只移除开头 flag
+					firstChild.textContent = text.replace(/^\s*[-~]/, '').trimStart()
+				}
+			}
 		}
 
-		// 5. 检查开头字符
-		const firstChar = text.trimStart()[0]
+		// 3. 处理第一行每列的 [数字] 宽度语法
+		const firstRow = table.rows[0]
+		if (!firstRow) return
 
-		if (flags[firstChar]) {
-			// 添加对应的类名
-			table.classList.add(flags[firstChar])
+		Array.from(firstRow.cells).forEach((cell, colIndex) => {
+			const firstChild = cell.firstChild
+			if (!firstChild || firstChild.nodeType !== Node.TEXT_NODE) return
 
-			// 移除该符号：修改文本节点内容，保留剩余部分
-			// 使用 replace 确保只删掉第一个匹配到的符号
-			firstChild.textContent = text.replace(firstChar, '').trimStart()
+			const text = firstChild.textContent || ''
 
-			// 如果删掉符号后单元格空了，可以根据需要处理（通常保持原样即可）
-		}
+			// 匹配开头的 [数字]，允许用 \[数字] 转义
+			const escapedMatch = text.match(/^\s*\\\[(\d+)\]/)
+			if (escapedMatch) {
+				// 只是去掉转义符，不设置宽度
+				firstChild.textContent = text.replace(/^\s*\\(?=\[\d+\])/, '').trimStart()
+				return
+			}
+
+			const match = text.match(/^\s*\[(\d+)\]/)
+			if (!match) return
+
+			const width = Number(match[1])
+
+			Array.from(table.rows).forEach((row) => {
+				const targetCell = row.cells[colIndex]
+				if (targetCell) {
+					targetCell.style.width = `${width}px`
+				}
+			})
+
+			firstChild.textContent = text.replace(/^\s*\[\d+\]/, '').trimStart()
+		})
 	})
 }
 
