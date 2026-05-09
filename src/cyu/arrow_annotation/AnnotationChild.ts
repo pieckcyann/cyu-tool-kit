@@ -491,6 +491,7 @@ function findLineElementContaining(root: HTMLElement, range: Range): HTMLElement
 		'TH',
 		'BLOCKQUOTE',
 		'CODE',
+		'IMAGE',
 		// 'SVG', // TODO 新增 mermaid 支持
 	])
 	let node: Node | null = range.startContainer

@@ -25,8 +25,18 @@ export interface ParsedAnnotation {
 }
 
 /**
- * 优化后的正则：
- * 1. (left|right): 侧边
+ * 将 side 字符串标准化为 AnnotationSide
+ */
+function normalizeSide(sideStr: string): AnnotationSide | null {
+	const lower = sideStr.toLowerCase()
+	if (lower === 'left' || lower === 'l' || lower === '<') return 'left'
+	if (lower === 'right' || lower === 'r' || lower === '>') return 'right'
+	return null
+}
+
+/**
+ * 优化后的正则（支持 left/right/l/r/</>）：
+ * 1. (left|right|l|r|<|>): 侧边
  * 2. (["']): 捕获引号类型 (Group 2)
  * 3. ((?:[^\\]|\\.)*?): 非贪婪匹配引号内的内容 (Group 3)
  * 4. \2: 匹配与 Group 2 相同的结束引号
@@ -34,10 +44,10 @@ export interface ParsedAnnotation {
  * 6. ([\s\S]+): 剩余的 label 内容
  */
 const LINE_WITH_MATCH_RE =
-	/^(left|right)\s+(["'])((?:(?!\2)[^\\]|\\.)*)\2\s*(?:#(\d+))?(?:\s+([\s\S]*))?$/
+	/^(left|right|l|r|<|>)\s+(["'])((?:(?!\2)[^\\]|\\.)*)\2\s*(?:#(\d+))?(?:\s+([\s\S]*))?$/
 
-// const LINE_NO_MATCH_RE = /^(left|right)\s+([\s\S]+)$/
-const NO_QUOTE_WITH_INDEX_RE = /^(left|right)\s*(?:#(\d+))?(?:\s+([\s\S]*))?$/
+// 无引号语法：支持 left/right/l/r/</>，可选的索引，以及 label
+const NO_QUOTE_WITH_INDEX_RE = /^(left|right|l|r|<|>)\s*(?:#(\d+))?(?:\s+([\s\S]*))?$/
 
 export function parseAnnotationBlock(source: string): ParsedAnnotation {
 	const rules: AnnotationRule[] = []
@@ -96,9 +106,12 @@ export function parseAnnotationBlock(source: string): ParsedAnnotation {
 function parseLine(line: string): AnnotationRule | null {
 	// 1. 尝试匹配带引号的情况
 	const m = LINE_WITH_MATCH_RE.exec(line)
-	if (m) {
-		const [, side, quote, rawMatch, indexStr, label = ''] = m
 
+	if (m) {
+		const [, sideRaw, quote, rawMatch, indexStr, label = ''] = m
+
+		const side = normalizeSide(sideRaw)
+		if (!side) return null
 		// 根据引号类型决定 displayMode
 		const displayMode: AnnotationDisplay = quote === "'" ? 'inline' : 'block'
 
