@@ -1,4 +1,6 @@
+// annCommand.ts
 import { Command, Editor, MarkdownFileInfo, MarkdownView } from 'obsidian'
+import { CODE_LANGUAGE_NAME } from '../../obsidian/registerCodeblockProcessor'
 
 const createAnAnnotation = (direction: 'left' | 'right') => {
 	return (editor: Editor, ctx: MarkdownView | MarkdownFileInfo) => {
@@ -18,7 +20,7 @@ const createAnAnnotation = (direction: 'left' | 'right') => {
 
 		// 2. 准备插入内容
 		const selection = editor.getSelection()
-		const contentToInsert = `\n\`\`\`annt\n${direction} "${selection}" xxx\n\`\`\``
+		const contentToInsert = `\n\`\`\`${CODE_LANGUAGE_NAME}\n${direction} "${selection}" xxx\n\`\`\``
 
 		if (foundEmptyLine) {
 			// 如果找到了空行，直接在该行插入

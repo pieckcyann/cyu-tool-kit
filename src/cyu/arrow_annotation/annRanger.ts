@@ -1,4 +1,16 @@
+// annRanger.ts
 import { showRectIndicator } from '../../util/cyuUtil'
+
+// ─── 找图片的首尾 ─────────────────────────────────────────────────────────────
+
+export function findImageRect(targetBlock: HTMLElement): DOMRect | null {
+	// 在目标块中寻找 img 标签
+	const img = targetBlock.querySelector('img')
+	if (img) {
+		return img.getBoundingClientRect()
+	}
+	return null
+}
 
 // ─── 找行首/行尾 ─────────────────────────────────────────────────────────────
 

@@ -1,5 +1,4 @@
 // annParser.ts
-
 export type AnnotationSide = 'left' | 'right'
 export type AnnotationDisplay =
 	| 'block' // 栏外
@@ -130,7 +129,10 @@ function parseLine(line: string): AnnotationRule | null {
 	// 2. 尝试匹配不带引号的整行语法 (left/right label)
 	const m2 = NO_QUOTE_WITH_INDEX_RE.exec(line)
 	if (m2) {
-		const [, side, indexStr, label = ''] = m2
+		const [, sideRaw, indexStr, label = ''] = m2
+
+		const side = normalizeSide(sideRaw)
+		if (!side) return null
 
 		return {
 			side: side as AnnotationSide,

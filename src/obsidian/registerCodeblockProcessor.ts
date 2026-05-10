@@ -1,12 +1,13 @@
+// registerCodeblockProcessor.ts
 import { MarkdownPostProcessorContext, MarkdownView } from 'obsidian'
 import { AnnotationChild } from '../cyu/arrow_annotation/AnnotationChild'
 import CyuToolkitPlugin from '../main'
 
-// sourcePath → 上一个被渲染的块元素
+// sourcePath -> 上一个被渲染的块元素
 const lastBlockRegistry = new Map<string, HTMLElement>()
 
 // const CODE_LANGUAGE_NAME = 'annt'
-const CODE_LANGUAGE_NAME = 'cyu-annotation'
+export const CODE_LANGUAGE_NAME = 'cyu-annotation'
 
 export function registerCodeblockProcessors(plugin: CyuToolkitPlugin) {
 	const { app, settings } = plugin

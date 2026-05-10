@@ -10,6 +10,7 @@ import { parseAnnotationBlock, AnnotationRule, AnnotationSide } from './annParse
 import { renderArrows, ArrowTarget, HighlightType } from './annRenderer'
 import CyuToolkitPlugin from '../../main'
 import {
+	findImageRect,
 	findLineEndRect,
 	findLineEndRectByText,
 	findLineStartRect,
@@ -412,9 +413,9 @@ function positionAndDrawArrows(
 		)
 
 		// 测试每个注释的规则
-		// labelEl.addEventListener('click', () => {
-		// 	console.log('rule:', rule)
-		// })
+		labelEl.addEventListener('click', () => {
+			console.log('rule:', rule)
+		})
 
 		let textRect: DOMRect | null = null
 		let lineRect: DOMRect
@@ -430,14 +431,25 @@ function positionAndDrawArrows(
 				let rect
 				if (rule.side === 'right') rect = findLineEndRect(targetBlock, lineIndex)
 				else rect = findLineStartRect(targetBlock, lineIndex)
-				if (!rect) continue
+				if (!rect) {
+					rect = findImageRect(targetBlock)
+					if (!rect) continue
+				}
 
 				lineRect = rect
 				textRect = null
 				highlightType = 'none'
 			} else {
 				// 整块模式
-				lineRect = targetBlock.getBoundingClientRect()
+				let rect
+				// 先尝试找图片
+				rect = findImageRect(targetBlock)
+				if (!rect) {
+					// 没找到就用整个块元素
+					rect = targetBlock.getBoundingClientRect()
+				}
+
+				lineRect = rect
 				textRect = null
 				highlightType = 'whole'
 			}
@@ -491,13 +503,18 @@ function findLineElementContaining(root: HTMLElement, range: Range): HTMLElement
 		'TH',
 		'BLOCKQUOTE',
 		'CODE',
-		'IMAGE',
+		'IMG', // 支持图片
+		'SPAN', // 因为图片包裹在一个 span 中
 		// 'SVG', // TODO 新增 mermaid 支持
 	])
 	let node: Node | null = range.startContainer
 	while (node && node !== root) {
-		if (node.nodeType === Node.ELEMENT_NODE && LINE_TAGS.has((node as Element).tagName)) {
-			return node as HTMLElement
+		if (node.nodeType === Node.ELEMENT_NODE) {
+			const el = node as HTMLElement
+			// 检查是否是基础行标签，或者是带图片类名的 span
+			if (LINE_TAGS.has(el.tagName) || el.classList.contains('image-embed')) {
+				return el
+			}
 		}
 		node = node.parentNode
 	}
@@ -653,13 +670,6 @@ function positionInlineLabels(
 					anchorX = isLeft ? rectForX.left : rectForX.right
 					targetY = rectForY.top + rectForY.height / 2
 					found = true
-
-					// el.addEventListener('click', () => {
-					// 	showRectIndicator(rectForX)
-					// 	console.log('rectForX:', rectForX)
-					// 	console.log('rectForY:', rectForY)
-					// 	console.log('rule:', rule)
-					// })
 				} else {
 					// new Notice(`有没匹配到的规则文本:${rule.match}`)
 				}
@@ -667,9 +677,13 @@ function positionInlineLabels(
 
 			// 2. 行定位 fallback
 			else if (!found) {
-				const rect = isLeft
-					? findLineStartRect(targetBlock, finalMatchIndex)
-					: findLineEndRect(targetBlock, finalMatchIndex)
+				// 先尝试找图片
+				let rect = findImageRect(targetBlock)
+				if (!rect) {
+					rect = isLeft
+						? findLineStartRect(targetBlock, finalMatchIndex)
+						: findLineEndRect(targetBlock, finalMatchIndex)
+				}
 
 				if (rect) {
 					anchorX = isLeft ? rect.left : rect.right

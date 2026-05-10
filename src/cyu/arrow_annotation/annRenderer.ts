@@ -106,10 +106,13 @@ function drawCircle(
 		roughness = 0.5
 		strokeWidth = STROKE_WIDTH
 	}
-	// console.log('lineTag:', lineTag)
+	// 针对图片调整手绘参数
+	if (lineTag === 'IMG' || lineTag === 'SPAN') {
+		roughness = 0.3 // 图片标注通常需要更规整一点的圈
+	}
 
 	const cr = target.containerRect
-	const pad = 6 // 增加间距让圈看起来更从容
+	const pad = 4 // 增加间距让圈看起来更从容
 
 	// 计算相对于容器的坐标
 	const x = textRect.left - cr.left - pad
@@ -325,6 +328,7 @@ export function renderArrows(container: HTMLElement, targets: ArrowTarget[]): vo
 			endPoint = { x: res.x, y: res.y }
 			highlightEl = res.el
 		} else if (t.highlightType === 'whole' && t.textRect) {
+			// 整块
 			const lineMidY = cr.y * 0.5 // y 始终指向整块的中间
 			if (t.side === 'left') {
 				// 行首：x 坐标就是左边界
