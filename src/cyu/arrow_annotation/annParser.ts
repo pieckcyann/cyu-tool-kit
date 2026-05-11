@@ -10,7 +10,7 @@ export interface AnnotationRule {
 	side: AnnotationSide
 	/** 在目标块中匹配的文本 (空字符串 = 指向整行) */
 	match: string
-	/** 第几次出现 (1-based)，默认为 null (未指定) */
+	/** 第几次出现 (1-based)，支持负数，默认为 null (未指定) */
 	matchIndex: number | null
 	/** 注释内容，支持 inline markdown */
 	label: string
@@ -39,14 +39,14 @@ function normalizeSide(sideStr: string): AnnotationSide | null {
  * 2. (["']): 捕获引号类型 (Group 2)
  * 3. ((?:[^\\]|\\.)*?): 非贪婪匹配引号内的内容 (Group 3)
  * 4. \2: 匹配与 Group 2 相同的结束引号
- * 5. (?:#(\d+))?: 可选的索引
+ * 5. (?:#(-?\d+))?: 可选的索引（支持负数）
  * 6. ([\s\S]+): 剩余的 label 内容
  */
 const LINE_WITH_MATCH_RE =
-	/^(left|right|l|r|<|>)\s+(["'])((?:(?!\2)[^\\]|\\.)*)\2\s*(?:#(\d+))?(?:\s+([\s\S]*))?$/
+	/^(left|right|l|r|<|>)\s+(["'])((?:(?!\2)[^\\]|\\.)*)\2\s*(?:#(-?\d+))?(?:\s+([\s\S]*))?$/
 
-// 无引号语法：支持 left/right/l/r/</>，可选的索引，以及 label
-const NO_QUOTE_WITH_INDEX_RE = /^(left|right|l|r|<|>)\s*(?:#(\d+))?(?:\s+([\s\S]*))?$/
+// 无引号语法：支持 left/right/l/r/</>，可选的索引（支持负数 ），以及 label
+const NO_QUOTE_WITH_INDEX_RE = /^(left|right|l|r|<|>)\s*(?:#(-?\d+))?(?:\s+([\s\S]*))?$/
 
 export function parseAnnotationBlock(source: string): ParsedAnnotation {
 	const rules: AnnotationRule[] = []

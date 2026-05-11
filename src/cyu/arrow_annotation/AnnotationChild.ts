@@ -467,6 +467,7 @@ function positionAndDrawArrows(
 			const charLen = rule.match.length
 			highlightType = charLen < 12 ? 'circle' : charLen < 80 ? 'wave' : 'none'
 		}
+		console.log('rule:', rule)
 
 		// const isInline = labelEl.classList.contains('annotation-label--inline-right')
 		const isInline = rule.display === 'inline'
@@ -520,103 +521,6 @@ function findLineElementContaining(root: HTMLElement, range: Range): HTMLElement
 	}
 	return null
 }
-
-// /** 找 targetBlock 里第一个视觉行元素（line 模式 fallback） */
-// function findLineElement(block: HTMLElement): HTMLElement | null {
-// 	const LINE_TAGS = [
-// 		'p',
-// 		'li',
-// 		'h1',
-// 		'h2',
-// 		'h3',
-// 		'h4',
-// 		'h5',
-// 		'h6',
-// 		'td',
-// 		'th',
-// 		'blockquote',
-// 		// 'code',
-// 	]
-// 	for (const tag of LINE_TAGS) {
-// 		const el = block.querySelector(tag)
-// 		if (el) return el as HTMLElement
-// 	}
-// 	return block
-// }
-//
-// /**
-//  * 在 block 内找到 textContent 包含 matchText 的第 matchIndex 个元素。
-//  * 优先返回最深层的元素，使箭头尽可能精确地指向目标文本所在行。
-//  */
-// function findMatchingLine(
-// 	block: HTMLElement,
-// 	matchText: string,
-// 	matchIndex: number
-// ): HTMLElement | null {
-// 	const candidates = collectVisualLines(block)
-//
-// 	let count = 0
-// 	for (const el of candidates) {
-// 		if (el.textContent?.includes(matchText)) {
-// 			count++
-// 			if (count === matchIndex) return el
-// 		}
-// 	}
-//
-// 	return null
-// }
-//
-// /**
-//  * 收集 root 内所有"视觉行"元素，按 DOM 深度降序排列（最深优先）。
-//  * 视觉行定义：特定标签且 textContent 非空的元素。
-//  */
-// function collectVisualLines(root: HTMLElement): HTMLElement[] {
-// 	const VISUAL_LINE_TAGS = new Set([
-// 		'p',
-// 		'li',
-// 		'td',
-// 		'th',
-// 		'h1',
-// 		'h2',
-// 		'h3',
-// 		'h4',
-// 		'h5',
-// 		'h6',
-// 		'blockquote',
-// 		'code',
-// 		'span',
-// 		'a',
-// 		'strong',
-// 		'em',
-// 	])
-//
-// 	const results: HTMLElement[] = []
-// 	const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT)
-//
-// 	let node = walker.nextNode() as HTMLElement | null
-// 	while (node) {
-// 		const tag = node.tagName.toLowerCase()
-// 		if (VISUAL_LINE_TAGS.has(tag) && node.textContent?.trim()) {
-// 			results.push(node)
-// 		}
-// 		node = walker.nextNode() as HTMLElement | null
-// 	}
-//
-// 	// 深度越深优先级越高，匹配更精确的子元素
-// 	results.sort((a, b) => domDepth(b) - domDepth(a))
-//
-// 	return results
-// }
-//
-// function domDepth(el: Element): number {
-// 	let depth = 0
-// 	let cur: Element | null = el
-// 	while (cur) {
-// 		depth++
-// 		cur = cur.parentElement
-// 	}
-// 	return depth
-// }
 
 /**
  * 调整每个行内注释块的位置
