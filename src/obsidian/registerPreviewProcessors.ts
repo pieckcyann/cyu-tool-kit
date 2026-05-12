@@ -11,7 +11,8 @@ import IconGallery from '../cyu/IconGallery'
 import { createSpeakerBlock } from './service/createSpeakerBlock'
 import CyuToolkitPlugin from './../main'
 import FontGallery from '../cyu/FontGallery'
-import { TimeTagChild } from '../cyu/time_tag/TimeTagChild'
+import { TimeTagChild } from '../cyu/time-tag/TimeTagChild'
+import { inlineCodeHighlighter } from '../cyu/inline-code-highlight/inlineCodeHighlighter'
 
 /**
  * Single entry-point for all `registerMarkdownPostProcessor` calls.
@@ -73,6 +74,8 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 
 			// 表格设置
 			processTableFlags(el)
+
+			inlineCodeHighlighter(el)
 		}
 	)
 }

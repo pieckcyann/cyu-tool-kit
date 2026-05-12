@@ -7,10 +7,10 @@
 }
 
 /* 中间列：目标内容块的相对定位，不改变原有元素的尺寸和流) */
-.annotation-wrapper {
-    position: relative;
-    display: block;
-}
+// .annotation-wrapper {
+//     position: relative;
+//     display: block;
+// }
 
 /* 注释列：绝对定位浮在文档两侧，不占文档流空间 */
 .annotation-col {
@@ -74,20 +74,25 @@
     max-width: var(--annotation-label-max-width, 345px);
     width: max-content; // 打破父级收缩限制，告诉它“尽可能长” 
 
+    &.ann-label-inline {
+        width: fit-content !important;
+        white-space: nowrap;
+    }
+
     pointer-events: auto; // 这是可以 hover 的关键
     cursor: pointer;
 
     // 用 box-shadow 而非 outline，穿透力更强，不受子元素影响
     transition: box-shadow 0.1s ease,
-        opacity 0.1s ease,
-        color 0.1s ease;
+    opacity 0.1s ease,
+    color 0.1s ease;
 
     // MarkdownRenderer 渲染的直接子元素（p, span 等）
     // >* {
     //     transition: color 0.1s ease;
     // }
 
-    opacity: 0.7;
+    // opacity: 0.7;
 
     &.ann-label-active {
         // color: var(--ann-color-active);

@@ -7,7 +7,7 @@ import { setAutoPinned } from './service/setAutopinned'
 import {
 	createLeftAnnotation,
 	createRightAnnotation,
-} from '../cyu/arrow_annotation/annCommand'
+} from '../cyu/arrow-annotation/annCommand'
 
 /**
  * Registers all plugin commands.

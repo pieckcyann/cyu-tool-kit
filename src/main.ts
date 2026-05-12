@@ -17,10 +17,10 @@ import { CyuTookitSettings, DEFAULT_SETTINGS } from './setting/SettingData'
 import { toggleHoverSidebar } from './obsidian/service/toggleHoverSidebar'
 import { attachCommands } from './obsidian/attachCommands'
 import { registerPreviewProcessors } from './obsidian/registerPreviewProcessors'
-import { TimeTagViewPlugin } from './cyu/time_tag/TimeTagViewPlugin'
-import { TimeTagChild } from './cyu/time_tag/TimeTagChild'
+import { TimeTagViewPlugin } from './cyu/time-tag/TimeTagViewPlugin'
+import { TimeTagChild } from './cyu/time-tag/TimeTagChild'
 import { registerCodeblockProcessors } from './obsidian/registerCodeblockProcessor'
-import { AnnotationChild } from './cyu/arrow_annotation/AnnotationChild'
+import { AnnotationChild } from './cyu/arrow-annotation/AnnotationChild'
 import { customFoldExtension, autoFoldPlugin } from './cyu/AutoFoldViewPlugin'
 
 export default class CyuToolkitPlugin extends Plugin {

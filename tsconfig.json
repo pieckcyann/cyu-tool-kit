@@ -4,7 +4,7 @@
 		"inlineSourceMap": true,
 		"inlineSources": true,
 		"module": "ESNext",
-		"target": "ES6",
+		"target": "ES2018",
 		"allowJs": true,
 		"noImplicitAny": true,
 		// "moduleResolution": "node",
@@ -21,7 +21,9 @@
 			"ESNext"
 		],
 		"jsx": "react-jsx",
-		"useUnknownInCatchVariables": false
+		"useUnknownInCatchVariables": false,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true
 	},
 	"include": [
 		"**/*.ts",

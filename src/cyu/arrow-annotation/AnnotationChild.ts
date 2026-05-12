@@ -194,6 +194,8 @@ export class AnnotationChild extends MarkdownRenderChild {
 			(r) => r.side === 'right' && r.display === 'inline'
 		)
 
+		console.log('targetBlock:', targetBlock)
+
 		// const leftWholeRules = rules.filter((r) => r.side === 'left' && r.display === 'whole')
 		// const rightWholeRules = rules.filter(
 		// 	(r) => r.side === 'right' && r.display === 'whole'
@@ -467,7 +469,7 @@ function positionAndDrawArrows(
 			const charLen = rule.match.length
 			highlightType = charLen < 12 ? 'circle' : charLen < 80 ? 'wave' : 'none'
 		}
-		console.log('rule:', rule)
+		// console.log('rule:', rule)
 
 		// const isInline = labelEl.classList.contains('annotation-label--inline-right')
 		const isInline = rule.display === 'inline'
@@ -623,6 +625,8 @@ function positionInlineLabels(
 			el.style.right = 'auto'
 			el.style.left = `${relativeX + INLINE_GAP}px`
 		}
+
+		el.classList.add('ann-label-inline')
 		// el.style.backgroundColor = 'cyan' // 行内注释
 	}
 }

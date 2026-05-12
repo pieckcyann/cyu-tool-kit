@@ -1,6 +1,6 @@
 // registerCodeblockProcessor.ts
 import { MarkdownPostProcessorContext, MarkdownView } from 'obsidian'
-import { AnnotationChild } from '../cyu/arrow_annotation/AnnotationChild'
+import { AnnotationChild } from '../cyu/arrow-annotation/AnnotationChild'
 import CyuToolkitPlugin from '../main'
 
 // sourcePath -> 上一个被渲染的块元素
