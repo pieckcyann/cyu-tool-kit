@@ -306,7 +306,8 @@ export class AnnotationChild extends MarkdownRenderChild {
 
 		// 分类挂属性
 		const type = this.classifyText(el)
-		el.dataset.annotationType = type
+		// el.dataset.annotationType = type
+		el.setAttr('annotationType', type)
 
 		// short：稍后 renderer 画圈
 		// long：稍后 renderer 画波浪线

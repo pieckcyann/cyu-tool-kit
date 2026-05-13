@@ -197,9 +197,8 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 	})
 
 	plugin.addCommand({
-		id: 'trigger-combined-keys',
+		id: 'new-tab-and-command-palette-open',
 		name: '新建Tab并执行命令',
-		// 设置默认快捷键为 Ctrl + Shift + P
 		hotkeys: [{ modifiers: ['Mod', 'Shift'], key: 'p' }],
 		callback: () => {
 			// @ts-ignore
@@ -210,15 +209,14 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 	})
 
 	plugin.addCommand({
-		id: 'trigger-combined-keys',
+		id: 'new-tab-and-switcher-open',
 		name: '新建Tab并选择文件',
-		// 设置默认快捷键为 Ctrl + Shift + P
 		hotkeys: [{ modifiers: ['Mod', 'Shift'], key: 'o' }],
 		callback: () => {
 			// @ts-ignore
 			app.commands.executeCommandById('workspace:new-tab')
 			// @ts-ignore
-			app.commands.executeCommandById('command-palette:open')
+			app.commands.executeCommandById('switcher:open')
 		},
 	})
 }

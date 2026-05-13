@@ -61,3 +61,43 @@
 //     opacity: 1;
 //     transition: filter 0.1s ease-out, opacity 0.1s ease-out;
 // }
+
+/* 针对包裹容器的布局 */
+.markdown-rendered {
+
+    .el-h2,
+    .el-h3 {
+        position: relative;
+        /* 这里不需要给 el-h3 加 padding，保持正文原位 */
+    }
+
+    .heading-prefix {
+        position: absolute;
+        right: 0;
+        width: 100px;
+        text-align: right;
+
+        /* 保持严肃、不干扰阅读的样式 */
+        font-family: inherit;
+        font-size: 0.85em;
+        color: inherit;
+        opacity: 0.4;
+        font-variant-numeric: tabular-nums;
+        pointer-events: none;
+
+        /* 这里的垂直对齐可能需要根据你的行高微调 */
+        top: 0.6em;
+    }
+
+    /* 悬浮时高亮前缀 */
+    .el-h2:hover .heading-prefix,
+    .el-h3:hover .heading-prefix {
+        opacity: 1;
+        transition: opacity 0.2s ease;
+    }
+
+    /* 确保标题正文本体样式不受影响 */
+    .hanging-heading-content {
+        margin-left: 0 !important;
+    }
+}

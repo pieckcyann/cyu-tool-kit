@@ -76,8 +76,56 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 			processTableFlags(el)
 
 			inlineCodeHighlighter(el)
+
+			// processHeadingPrefix(el)
 		}
 	)
+}
+
+function processHeadingPrefix(container: HTMLElement) {
+	const wrappers = container.findAllSelf('.el-h3')
+
+	wrappers.forEach((wrapper) => {
+		const heading = wrapper.querySelector('h3')
+		if (!heading) return
+
+		// 遍历子节点找到第一个非空的文本节点
+		let textNode = null
+		for (const node of heading.childNodes) {
+			if (node.nodeType === Node.TEXT_NODE && node?.textContent?.trim() !== '') {
+				textNode = node
+				break
+			}
+		}
+
+		if (textNode) {
+			const content = textNode?.textContent?.trim()
+			if (!content) return
+			const match = content.match(/^(\d+(?:\.\d+)?)\s*(.*)/)
+
+			if (match) {
+				const [_, prefixText, titleText] = match
+
+				console.log('prefixText:', prefixText)
+
+				// 1. 更新原标题文本：删掉前缀数字
+				textNode.textContent = ' ' + titleText
+
+				// 2. 在父容器下创建/更新前缀（确保只加一次）
+				let prefixSpan = wrapper.querySelector('.heading-prefix')
+				if (!prefixSpan) {
+					prefixSpan = document.createElement('span')
+					prefixSpan.className = 'heading-prefix'
+					// 挂在父容器的最前面
+					wrapper.prepend(prefixSpan)
+				}
+				prefixSpan.textContent = prefixText
+
+				// 给父容器加个类名方便样式控制
+				wrapper.classList.add('has-hanging-prefix')
+			}
+		}
+	})
 }
 
 function processTableFlags(container: HTMLElement): void {
