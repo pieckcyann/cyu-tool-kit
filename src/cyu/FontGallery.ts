@@ -29,7 +29,7 @@ export default class FontGallery extends MarkdownRenderChild {
 	async renderFontGallery() {
 		const enText = 'The quick brown fox jumps over the lazy dog. 1234567890.'
 		const zhText = '落霞与孤鹜齐飞，秋水共长天一色。'
-		const symbolText = '!@#$%^&*()_+-=[]{}|;\':",./<>?`~'
+		const symbolText = '✅❌🚀🍘!@#$%^&*()_+-=[]{}|;\':",./<>?`~'
 
 		const sectionInfo = this.ctx.getSectionInfo(this.containerEl)
 		const activeFile = this.app.workspace.getActiveFile()
