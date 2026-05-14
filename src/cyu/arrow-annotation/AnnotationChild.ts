@@ -468,7 +468,7 @@ function positionAndDrawArrows(
 
 			// 按文本长度分类
 			const charLen = rule.match.length
-			highlightType = charLen < 12 ? 'circle' : charLen < 80 ? 'wave' : 'none'
+			highlightType = charLen < 9 ? 'circle' : charLen < 80 ? 'wave' : 'none'
 		}
 		// console.log('rule:', rule)
 
@@ -490,6 +490,7 @@ function positionAndDrawArrows(
 	}
 
 	renderArrows(wrapper, targets)
+
 }
 
 /** 找包含 range 起点的最近行级祖先元素 */
