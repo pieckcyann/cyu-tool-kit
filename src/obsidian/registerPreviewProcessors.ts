@@ -78,8 +78,33 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 			inlineCodeHighlighter(el)
 
 			// processHeadingPrefix(el)
+
+			applyFakeItalic(el)
 		}
 	)
+}
+
+function applyFakeItalic(container: HTMLElement) {
+	const elements = container.querySelectorAll('em')
+
+	elements.forEach((el) => {
+		if (el.dataset.fakeItalicApplied) {
+			return
+		}
+
+		el.dataset.fakeItalicApplied = 'true'
+
+		const text = el.textContent ?? ''
+
+		el.innerHTML = ''
+
+		for (const ch of text) {
+			const span = document.createElement('span')
+			span.className = 'fake-italic-char'
+			span.textContent = ch
+			el.appendChild(span)
+		}
+	})
 }
 
 function processHeadingPrefix(container: HTMLElement) {
