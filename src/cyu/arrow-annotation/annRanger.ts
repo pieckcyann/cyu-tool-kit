@@ -27,6 +27,8 @@ export function findLineEndRect(
 	let currentLine = 1
 	let node = walker.nextNode() as Text | null
 
+	console.log('countTotalLines:', countTotalLines(targetBlock))
+
 	while (node) {
 		const text = node.textContent || ''
 		let startSearchOffset = 0
@@ -400,7 +402,9 @@ function countTotalLines(targetBlock: HTMLElement): number {
 
 		// 统计当前节点中换行符的数量
 		for (let i = 0; i < text.length; i++) {
+			let n = 0
 			if (text[i] === '\n') {
+				n = i
 				newlineCount++
 			}
 		}

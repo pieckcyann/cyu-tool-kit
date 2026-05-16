@@ -194,8 +194,6 @@ export class AnnotationChild extends MarkdownRenderChild {
 			(r) => r.side === 'right' && r.display === 'inline'
 		)
 
-		console.log('targetBlock:', targetBlock)
-
 		// const leftWholeRules = rules.filter((r) => r.side === 'left' && r.display === 'whole')
 		// const rightWholeRules = rules.filter(
 		// 	(r) => r.side === 'right' && r.display === 'whole'
@@ -490,7 +488,6 @@ function positionAndDrawArrows(
 	}
 
 	renderArrows(wrapper, targets)
-
 }
 
 /** 找包含 range 起点的最近行级祖先元素 */
@@ -587,10 +584,13 @@ function positionInlineLabels(
 			else if (!found) {
 				// 先尝试找图片
 				let rect = findImageRect(targetBlock)
+
 				if (!rect) {
 					rect = isLeft
 						? findLineStartRect(targetBlock, finalMatchIndex)
 						: findLineEndRect(targetBlock, finalMatchIndex)
+					// console.log('rect:', rect)
+					// showRectIndicator(rect, true)
 				}
 
 				if (rect) {
@@ -618,7 +618,8 @@ function positionInlineLabels(
 
 		el.style.position = 'absolute'
 		el.style.top = `${relativeY}px`
-		el.style.transform = 'translateY(-50%) rotate(2deg)'
+		// el.style.transform = `translateY(-50% + ${el.offsetHeight}) rotate(1deg)`
+		el.style.transform = 'translateY(-20%) rotate(1deg)'
 
 		if (isLeft) {
 			el.style.left = 'auto'

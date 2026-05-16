@@ -102,12 +102,23 @@
     }
 }
 
+
 em {
     font-style: normal;
+    /* 确保内部的 inline-block span 能够正常流式换行，同时保留原有的断字规则 */
+    white-space: normal;
+    word-break: break-word;
 }
 
-.fake-italic-char {
+.fake-italic-line {
     display: inline-block;
     transform: skew(-8deg);
     transform-origin: left bottom;
+
+    /* 核心视觉缓冲优化：防止行尾最后一个英文字母或标点的右上角被裁切 */
+    // padding-right: 0.15em;
+    // margin-right: -0.15em;
+
+    /* 保持行内块元素的连贯性，避免多余的空间塌陷 */
+    // vertical-align: bottom;
 }
