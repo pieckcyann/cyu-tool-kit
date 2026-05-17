@@ -1,16 +1,15 @@
 {
-	"less.compile": {
-		"compress": false, //是否压缩
-		"sourceMap": false, //是否生成map文件，有了这个可以在调试台看到less行数
-		"out": "${workspaceRoot}\\", // 输出文件目录 这里为css文件夹
-		"outExt": ".css" // 输出文件的后缀
-	},
 	"editor.tabSize": 4, // 制表符长度
 	"editor.insertSpaces": false, // true: 空格缩进 false:制表符缩进
 	"flow-icons.folders.associations": {
 		"cyu": "jinja",
+		"arrow-annotation": "purple",
+		"inline-code-highlight": "blue",
+		"time-tag": "brown",
 		"obsidian": "home",
-		"arrow_annotation": "jinja",
+		"obsidian/codeblock": "home",
+		"obsidian/command": "home",
+		"obsidian/preview": "home",
 		"time_tag": "jinja",
 		"editor": "jinja",
 		"processor": "jinja"
@@ -23,7 +22,7 @@
 		"NOTE ",
 		" - ",
 		" ─── ",
-		"#region ! "
+		"#region "
 	],
 	"todo-tree.highlights.customHighlight": {
 		" - ": {

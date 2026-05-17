@@ -1,4 +1,4 @@
-// ─── over toggle sidebars ────────────────────────────────────────────────────────────
+// ─── Hover Toggle Sidebars ────────────────────────────────────────────────────────────
 
 // right ribbon
 .workspace-ribbon.side-dock-ribbon.mod-right {
@@ -9,7 +9,7 @@
 
 
 // TODO 有卡顿的bug
-// 强制改变侧边栏 toggle 过渡效果 
+// 强制改变侧边栏 toggle 过渡效果
 .workspace-split.mod-horizontal.mod-sidedock.mod-right-split,
 .workspace-split.mod-horizontal.mod-sidedock.mod-left-split,
 .workspace-split.mod-vertical.mod-root {
@@ -32,7 +32,7 @@
     transition: opacity 0.25s ease-in-out, filter 0.25s ease-in-out;
 }
 
-// ─── 切换后的进入动画 ────────────────────────────────────────────────────────────
+// ─── 笔记模式切换动画 ────────────────────────────────────────────────────────────
 
 /* 切换后的进入动画 */
 /* 初始状态：完全透明且不占位（或保持位置但不可见） */
@@ -62,51 +62,57 @@
 //     transition: filter 0.1s ease-out, opacity 0.1s ease-out;
 // }
 
-/* 针对包裹容器的布局 */
-.markdown-rendered {
+// ─── 标题前缀 ────────────────────────────────────────────────────────────
 
-    .el-h2,
-    .el-h3 {
-        position: relative;
-        /* 这里不需要给 el-h3 加 padding，保持正文原位 */
-    }
+// .markdown-rendered {
+// 
+//     .el-h2,
+//     .el-h3 {
+//         position: relative;
+//     }
+// 
+//     .heading-prefix {
+//         position: absolute;
+//         right: 0;
+//         width: 100px;
+//         text-align: right;
+// 
+//         // 保持严肃、不干扰阅读的样式
+//         font-family: inherit;
+//         font-size: 0.85em;
+//         color: inherit;
+//         opacity: 0.4;
+//         font-variant-numeric: tabular-nums;
+//         pointer-events: none;
+// 
+//         // 这里的垂直对齐可能需要根据行高微调 
+//         top: 0.6em;
+//     }
+// 
+//     // 悬浮时高亮前缀 
+//     .el-h2:hover .heading-prefix,
+//     .el-h3:hover .heading-prefix {
+//         opacity: 1;
+//         transition: opacity 0.2s ease;
+//     }
+// 
+//     // 确保标题正文本体样式不受影响
+//     .hanging-heading-content {
+//         margin-left: 0 !important;
+//     }
+// }
 
-    .heading-prefix {
-        position: absolute;
-        right: 0;
-        width: 100px;
-        text-align: right;
+// ─── 行内语法高亮 ────────────────────────────────────────────────────────────
 
-        /* 保持严肃、不干扰阅读的样式 */
-        font-family: inherit;
-        font-size: 0.85em;
-        color: inherit;
-        opacity: 0.4;
-        font-variant-numeric: tabular-nums;
-        pointer-events: none;
-
-        /* 这里的垂直对齐可能需要根据你的行高微调 */
-        top: 0.6em;
-    }
-
-    /* 悬浮时高亮前缀 */
-    .el-h2:hover .heading-prefix,
-    .el-h3:hover .heading-prefix {
-        opacity: 1;
-        transition: opacity 0.2s ease;
-    }
-
-    /* 确保标题正文本体样式不受影响 */
-    .hanging-heading-content {
-        margin-left: 0 !important;
-    }
+&[class*="language-"] {
+    background-color: var(--code-background) !important;
 }
 
+// ─── 自定义斜体 ────────────────────────────────────────────────────────────
 
 em {
     font-style: normal;
-    /* 确保内部的 inline-block span 能够正常流式换行，同时保留原有的断字规则 */
-    white-space: normal;
+    white-space: normal; // 确保内部的 inline-block span 能够正常流式换行，同时保留原有的断字规则
     word-break: break-word;
 }
 

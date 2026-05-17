@@ -4,15 +4,15 @@ import {
 	parseFrontMatterEntry,
 	parseFrontMatterStringArray,
 } from 'obsidian'
-import ClickCopyBlock from '../cyu/ClickCopyBlock'
-import { parseM3u8Video } from './service/m3u8Transformer'
-import ColorGallery from '../cyu/ColorGallery'
-import IconGallery from '../cyu/IconGallery'
-import { createSpeakerBlock } from './service/createSpeakerBlock'
-import CyuToolkitPlugin from './../main'
-import FontGallery from '../cyu/FontGallery'
-import { TimeTagChild } from '../cyu/time-tag/TimeTagChild'
-import { inlineCodeHighlighter } from '../cyu/inline-code-highlight/inlineCodeHighlighter'
+import ClickCopyBlock from '../../cyu/ClickCopyBlock'
+import { parseM3u8Video } from './m3u8Transformer'
+import ColorGallery from '../../cyu/ColorGallery'
+import IconGallery from '../../cyu/IconGallery'
+import { createSpeakerBlock } from './createSpeakerBlock'
+import CyuToolkitPlugin from '../../main'
+import FontGallery from '../../cyu/FontGallery'
+import { TimeTagChild } from '../../cyu/time-tag/TimeTagChild'
+import { inlineCodeHighlighter } from '../../cyu/inline-code-highlight/inlineCodeHighlighter'
 
 /**
  * Single entry-point for all `registerMarkdownPostProcessor` calls.

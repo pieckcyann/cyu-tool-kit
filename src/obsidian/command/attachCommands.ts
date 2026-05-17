@@ -1,13 +1,13 @@
 import { App, Editor, MarkdownView, Notice, TFile } from 'obsidian'
-import { CyuTookitSettings } from '../setting/SettingData'
-import { removeHeadingPrefix, sortHeadings } from '../helper/sortHeadings'
-import { toggleHoverSidebar } from './service/toggleHoverSidebar'
-import CyuToolkitPlugin from '../main'
-import { setAutoPinned } from './service/setAutopinned'
+import { CyuTookitSettings } from '../../setting/SettingData'
+import { removeHeadingPrefix, sortHeadings } from '../../helper/sortHeadings'
+import { toggleHoverSidebar } from './toggleHoverSidebar'
+import CyuToolkitPlugin from '../../main'
 import {
 	createLeftAnnotation,
 	createRightAnnotation,
-} from '../cyu/arrow-annotation/annCommand'
+} from '../../cyu/arrow-annotation/annCommand'
+import { setAutoPinned } from './setAutopinned'
 
 /**
  * Registers all plugin commands.
@@ -221,21 +221,29 @@ export function attachCommands(plugin: CyuToolkitPlugin) {
 	})
 }
 
-// ── helpers ───────────────────────────────────────────────────────────────────
-
 async function openNoteByPath(app: App, notePath: string): Promise<void> {
 	const file = app.vault.getAbstractFileByPath(notePath)
 	if (!(file instanceof TFile)) {
 		console.warn('File not found:', notePath)
 		return
 	}
+	// 主区域新建一个 leaf（新 tab）
+	const newLeaf = app.workspace.getLeaf('tab')
+	await newLeaf.openFile(file, { active: true })
 
-	const leaf = app.workspace.getLeaf('tab')
-	await leaf.openFile(file, { active: true })
+	// 获取父容器（通常是 WorkspaceSplit），将新 leaf 插入最左侧
+	// const parent = (newLeaf as any).parent
+	// if (parent && parent.children && Array.isArray(parent.children)) {
+	// 	// 把 newLeaf 从当前位置移除
+	// 	const index = parent.children.indexOf(newLeaf)
+	// 	if (index > -1) parent.children.splice(index, 1)
+	// 	// 插入到第一个位置
+	// 	parent.children.unshift(newLeaf)
+	// }
 
 	window.setTimeout(() => {
-		app.workspace.setActiveLeaf(leaf, { focus: true })
+		app.workspace.setActiveLeaf(newLeaf, { focus: true })
 	}, 0)
 
-	if (!leaf.getViewState().pinned) leaf.setPinned(true)
+	if (!newLeaf.getViewState().pinned) newLeaf.setPinned(true)
 }
