@@ -1,7 +1,7 @@
 // registerCodeblockProcessor.ts
 import { MarkdownPostProcessorContext, MarkdownView } from 'obsidian'
-import { AnnotationChild } from '../cyu/arrow-annotation/AnnotationChild'
-import CyuToolkitPlugin from '../main'
+import { AnnotationChild } from '../../cyu/arrow-annotation/AnnotationChild'
+import CyuToolkitPlugin from '../../main'
 
 // sourcePath -> 上一个被渲染的块元素
 const lastBlockRegistry = new Map<string, HTMLElement>()
@@ -23,12 +23,15 @@ export function registerCodeblockProcessors(plugin: CyuToolkitPlugin) {
 	// )
 
 	// 1. 全局 post processor，优先级高（数字小），先于 annt 块执行，负责记录"上一个块"
-	plugin.registerMarkdownPostProcessor((el, ctx) => {
-		// 跳过 annt 块自身，避免把自己记录为 target
-		if (el.querySelector(`.language-${CODE_LANGUAGE_NAME}`)) return
-		// console.log('el:', el)
-		lastBlockRegistry.set(ctx.sourcePath, el)
-	}, -100) // 优先级比 annt 的 100 高
+	plugin.registerMarkdownPostProcessor(
+		(el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
+			// 跳过 annt 块自身，避免把自己记录为 target
+			if (el.querySelector(`.language-${CODE_LANGUAGE_NAME}`)) return
+			// console.log('el:', el)
+			lastBlockRegistry.set(ctx.sourcePath, el)
+		},
+		-100
+	) // 优先级比 annt 的 100 高
 
 	// 2. annt 块处理器，优先级低，晚于普通块执行
 	plugin.registerMarkdownCodeBlockProcessor(

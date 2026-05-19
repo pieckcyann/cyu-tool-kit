@@ -1,6 +1,6 @@
 // annCommand.ts
 import { Command, Editor, MarkdownFileInfo, MarkdownView } from 'obsidian'
-import { CODE_LANGUAGE_NAME } from '../../obsidian/registerCodeblockProcessor'
+import { CODE_LANGUAGE_NAME } from '../../obsidian/codeblock/registerCodeblockProcessor'
 
 const createAnAnnotation = (direction: 'left' | 'right') => {
 	return (editor: Editor, ctx: MarkdownView | MarkdownFileInfo) => {
