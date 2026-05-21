@@ -129,7 +129,8 @@ function drawCircle(
 	// 配置手绘参数
 	const node = rc.ellipse(cx, cy, w, h, {
 		seed: hashString(target.seed), // 使用传入的 seed 保持确定性渲染
-		stroke: '#8b5e3c', // 用深棕色或炭灰色模拟手绘笔触
+		// stroke: '#8b5e3c', // 用深棕色或炭灰色模拟手绘笔触
+		stroke: '#8b4513',
 		strokeWidth: strokeWidth,
 		roughness, // 粗糙度：值越大线越乱，针对长文本建议 1.5 - 2.0
 		bowing: 1.5, // 弯曲度：模拟画长线时的弧度偏离
