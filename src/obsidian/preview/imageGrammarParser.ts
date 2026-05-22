@@ -2,8 +2,8 @@ import { scrollPastEnd } from '@codemirror/view'
 import { capitalize, splitWithEscape } from '../../util/cyuUtil'
 
 export function imageGrammarParser(container: HTMLElement) {
-	const imgSpans = container.findAll('span.image-embed') as HTMLSpanElement[]
-	if (!imgSpans || imgSpans.length <= 0) return
+	const imgSpans = container.querySelectorAll<HTMLSpanElement>(':scope .image-embed')
+	if (imgSpans.length === 0) return
 
 	imgSpans.forEach((imgSpan) => {
 		const imgElem = imgSpan.find('img') as HTMLImageElement
@@ -13,9 +13,9 @@ export function imageGrammarParser(container: HTMLElement) {
 
 		$ParserFloatFlag(context)
 		$ParserHeading(context)
-
 		$ApplyImageGridLayout(container)
 	})
+
 }
 
 interface Context {

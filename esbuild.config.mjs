@@ -5,7 +5,8 @@ import builtins from "builtin-modules"
 import fs from "fs"
 import path from "path"
 
-const copyTargetDir = "D:\\Self\\notes\\Work\\.obsidian\\plugins\\cyu-tool-kit"
+// const copyTargetDir = "D:\\Self\\notes\\Work\\.obsidian\\plugins\\cyu-tool-kit"
+const copyTargetDir = "E:/OB vault/Sensual-art/.obsidian/plugins/cyu-tool-kit"
 
 const banner =
 	`/*

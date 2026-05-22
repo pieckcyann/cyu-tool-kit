@@ -128,3 +128,21 @@ em {
     /* 保持行内块元素的连贯性，避免多余的空间塌陷 */
     // vertical-align: bottom;
 }
+
+// ─── 图片修正 ────────────────────────────────────────────────────────────
+
+/* 让浏览器提前知道：一旦命中网格，该如何排版，避免动态修改 style 触发重排 */
+.custom-image-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important;
+    grid-row-gap: 0 !important;
+    grid-column-gap: var(--img-grid-gap, 0) !important;
+}
+
+/* 预留 figcaption 的样式，在 JS 插入节点时能瞬间应用，不引起二次形变 */
+.image-embed figcaption {
+    text-align: center;
+    font-size: 0.8em;
+    color: rgb(160, 161, 167);
+    display: block;
+}

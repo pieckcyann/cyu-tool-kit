@@ -83,10 +83,13 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 
 			applyFakeItalic(el)
 
-			setTimeout(() => {
+			requestAnimationFrame(() => {
+				// 确保组件存在再执行
+				if (!el || !el.isConnected) return
+
 				imageGrammarParser(el)
-				fixStyles(el)
-			}, 0)
+				fixImageStyles(el)
+			})
 		}
 	)
 }
@@ -94,7 +97,7 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 /**
  * 修复一些小样式
  */
-function fixStyles(container: HTMLElement) {
+function fixImageStyles(container: HTMLElement) {
 	/* - 删掉 [[图片链接|标题|数字]] 中的 “|数字” 部分 */
 	// const inLink = container.querySelector('a.internal-link')
 	const links = container.querySelectorAll<HTMLLinkElement>(
