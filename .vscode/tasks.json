@@ -1,0 +1,13 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "启用插件开发监听", // 任务名称，会在命令面板中显示
+            "type": "shell",
+            "command": "npm run dev", // 要执行的命令
+            "options": {},
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}

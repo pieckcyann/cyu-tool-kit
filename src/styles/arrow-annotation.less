@@ -62,15 +62,8 @@
     padding: 2px 4px;
     border-radius: 3px;
     font-style: italic;
-    transform: rotate(2deg); // 斜一点
 
-    // white-space: nowrap;
     white-space: normal; // 允许正常换行
-    // /* 赋予它流动的权利：最小是内容宽度，最大不超过某个值 */
-    // width: fit-content;
-    // max-width: var(--annotation-label-max-width, 300px);
-    // word-wrap: break-word; // 保持单词不被生硬切断
-
     max-width: var(--annotation-label-max-width, 345px);
     width: max-content; // 打破父级收缩限制，告诉它“尽可能长” 
 
@@ -91,8 +84,18 @@
     // >* {
     //     transition: color 0.1s ease;
     // }
+    // 
 
+    transform: rotate(2deg); // 斜一点
     opacity: 0.8;
+
+    /* 元素本身仍是 fully opaque,只是背景颜色带 alpha */
+    background: color-mix(in srgb, var(--background-primary) 80%, transparent);
+
+    &.label-target-is-codeblock {
+        // background: color-mix(in srgb, var(--code-background) 80%, transparent);
+        background: transparent;
+    }
 
     &.ann-label-active {
         // color: var(--ann-color-active);
@@ -109,8 +112,9 @@
         color: var(--ann-color-active);
     }
 
-    mix-blend-mode: multiply;
+    // mix-blend-mode: multiply;
 
+    /* 创建独立的堆叠上下文 */
     img {
         max-width: none !important;
         transform: translate(0);

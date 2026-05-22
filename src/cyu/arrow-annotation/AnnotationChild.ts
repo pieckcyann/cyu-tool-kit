@@ -440,6 +440,7 @@ function positionAndDrawArrows(
 				lineRect = rect
 				textRect = null
 				highlightType = 'none'
+				lineEl = targetBlock
 			} else {
 				// 整块模式
 				let rect
@@ -453,6 +454,7 @@ function positionAndDrawArrows(
 				lineRect = rect
 				textRect = null
 				highlightType = 'whole'
+				lineEl = targetBlock
 			}
 		} else {
 			// 用 Range 精确定位
@@ -472,6 +474,10 @@ function positionAndDrawArrows(
 
 		// const isInline = labelEl.classList.contains('annotation-label--inline-right')
 		const isInline = rule.display === 'inline'
+
+		if (targetBlock.tagName == 'PRE') {
+			labelEl.classList.add('label-target-is-codeblock')
+		}
 
 		targets.push({
 			labelRect: adjustedLabelRect,

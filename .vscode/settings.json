@@ -22,13 +22,17 @@
 		"NOTE ",
 		" - ",
 		" ─── ",
-		"#region "
+		"#region - ",
+		" ✦ "
 	],
 	"todo-tree.highlights.customHighlight": {
 		" - ": {
 			"icon": "note",
 			"type": "whole-line",
+			// "type": "text-and-comment",
+			// "foreground": "#ffffffbb",
 			"foreground": "#ffffff",
+			// "background": "#a78bfa77",
 			"background": "#181926",
 			"rulerColour": "#a78bfa",
 			"iconColour": "#a78bfa"
@@ -37,13 +41,13 @@
 			"icon": "alert",
 			// "type": "whole-line",
 			// "type": "text",
-			"type": "text-and-comment",
-			"foreground": "#ffffffac",
-			"background": "#492686",
+			"type": "tag-and-comment",
+			"foreground": "#fff",
+			"background": "#673ab7",
 			"rulerColour": "#673ab7",
 			"iconColour": "#673ab7"
 		},
-		"#region ! ": {
+		"#region - ": {
 			"icon": "versions",
 			"type": "whole-line",
 			"foreground": "#fff",
@@ -58,6 +62,14 @@
 			"background": "#492686",
 			"rulerColour": "#673ab7",
 			"iconColour": "#673ab7"
+		},
+		" ✦ ": {
+			"icon": "versions",
+			"type": "whole-line",
+			"foreground": "#F5E5BEd9",
+			"background": "#1F1C18",
+			"rulerColour": "#C7A74B",
+			"iconColour": "#D9B355"
 		}
 	},
 	"editor.codeActionsOnSave": {

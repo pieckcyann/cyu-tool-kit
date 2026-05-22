@@ -22,6 +22,7 @@ import { TimeTagChild } from './cyu/time-tag/TimeTagChild'
 import { registerCodeblockProcessors } from './obsidian/codeblock/registerCodeblockProcessor'
 import { AnnotationChild } from './cyu/arrow-annotation/AnnotationChild'
 import { customFoldExtension, autoFoldPlugin } from './cyu/AutoFoldViewPlugin'
+import { ExternalImagePreview } from './cyu/ExternalImagePreview'
 
 export default class CyuToolkitPlugin extends Plugin {
 	settings: CyuTookitSettings = DEFAULT_SETTINGS
@@ -31,6 +32,8 @@ export default class CyuToolkitPlugin extends Plugin {
 
 	private observer: MutationObserver | null = null
 	private timeoutId: number | null = null
+
+	private externalImagePreview: ExternalImagePreview | null = null
 
 	async onload() {
 		await this.loadSettings()
@@ -42,6 +45,10 @@ export default class CyuToolkitPlugin extends Plugin {
 			// setAutoPinned(this.app, this.settings)
 			attachCommands(this)
 		})
+
+		// 初始化外链图片预览功能
+		this.externalImagePreview = new ExternalImagePreview(this)
+		this.externalImagePreview.init()
 
 		// - 注册阅读模式后处理器
 

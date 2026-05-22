@@ -13,6 +13,8 @@ import CyuToolkitPlugin from '../../main'
 import FontGallery from '../../cyu/FontGallery'
 import { TimeTagChild } from '../../cyu/time-tag/TimeTagChild'
 import { inlineCodeHighlighter } from '../../cyu/inline-code-highlight/inlineCodeHighlighter'
+import { capitalize } from '../../util/cyuUtil'
+import { imageGrammarParser } from './imageGrammarParser'
 
 /**
  * Single entry-point for all `registerMarkdownPostProcessor` calls.
@@ -81,7 +83,10 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 
 			applyFakeItalic(el)
 
-			fixStyles(el)
+			setTimeout(() => {
+				imageGrammarParser(el)
+				fixStyles(el)
+			}, 0)
 		}
 	)
 }
@@ -91,17 +96,22 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
  */
 function fixStyles(container: HTMLElement) {
 	/* - 删掉 [[图片链接|标题|数字]] 中的 “|数字” 部分 */
-	const link = container.querySelector('a.internal-link')
+	// const inLink = container.querySelector('a.internal-link')
+	const links = container.querySelectorAll<HTMLLinkElement>(
+		'a.internal-link, a.external-link'
+	)
 
-	if (link && link.textContent) {
-		const originalText = link.textContent
-		const lastIndex = originalText.lastIndexOf('|')
+	links.forEach((link) => {
+		if (link && link.textContent) {
+			const originalText = link.textContent
+			const lastIndex = originalText.lastIndexOf('|')
 
-		if (lastIndex !== -1) {
-			const cleanedText = originalText.slice(0, lastIndex)
-			link.textContent = cleanedText
+			if (lastIndex !== -1) {
+				const cleanedText = originalText.slice(0, lastIndex).replace('#nomix|', '')
+				link.textContent = cleanedText
+			}
 		}
-	}
+	})
 }
 
 /**
@@ -333,8 +343,8 @@ function wrapExternalImages(container: HTMLElement): void {
 		if (img.parentNode instanceof HTMLSpanElement) continue
 
 		const span = document.createElement('span')
-		span.id = 'external-link-image'
-		span.classList.add('image-embed')
+		span.classList.add('image-embed') // 内链外链都应该有这个类名
+		span.classList.add('external-link-image', 'external-embed')
 
 		const src = img.getAttribute('src')
 		const alt = img.alt

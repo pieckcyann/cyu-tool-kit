@@ -1,12 +1,101 @@
 import { TemplaterError } from '../setting/suggesters/Error'
 import { App, normalizePath, TAbstractFile, TFile, TFolder, Vault } from 'obsidian'
 
+/**
+ * 获取所有分割后的部分
+ * @param input 原始字符串
+ * @param separator 分隔符
+ * @param escapeChar 转义字符，默认为 '\'，允许和 separator 一样
+ * @returns 分割后的字符串数组
+ */
+export function splitWithEscape(
+	input: string,
+	separator: string,
+	escapeChar?: string
+): string[] {
+	if (!input) return []
+
+	const hasEscape = !!escapeChar
+
+	const parts: string[] = []
+	let current = ''
+	let i = 0
+	let inEscape = false
+
+	while (i < input.length) {
+		const char = input[i]
+
+		// separator 和 escapeChar 相同：双字符转义
+		if (hasEscape && escapeChar === separator) {
+			if (char === separator) {
+				const next = input[i + 1]
+
+				// 连续两个 separator => 转义后的普通字符
+				if (next === separator) {
+					current += separator
+					i += 2
+					continue
+				}
+
+				// 单个 separator => 真正分隔
+				parts.push(current)
+				current = ''
+				i++
+				continue
+			}
+
+			current += char
+			i++
+			continue
+		}
+
+		// 普通转义模式
+		if (hasEscape && inEscape) {
+			current += char
+			inEscape = false
+			i++
+			continue
+		}
+
+		if (hasEscape && char === escapeChar) {
+			inEscape = true
+			i++
+			continue
+		}
+
+		if (char === separator) {
+			parts.push(current)
+			current = ''
+			i++
+			continue
+		}
+
+		current += char
+		i++
+	}
+
+	// 末尾孤立 escapeChar
+	if (inEscape && escapeChar) {
+		current += escapeChar
+	}
+
+	parts.push(current)
+
+	return parts
+}
+
+/**
+ * 首字母大写
+ */
+export function capitalize(str: string): string {
+	return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
 let singletonDot: HTMLDivElement | null = null
 
 /**
  * 在页面上绘制一个红点，用于指示坐标
  */
-
 export function debugPoint(x: number, y: number, isSingleton = false, color = 'red') {
 	// 如果是单例模式，先尝试复用旧元素
 	let dot: HTMLDivElement
