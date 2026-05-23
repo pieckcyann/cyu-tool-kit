@@ -83,13 +83,15 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 
 			applyFakeItalic(el)
 
-			requestAnimationFrame(() => {
-				// 确保组件存在再执行
-				if (!el || !el.isConnected) return
+			// setTimeout(() => {
+			// requestAnimationFrame(() => {
+			// 确保组件存在再执行
+			// if (!el || !el.isConnected) return
 
-				imageGrammarParser(el)
-				fixImageStyles(el)
-			})
+			imageGrammarParser(el)
+			fixImageStyles(el)
+			// })
+			// }, 0)
 		}
 	)
 }

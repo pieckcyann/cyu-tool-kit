@@ -1,21 +1,39 @@
 import { scrollPastEnd } from '@codemirror/view'
 import { capitalize, splitWithEscape } from '../../util/cyuUtil'
+import { Notice } from 'obsidian'
 
 export function imageGrammarParser(container: HTMLElement) {
-	const imgSpans = container.querySelectorAll<HTMLSpanElement>(':scope .image-embed')
-	if (imgSpans.length === 0) return
+	// const imgSpans = container.findAll('span.image-embed') as HTMLSpanElement[]
+	const imgSpans = container.findAll(
+		'span.internal-embed, span.external-embed'
+	) as HTMLSpanElement[]
+	// console.log('container:', container.innerHTML)
+	if (!imgSpans || imgSpans.length <= 0) return
 
 	imgSpans.forEach((imgSpan) => {
 		const imgElem = imgSpan.find('img') as HTMLImageElement
-		if (!imgSpans || !imgElem) return
+
+		// 如果在处理器里找不到 img，说明它是个延时加载的内链图片
+		if (!imgElem) {
+			// 监听它的子节点变化，当 img 真正被 Obsidian 塞进去时再触发解析
+			const observer = new MutationObserver((mutations, obs) => {
+				const realImg = imgSpan.querySelector('img')
+				if (realImg) {
+					obs.disconnect() // 停止监听
+					const context = _ParserInfo(imgSpan, realImg)
+					$ParserFloatFlag(context)
+					// $ParserHeading(context)
+				}
+			})
+			observer.observe(imgSpan, { childList: true })
+			return
+		}
 
 		const context = _ParserInfo(imgSpan, imgElem)
-
 		$ParserFloatFlag(context)
-		$ParserHeading(context)
-		$ApplyImageGridLayout(container)
+		// $ParserHeading(context)
+		// $ApplyImageGridLayout(container)
 	})
-
 }
 
 interface Context {
@@ -58,24 +76,27 @@ const $ParserFloatFlag = (context: Context) => {
 		}
 	} else {
 		/* 外链图片 */
-		floatFlag = splitWithEscape(context.imgAlt, '|').at(0) ?? ''
-		if (floatFlag == '#L') {
+		// floatFlag = splitWithEscape(context.imgAlt, '|').at(0) ?? ''
+		floatFlag = splitWithEscape(context.imgSrc, '#', '#').at(-1) ?? ''
+		if (floatFlag == 'L') {
 			float = 'left'
-		} else if (floatFlag == '#R') {
+		} else if (floatFlag == 'R') {
 			float = 'right'
-		} else if (floatFlag == '#C') {
+		} else if (floatFlag == 'C') {
 			float = 'middle'
 		}
 	}
 
 	if (float != 'middle') {
-		spanEle.style.float = float
-		if (float == 'left') {
-			imgEle.style.marginRight = '0.8em'
-		} else {
-			imgEle.style.marginLeft = '0.8em'
-		}
+		// spanEle.style.float = float
+		// if (float == 'left') {
+		// 	imgEle.style.marginRight = '0.8em'
+		// } else {
+		// 	imgEle.style.marginLeft = '0.8em'
+		// }
 		// spanEle.style[`margin${capitalize(float)}` as any] = '0.5em' // 跟文字隔点空
+
+		spanEle.setAttribute('data-float', float)
 	}
 
 	// console.log('imgEle:', imgEle)
@@ -83,7 +104,8 @@ const $ParserFloatFlag = (context: Context) => {
 	// imgEle.setAttr('data-float-flag', floatFlag)
 
 	if ((!isInternal && floatFlag == '#nomix') || (isInternal && floatFlag == 'nomix')) {
-		imgEle.style.mixBlendMode = 'normal'
+		// imgEle.style.mixBlendMode = 'normal'
+		imgEle.setAttribute('data-nomix', 'true')
 	}
 }
 
@@ -105,7 +127,7 @@ const $ParserHeading = (context: Context) => {
 		}
 	} else {
 		/* 外链图片 */
-		title = splitWithEscape(context.imgAlt, '|').at(1) ?? ''
+		title = splitWithEscape(context.imgAlt, '|').at(0) ?? ''
 	}
 
 	if (title) {
@@ -122,7 +144,6 @@ const $ParserHeading = (context: Context) => {
  * @param container 需要应用图片网格布局的根容器元素
  */
 export function $ApplyImageGridLayout(container: HTMLElement): void {
-	// 选择所有 p 元素，以及 li > strong 的直接父级 li（因为选择器是 li > strong，实际作用于 li）
 	const candidates = container.querySelectorAll('p, li')
 
 	candidates.forEach((candidate) => {
