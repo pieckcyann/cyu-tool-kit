@@ -87,37 +87,14 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 			// requestAnimationFrame(() => {
 			// 确保组件存在再执行
 			// if (!el || !el.isConnected) return
-
 			imageGrammarParser(el)
-			fixImageStyles(el)
 			// })
 			// }, 0)
 		}
 	)
 }
 
-/**
- * 修复一些小样式
- */
-function fixImageStyles(container: HTMLElement) {
-	/* - 删掉 [[图片链接|标题|数字]] 中的 “|数字” 部分 */
-	// const inLink = container.querySelector('a.internal-link')
-	const links = container.querySelectorAll<HTMLLinkElement>(
-		'a.internal-link, a.external-link'
-	)
 
-	links.forEach((link) => {
-		if (link && link.textContent) {
-			const originalText = link.textContent
-			const lastIndex = originalText.lastIndexOf('|')
-
-			if (lastIndex !== -1) {
-				const cleanedText = originalText.slice(0, lastIndex).replace('#nomix|', '')
-				link.textContent = cleanedText
-			}
-		}
-	})
-}
 
 /**
  * 自定义斜体的倾斜度

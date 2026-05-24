@@ -2,15 +2,20 @@ import { scrollPastEnd } from '@codemirror/view'
 import { capitalize, splitWithEscape } from '../../util/cyuUtil'
 import { Notice } from 'obsidian'
 
+const PARSERD_FLAG = 'ctk-image-parserd'
 export function imageGrammarParser(container: HTMLElement) {
+	fixImageStyles(container)
+
 	// const imgSpans = container.findAll('span.image-embed') as HTMLSpanElement[]
 	const imgSpans = container.findAll(
 		'span.internal-embed, span.external-embed'
+		// '.image-embed'
 	) as HTMLSpanElement[]
 	// console.log('container:', container.innerHTML)
 	if (!imgSpans || imgSpans.length <= 0) return
 
 	imgSpans.forEach((imgSpan) => {
+		if (imgSpan.classList.contains(PARSERD_FLAG)) return
 		const imgElem = imgSpan.find('img') as HTMLImageElement
 
 		// 如果在处理器里找不到 img，说明它是个延时加载的内链图片
@@ -19,10 +24,10 @@ export function imageGrammarParser(container: HTMLElement) {
 			const observer = new MutationObserver((mutations, obs) => {
 				const realImg = imgSpan.querySelector('img')
 				if (realImg) {
-					obs.disconnect() // 停止监听
 					const context = _ParserInfo(imgSpan, realImg)
 					$ParserFloatFlag(context)
-					// $ParserHeading(context)
+					$ParserHeading(context)
+					obs.disconnect() // 停止监听
 				}
 			})
 			observer.observe(imgSpan, { childList: true })
@@ -31,8 +36,32 @@ export function imageGrammarParser(container: HTMLElement) {
 
 		const context = _ParserInfo(imgSpan, imgElem)
 		$ParserFloatFlag(context)
-		// $ParserHeading(context)
+		$ParserHeading(context)
 		// $ApplyImageGridLayout(container)
+		imgSpan.classList.add(PARSERD_FLAG)
+	})
+}
+
+/**
+ * 修复一些小样式
+ */
+function fixImageStyles(container: HTMLElement) {
+	/* - 删掉 [[图片链接|标题|数字]] 中的 “|数字” 部分 */
+	// const inLink = container.querySelector('a.internal-link')
+	const links = container.querySelectorAll<HTMLLinkElement>(
+		'a.internal-link, a.external-link'
+	)
+
+	links.forEach((link) => {
+		if (link && link.textContent) {
+			const originalText = link.textContent
+			const lastIndex = originalText.lastIndexOf('|')
+
+			if (lastIndex !== -1) {
+				const cleanedText = originalText.slice(0, lastIndex).replace('#nomix|', '')
+				link.textContent = cleanedText
+			}
+		}
 	})
 }
 
@@ -133,9 +162,6 @@ const $ParserHeading = (context: Context) => {
 	if (title) {
 		const figcaption = spanEle.createEl('figcaption')
 		figcaption.innerText = title
-		figcaption.style.textAlign = 'center'
-		figcaption.style.fontSize = '0.8em'
-		figcaption.style.color = 'rgb(160, 161, 167)'
 	}
 }
 
@@ -143,7 +169,7 @@ const $ParserHeading = (context: Context) => {
  * 将指定容器内符合条件的段落或列表项中的图片布局为网格
  * @param container 需要应用图片网格布局的根容器元素
  */
-export function $ApplyImageGridLayout(container: HTMLElement): void {
+function $ApplyImageGridLayout(container: HTMLElement): void {
 	const candidates = container.querySelectorAll('p, li')
 
 	candidates.forEach((candidate) => {

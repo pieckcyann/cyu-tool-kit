@@ -73,6 +73,6 @@
 		}
 	},
 	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": "never" // 导入未使用不报错
+		"source.fixAll.eslint": "explicit" // "never" // 导入未使用不报错
 	}
 }
