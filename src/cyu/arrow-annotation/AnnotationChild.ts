@@ -625,7 +625,7 @@ function positionInlineLabels(
 		el.style.position = 'absolute'
 		el.style.top = `${relativeY}px`
 		// el.style.transform = `translateY(-50% + ${el.offsetHeight}) rotate(1deg)`
-		el.style.transform = 'translateY(-20%) rotate(1deg)'
+		el.style.transform = 'translateY(-40%) rotate(1deg)'
 
 		if (isLeft) {
 			el.style.left = 'auto'

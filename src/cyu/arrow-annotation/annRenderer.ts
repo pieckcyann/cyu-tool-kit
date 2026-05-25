@@ -79,7 +79,7 @@ function buildCurvePath(
 	// const cp2y = end.y + seededJitter(seed, 2) * 4
 	const cp1y = start.y + (end.y - start.y) * 0.25 + seededJitter(seed, 1) * 4
 	const cp2y = end.y - (end.y - start.y) * 0.15 + seededJitter(seed, 2) * 4
-	return `M ${start.x},${start.y} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${end.y}`
+	return `M ${start.x},${start.y - 2} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${end.y}`
 }
 
 // ─── 核心绘制函数 ─────────────────────────────────────────────────────────────────
