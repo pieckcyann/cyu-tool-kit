@@ -6,11 +6,12 @@ import { CyuTookitSettings } from '../../setting/SettingData'
  * Returns a `destroy()` to remove all listeners on unload.
  */
 export function toggleHoverSidebar(app: App, settings: CyuTookitSettings) {
-	const leftRibbon = document.querySelector<HTMLElement>('.side-dock-settings')
-	const rightRibbon = document.querySelector<HTMLElement>(
+	const appContainerEl = app.dom.appContainerEl
+	const leftRibbon = appContainerEl.querySelector<HTMLElement>('.side-dock-settings')
+	const rightRibbon = appContainerEl.querySelector<HTMLElement>(
 		'.workspace-ribbon.side-dock-ribbon.mod-right'
 	)
-	const middleArea = document.querySelector<HTMLElement>('.mod-root')
+	const middleArea = appContainerEl.querySelector<HTMLElement>('.mod-root')
 
 	// ── handlers ──────────────────────────────────────────────────────────────
 
