@@ -99,16 +99,16 @@ function drawCircle(
 	const textRect = target.textRect!!
 	const lineTag = target.lineTag
 
-	let roughness = 0.6
+	let roughness = 0.3
 	let strokeWidth = STROKE_WIDTH
 
 	if (lineTag == 'CODE') {
-		roughness = 0.5
+		roughness = 0.2
 		strokeWidth = STROKE_WIDTH
 	}
 	// 针对图片调整手绘参数
 	if (lineTag === 'IMG' || lineTag === 'SPAN') {
-		roughness = 0.3 // 图片标注通常需要更规整一点的圈
+		roughness = 0.2 // 图片标注通常需要更规整一点的圈
 	}
 
 	const cr = target.containerRect
@@ -134,7 +134,7 @@ function drawCircle(
 		strokeWidth: strokeWidth,
 		roughness, // 粗糙度：值越大线越乱，针对长文本建议 1.5 - 2.0
 		bowing: 1.5, // 弯曲度：模拟画长线时的弧度偏离
-		// disableMultiStroke: false, // 双线效果
+		disableMultiStroke: false, // 双线效果
 	})
 
 	// 增强交互性
