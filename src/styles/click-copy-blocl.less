@@ -1,5 +1,5 @@
 // <span class="cpb"></span>
-
+/* - 旧版印章
 body {
     --cyu-cpb-color: rgb(221, 96, 11);
     --cyu-cpb-color: rgb(210, 116, 54);
@@ -10,15 +10,16 @@ body {
 // click-copy block
 // span.cpb:not(:has(*)) {
 span.cpb {
-    color: white;
     font-size: 0.85em;
     // white-space: nowrap;
     padding: 0px 5px 1px 5px; // 手札体-简
     // padding: 0px 5px 2px 5px; // Playpen Sans
     border-radius: 0.2em;
-    // box-shadow: 1px 1px 2px #cccccc;
-    background-color: var(--cyu-cpb-color);
     cursor: pointer;
+
+    // box-shadow: 1px 1px 2px #cccccc;
+    color: white;
+    background-color: var(--cyu-cpb-color);
 
     vertical-align: middle;
     white-space: nowrap;
@@ -38,4 +39,66 @@ span.cpb {
     // background-color: var(--tag-background);
     // border: var(--tag-border-width) solid var(--tag-border-color);
     // color: var(--tag-color);
+}
+*/
+
+body {
+    --cyu-cpb-text: #555555; // 平时接近普通文本色
+    --cyu-cpb-active-bg: #f2eade; // 点击时淡淡的陷入色
+}
+
+span.cpb {
+    display: inline-block;
+    font-size: 0.93em;
+    padding: 0px 3px;
+    margin: 0 1px;
+    border-radius: 30px;
+    cursor: pointer;
+
+    color: var(--cyu-cpb-text);
+    background-color: transparent;
+
+    // 替代 border-bottom: 1px dashed #cccccc;
+    background-image: linear-gradient(to right,
+            #cccccc 0%,
+            #cccccc 40%,
+            transparent 40%,
+            transparent 100%);
+    background-size: 8px 1px; // 8px为一个完整周期，其中4px实线 + 4px透明
+    background-repeat: repeat-x;
+    background-position: bottom 0px left 0px; // 控制偏移：bottom 偏移量 left 偏移量
+
+    vertical-align: baseline;
+    white-space: nowrap;
+    transition: all 0.05s ease;
+
+    @accent: var(--interactive-accent);
+
+    &:hover {
+        color: @accent;
+        background-color: rgba(187, 109, 57, 0.05);
+
+        // hover 时下划线也变色
+        background-image: linear-gradient(to right,
+                @accent 0%,
+                @accent 40%,
+                transparent 40%,
+                transparent 100%);
+    }
+
+    &:active {
+        background-color: var(--cyu-cpb-active-bg);
+        transform: translateY(0.5px);
+    }
+
+    &.cpb-code {
+        font-family: var(--code-font);
+        font-size: 0.9em; // for "Cartograph CF"
+    }
+
+    // code {
+    //     --code-normal: inherit;
+    //     --code-size: 1em;
+    //     --code-background: transparent;
+    // }
 }

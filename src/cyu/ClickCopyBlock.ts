@@ -18,9 +18,7 @@ export default class ClickCopyBlock extends MarkdownRenderChild {
 				const codeElement = cpb.querySelector('code')
 				// 如果包裹了行内代码，调整样式
 				if (codeElement) {
-					cpb.style.fontFamily = 'var(--code-font)'
-					cpb.style.paddingTop = '2px'
-					cpb.style.paddingBottom = '4px'
+					cpb.classList.add('cpb-code')
 					cpb.innerText = codeElement.innerText
 				}
 
