@@ -74,17 +74,17 @@ span.cpb {
 
     @accent: var(--interactive-accent);
 
-    &:hover {
-        color: @accent;
-        background-color: rgba(187, 109, 57, 0.05);
+    // &:hover {
+    color: @accent;
+    background-color: rgba(187, 109, 57, 0.05);
 
-        // hover 时下划线也变色
-        background-image: linear-gradient(to right,
-                @accent 0%,
-                @accent 40%,
-                transparent 40%,
-                transparent 100%);
-    }
+    // hover 时下划线也变色
+    background-image: linear-gradient(to right,
+            @accent 0%,
+            @accent 40%,
+            transparent 40%,
+            transparent 100%);
+    // }
 
     &:active {
         background-color: var(--cyu-cpb-active-bg);
