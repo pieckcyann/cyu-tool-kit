@@ -27,7 +27,7 @@ export function findLineEndRect(
 	let currentLine = 1
 	let node = walker.nextNode() as Text | null
 
-	console.log('countTotalLines:', countTotalLines(targetBlock))
+	// console.log('countTotalLines:', countTotalLines(targetBlock))
 
 	while (node) {
 		const text = node.textContent || ''
@@ -210,11 +210,8 @@ export function findLineStartRect(
 /**
  * 获取目标块中第 matchIndex 次出现的 matchText 的行首位置矩形
  * @param targetBlock 目标块元素
- * @param matchText 要匹配的文本
- * @param matchIndex 第几个出现 (1-based)
- */
-/**
- * 跨节点匹配文本，获取行首位置矩形
+ * @param matchText   要匹配的文本
+ * @param matchIndex  第几个出现 (1-based)
  */
 export function findLineStartRectByText(
 	targetBlock: HTMLElement,
@@ -222,6 +219,7 @@ export function findLineStartRectByText(
 	matchIndex: number,
 	options?: { skipLeadingWhitespace?: boolean }
 ): DOMRect | null {
+	console.log(targetBlock.classList)
 	const skip = options?.skipLeadingWhitespace ?? true
 	const walker = document.createTreeWalker(targetBlock, NodeFilter.SHOW_TEXT)
 	const buffer: { node: Text; text: string; startAt: number }[] = []
