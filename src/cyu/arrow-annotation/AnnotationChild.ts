@@ -540,7 +540,7 @@ function positionInlineLabels(
 	targetBlock: HTMLElement,
 	labelElInfos: LabelElementInfos
 ) {
-	const INLINE_GAP = 50 // 距行内文本的间距
+	const INLINE_GAP = 20 // 距行内文本的间距
 	const MIN_GAP = 20 // 最小垂直间距，防重叠
 	const wrapperRect = wrapper.getBoundingClientRect()
 	const blockRect = targetBlock.getBoundingClientRect()

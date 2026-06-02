@@ -27,7 +27,7 @@ const MARKER_ID = 'annotation-arrow-head'
 const MARKER_ACTIVE_ID = 'annotation-arrow-head-active'
 
 const BREAK_THRESHOLD = 200 // 超过此水平距离视为"远距离"，启用断线模式(px)
-const STUB_LENGTH = 36 // 断线模式下，标签侧的短线长度(px)
+const STUB_LENGTH = 50 // 断线模式下，标签侧的短线长度(px)
 const STROKE_WIDTH = 1.5 // 线条粗细
 
 const ARROW_OFFSET = 6 // 箭头尖端距离文字的距离
@@ -130,7 +130,8 @@ function drawCircle(
 	const node = rc.ellipse(cx, cy, w, h, {
 		seed: hashString(target.seed), // 使用传入的 seed 保持确定性渲染
 		// stroke: '#8b5e3c', // 用深棕色或炭灰色模拟手绘笔触
-		stroke: '#8b4513',
+		// stroke: '#8b4513',
+		stroke: 'var(--text-muted)',
 		strokeWidth: strokeWidth,
 		roughness, // 粗糙度：值越大线越乱，针对长文本建议 1.5 - 2.0
 		bowing: 1.5, // 弯曲度：模拟画长线时的弧度偏离
