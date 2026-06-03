@@ -94,8 +94,6 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 	)
 }
 
-
-
 /**
  * 自定义斜体的倾斜度
  */
@@ -258,6 +256,7 @@ function processTableFlags(container: HTMLElement): void {
 				const flags: Record<string, string> = {
 					'-': 'table-not-full-width', // 不全宽
 					'~': 'table-half-full-width', // 半全宽
+					x: 'table-no-thead', // 无表头
 					// '/': 'table-', //
 					// '!': 'table-important', // 高亮显式
 					// '^': 'table-narrow', // 紧凑模式
@@ -296,6 +295,8 @@ function processTableFlags(container: HTMLElement): void {
 			if (!match) return
 
 			const width = Number(match[1])
+
+			console.log('width:', width)
 
 			Array.from(table.rows).forEach((row) => {
 				const targetCell = row.cells[colIndex]
