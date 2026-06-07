@@ -74,5 +74,9 @@
 	},
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "explicit" // "never" // 导入未使用不报错
+	},
+	"terminal.integrated.defaultProfile.windows": "Git Bash",
+	"terminal.integrated.automationProfile.windows": {
+		"path": "C:\\Program Files\\Git\\bin\\bash.exe"
 	}
 }
