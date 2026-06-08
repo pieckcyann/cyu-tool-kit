@@ -1,16 +1,161 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  Arrow Annotation —— 侧边注释样式
+//
+//  设计：所有外观都由 CSS 变量驱动，结构 CSS 只消费变量。
+//  切换样式时由插件在 <body> 上挂 `cyu-ann-style-<name>` 类名，
+//  对应样式集只需重设一组变量，即可同时改变标签与 SVG 箭头（变量级联）。
+//
+//  变量契约：
+//    标签外观   --ann-color / --ann-bg / --ann-border / --ann-radius /
+//               --ann-padding / --ann-shadow / --ann-font-* / --ann-rotate /
+//               --ann-opacity / --ann-letter-spacing / --ann-line-height
+//    悬浮激活   --ann-active-color / --ann-active-bg / --ann-active-shadow
+//    SVG (JS)   --annotation-arrow-color / --annotation-arrow-active-color /
+//               --annotation-highlight-color
+// ════════════════════════════════════════════════════════════════════════════
+
+// ─── 样式集：sketch（手绘，默认）───────────────────────────────────────────────
+// 暖色手绘风，斜体无底色，最贴近纸张 / 衬线主题
+body.cyu-ann-style-sketch {
+    --ann-color: color-mix(in srgb, var(--text-accent) 50%, var(--text-muted));
+    --ann-bg: transparent;
+    --ann-border: none;
+    --ann-radius: 4px;
+    --ann-padding: 1px 5px;
+    --ann-shadow: none;
+    --ann-font-style: italic;
+    --ann-font-weight: 400;
+    --ann-font-family: var(--font-text);
+    --ann-font-size: 0.8em;
+    --ann-letter-spacing: 0.01em;
+    --ann-line-height: 1.4;
+    --ann-rotate: 2deg;
+    --ann-opacity: 0.9;
+
+    --ann-active-color: var(--text-accent);
+    --ann-active-bg: color-mix(in srgb, var(--text-accent) 8%, transparent);
+    --ann-active-shadow: none;
+
+    --annotation-arrow-color: color-mix(in srgb, var(--text-muted) 85%, transparent);
+    --annotation-arrow-active-color: var(--text-accent);
+    --annotation-highlight-color: color-mix(in srgb, var(--text-accent) 70%, var(--text-muted));
+}
+
+// ─── 样式集：note（便签卡片）──────────────────────────────────────────────────
+// 柔和便签卡，带淡底色、细边框与轻投影，可读性最好
+body.cyu-ann-style-note {
+    --ann-color: var(--text-normal);
+    --ann-bg: color-mix(in srgb, var(--text-accent) 9%, var(--background-primary));
+    --ann-border: 1px solid color-mix(in srgb, var(--text-accent) 22%, transparent);
+    --ann-radius: 7px;
+    --ann-padding: 4px 9px;
+    --ann-shadow: 0 1px 5px color-mix(in srgb, var(--background-modifier-box-shadow, #000) 35%, transparent);
+    --ann-font-style: normal;
+    --ann-font-weight: 450;
+    --ann-font-family: var(--font-text);
+    --ann-font-size: 0.78em;
+    --ann-letter-spacing: 0;
+    --ann-line-height: 1.45;
+    --ann-rotate: -1.2deg;
+    --ann-opacity: 0.97;
+
+    --ann-active-color: var(--text-normal);
+    --ann-active-bg: color-mix(in srgb, var(--text-accent) 18%, var(--background-primary));
+    --ann-active-shadow: 0 2px 12px color-mix(in srgb, var(--text-accent) 28%, transparent);
+
+    --annotation-arrow-color: color-mix(in srgb, var(--text-accent) 45%, var(--text-muted));
+    --annotation-arrow-active-color: var(--text-accent);
+    --annotation-highlight-color: color-mix(in srgb, var(--text-accent) 60%, var(--text-muted));
+}
+
+// ─── 样式集：minimal（极简）──────────────────────────────────────────────────
+// 无衬底、无旋转、细线条，安静不抢眼
+body.cyu-ann-style-minimal {
+    --ann-color: var(--text-muted);
+    --ann-bg: transparent;
+    --ann-border: none;
+    --ann-radius: 0;
+    --ann-padding: 0 2px;
+    --ann-shadow: none;
+    --ann-font-style: normal;
+    --ann-font-weight: 400;
+    --ann-font-family: var(--font-interface);
+    --ann-font-size: 0.74em;
+    --ann-letter-spacing: 0.02em;
+    --ann-line-height: 1.4;
+    --ann-rotate: 0deg;
+    --ann-opacity: 0.8;
+
+    --ann-active-color: var(--text-normal);
+    --ann-active-bg: transparent;
+    --ann-active-shadow: none;
+
+    --annotation-arrow-color: color-mix(in srgb, var(--text-muted) 55%, transparent);
+    --annotation-arrow-active-color: var(--text-normal);
+    --annotation-highlight-color: color-mix(in srgb, var(--text-muted) 70%, transparent);
+}
+
+// ─── 样式集：marker（荧光笔强调）────────────────────────────────────────────
+// 荧光底色，醒目圆润，适合重点笔记
+body.cyu-ann-style-marker {
+    --ann-color: var(--text-normal);
+    --ann-bg: color-mix(in srgb, var(--text-accent) 20%, transparent);
+    --ann-border: none;
+    --ann-radius: 3px;
+    --ann-padding: 2px 7px;
+    --ann-shadow: none;
+    --ann-font-style: normal;
+    --ann-font-weight: 600;
+    --ann-font-family: var(--font-text);
+    --ann-font-size: 0.8em;
+    --ann-letter-spacing: 0;
+    --ann-line-height: 1.4;
+    --ann-rotate: -1deg;
+    --ann-opacity: 0.95;
+
+    --ann-active-color: var(--text-normal);
+    --ann-active-bg: color-mix(in srgb, var(--text-accent) 40%, transparent);
+    --ann-active-shadow: 0 0 0 2px color-mix(in srgb, var(--text-accent) 30%, transparent);
+
+    --annotation-arrow-color: color-mix(in srgb, var(--text-accent) 80%, transparent);
+    --annotation-arrow-active-color: var(--text-accent);
+    --annotation-highlight-color: var(--text-accent);
+}
+
+// ─── 样式集：ink（衬线墨水）─────────────────────────────────────────────────
+// 衬线斜体、深色墨迹感，古典书卷气
+body.cyu-ann-style-ink {
+    --ann-color: color-mix(in srgb, var(--text-normal) 78%, var(--text-accent));
+    --ann-bg: transparent;
+    --ann-border: none;
+    --ann-radius: 3px;
+    --ann-padding: 1px 4px;
+    --ann-shadow: none;
+    --ann-font-style: italic;
+    --ann-font-weight: 500;
+    --ann-font-family: Georgia, 'Times New Roman', var(--font-text), serif;
+    --ann-font-size: 0.85em;
+    --ann-letter-spacing: 0.01em;
+    --ann-line-height: 1.45;
+    --ann-rotate: 1deg;
+    --ann-opacity: 0.92;
+
+    --ann-active-color: var(--text-normal);
+    --ann-active-bg: color-mix(in srgb, var(--text-normal) 6%, transparent);
+    --ann-active-shadow: none;
+
+    --annotation-arrow-color: color-mix(in srgb, var(--text-normal) 55%, transparent);
+    --annotation-arrow-active-color: var(--text-normal);
+    --annotation-highlight-color: color-mix(in srgb, var(--text-normal) 70%, transparent);
+}
+
 // ─── 基本定位 ─────────────────────────────────────────────────────────────────
 
 .annotation-wrapper {
-    --ann-color: var(--text-muted);
-    --ann-color-active: var(--text-accent);
-    --ann-highlight: var(--text-accent);
+    // 兼容旧变量名（renderer/历史代码可能引用）
+    --ann-color-active: var(--ann-active-color, var(--text-accent));
+    --ann-highlight: var(--annotation-highlight-color, var(--text-accent));
 }
-
-/* 中间列：目标内容块的相对定位，不改变原有元素的尺寸和流) */
-// .annotation-wrapper {
-//     position: relative;
-//     display: block;
-// }
 
 /* 注释列：绝对定位浮在文档两侧，不占文档流空间 */
 .annotation-col {
@@ -19,20 +164,17 @@
     width: var(--annotation-col-width, 140px);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px; // 略增间距，避免标签拥挤
     pointer-events: none;
 
     /* 使得各个注释从中间开始排列 */
     height: 100%; // 必须设定高度，否则 center 没有参考空间
     justify-content: center;
-    // top: 50%; // 将容器顶部放在父容器的 50% 处
-    // transform: translateY(-50%); // 将容器向上位移自身高度的 50%，实现完美居中
 
     &--left {
-        // right: calc(100% + var(--annotation-gap, 70px));
         right: 100%;
         padding-right: 50px;
-        align-items: flex-end; // 子元素贴着文档边缘向左长 
+        align-items: flex-end; // 子元素贴着文档边缘向左长
 
         .annotation-label {
             text-align: right; // 文字内部右对齐
@@ -40,7 +182,6 @@
     }
 
     &--right {
-        // left: calc(100% + var(--annotation-gap, 70px));
         left: 100%;
         padding-left: 50px;
         align-items: flex-start;
@@ -53,19 +194,26 @@
 
 // ─── 注释标签 ─────────────────────────────────────────────────────────────────
 
-/* 注释标签  */
+/* 注释标签：所有外观从变量取，未定义时给出合理回退 */
 .annotation-label {
-    font-size: var(--annotation-font-size, 0.82em);
-    color: var(--annotation-text-color, var(--text-muted));
-    font-family: var(--annotation-font-family, var(--font-text));
-    line-height: 1.4;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-style: italic;
+    font-size: var(--ann-font-size, 0.82em);
+    color: var(--ann-color, var(--text-muted));
+    font-family: var(--ann-font-family, var(--font-text));
+    font-style: var(--ann-font-style, italic);
+    font-weight: var(--ann-font-weight, 400);
+    letter-spacing: var(--ann-letter-spacing, 0);
+    line-height: var(--ann-line-height, 1.4);
+
+    background: var(--ann-bg, transparent);
+    border: var(--ann-border, none);
+    border-radius: var(--ann-radius, 4px);
+    padding: var(--ann-padding, 2px 5px);
+    box-shadow: var(--ann-shadow, none);
+    opacity: var(--ann-opacity, 0.9);
 
     white-space: normal; // 允许正常换行
     max-width: var(--annotation-label-max-width, 345px);
-    width: max-content; // 打破父级收缩限制，告诉它“尽可能长” 
+    width: max-content; // 打破父级收缩限制，告诉它“尽可能长”
 
     &.ann-label-inline {
         width: fit-content !important;
@@ -76,87 +224,46 @@
     cursor: pointer;
 
     // 用 box-shadow 而非 outline，穿透力更强，不受子元素影响
-    transition: box-shadow 0.1s ease,
-    opacity 0.1s ease,
-    color 0.1s ease;
+    transition: box-shadow 0.15s ease,
+        background 0.15s ease,
+        opacity 0.15s ease,
+        color 0.15s ease,
+        transform 0.15s ease;
 
-    // MarkdownRenderer 渲染的直接子元素（p, span 等）
-    // >* {
-    //     transition: color 0.1s ease;
-    // }
-    // 
+    transform: rotate(var(--ann-rotate, 2deg)); // 旋转角度由样式集决定
 
-    transform: rotate(2deg); // 斜一点
-    opacity: 0.9;
-
-    /* 元素本身仍是 fully opaque,只是背景颜色带 alpha */
-    // background: color-mix(in srgb, var(--background-primary) 80%, transparent);
-
-    // 指向代码块的注释
+    /* 指向代码块的注释：仍走变量，无须特殊化 */
     &.label-target-is-codeblock {
-        background: transparent;
-        // font-family: var(--code-font);
-        // font-size: 0.8em;
+        // 预留钩子，默认沿用样式集外观
     }
 
     &.ann-label-active {
-        // color: var(--ann-color-active);
-        // box-shadow: 0 0 0 2px color-mix(in srgb, var(--ann-color-active) 35%, transparent);
+        color: var(--ann-active-color, var(--text-accent));
+        background: var(--ann-active-bg, var(--ann-bg, transparent));
+        box-shadow: var(--ann-active-shadow, var(--ann-shadow, none));
         opacity: 1;
     }
 
-    // &:has(.ann-label-active-inner) {
-    // opacity: 1;
-    // }
-
-    // 兼容：MarkdownRenderer 在外层再套了一层时
+    // MarkdownRenderer 可能在外层再套一层，激活时同步着色
     .ann-label-active-inner {
-        color: var(--ann-color-active);
+        color: var(--ann-active-color, var(--text-accent));
     }
 
-    // mix-blend-mode: multiply;
-
-    /* 创建独立的堆叠上下文 */
+    /* 标签内图片不受父级宽度约束 */
     img {
         max-width: none !important;
         transform: translate(0);
     }
 
-    // >ul>li {
-    //     margin-inline-start: 2ch; // 3ch
-    // }
-
-    --p-spacing:10px; //16px;
-
+    --p-spacing: 10px;
 }
 
-
-
-/* 针对包含图片的特殊处理 */
-// .annotation-label:has(img) {
-//     width: auto !important;
-//     min-width: 500px;
-//     /* 强制保底宽度 */
-//     white-space: nowrap;
-//     background: transparent;
-//     /* 如果有背景色，撑开了可能不好看 */
-//     box-shadow: none;
-//     /* 同理 */
-// }
-
-
-/* inline-right label：浮在代码块右侧空白区域，不走 col 布局 */
+/* inline-right label：浮在内容右侧空白区域，位置由 JS 动态写入 */
 .annotation-label--inline-right {
-    // position/top/left/transform 由 positionInlineLabels 动态写入
-    // 这里只覆盖与 col 模式不同的属性
     text-align: left;
-    // 允许适当换行，避免超出可见区域
-    // white-space: normal;
-    // max-width: 120px;
 }
 
-// ─── connector 线段 ─────────────────────────────────────────────────────────────────
-
+// ─── connector 线段 ───────────────────────────────────────────────────────────
 
 /* SVG 内容遮罩 */
 .annotation-svg-overlay {
@@ -170,8 +277,7 @@
 
 .ann-connector {
     stroke: var(--annotation-arrow-color, var(--text-muted));
-
-    opacity: 0.7;
+    opacity: 0.75;
     transition:
         stroke 0.18s ease,
         opacity 0.18s ease;
@@ -179,21 +285,13 @@
     pointer-events: none !important; // 不允许交互
 }
 
-
-/* stub 侧的渐隐用 opacity mask 不好做，改用渐变描边 */
+/* stub 侧的渐隐 */
 .ann-connector-stub {
     opacity: 0.6;
-    // stub 只做渐隐，不参与任何交互
     pointer-events: none;
-
 }
-
 
 // ─── 高亮联动 ─────────────────────────────────────────────────────────────────
-
-body {
-    // --annotation-highlight-color: white;
-}
 
 /* highlight (目标文本处的 圈/波浪线) */
 .ann-highlight {
@@ -201,10 +299,10 @@ body {
     opacity: 0.7;
     transition:
         opacity 0.18s ease,
-        stroke-width 0.18s ease;
+        stroke-width 0.18s ease,
+        stroke 0.18s ease;
 
     pointer-events: none; // 不允许交互
-
 }
 
 /* 流向动画 */
@@ -214,11 +312,8 @@ body {
     }
 
     to {
-        // stroke-dashoffset 的改变量必须是 stroke-dasharray 周期长度（实线+空隙）的 整数倍
-        // abs(to_offset - from_offset) % (dash + gap) === 0
-        // 10 的倍数
+        // 改变量须是 dash 周期 (6+4=10) 的整数倍
         stroke-dashoffset: -20;
-        // stroke-dashoffset: 20; // 从目标流向注释
     }
 }
 
@@ -227,23 +322,19 @@ body {
     &.active {
 
         .ann-connector {
-            stroke: var(--annotation-arrow-color, var(--text-accent));
+            stroke: var(--annotation-arrow-active-color, var(--text-accent));
             opacity: 1 !important;
         }
 
-        // 只有有这个类名
         .ann-connector-full {
-            stroke: var(--ann-color-active);
+            stroke: var(--annotation-arrow-active-color, var(--text-accent));
             opacity: 1;
             stroke-dasharray: 6 4; // 完整的“实线+空隙”单元长度是 6+4=10
             animation: ann-flow 0.45s linear infinite;
         }
 
-        // .ann-connector-stub {
-        //     stroke-dasharray: none; // stub 不做流向，只做高亮            
-        // }
-
         .ann-highlight {
+            stroke: var(--annotation-arrow-active-color, var(--annotation-highlight-color, var(--text-accent)));
             opacity: 1;
             stroke-width: 2;
         }
@@ -256,7 +347,7 @@ body {
     }
 }
 
-// ─── prefers-reduced-motion ─────────────────────────────────────────────────────────────────
+// ─── prefers-reduced-motion ───────────────────────────────────────────────────
 
 @media (prefers-reduced-motion: reduce) {
     .ann-group.active .ann-connector-full {

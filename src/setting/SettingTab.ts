@@ -2,6 +2,7 @@ import { App, Setting, PluginSettingTab, SearchComponent } from 'obsidian'
 import CyuToolkitPlugin from '../main'
 import { FolderSuggest } from './suggesters/FolderSuggester'
 import { FileSuggest, FileSuggestMode } from './suggesters/FileSuggester'
+import { ANNOTATION_STYLES } from './SettingData'
 
 type Settings = CyuToolkitPlugin['settings']
 
@@ -19,6 +20,7 @@ export class CyuToolkitPluginSettingTab extends PluginSettingTab {
 		containerEl.empty()
 
 		this.renderFunctions()
+		this.renderAnnotation()
 		this.renderNotes()
 	}
 
@@ -33,6 +35,26 @@ export class CyuToolkitPluginSettingTab extends PluginSettingTab {
 			'是否默认启用悬浮展开侧边栏功能',
 			'setup_enable_hover_sider'
 		)
+	}
+
+	private renderAnnotation() {
+		this.containerEl.createEl('h2', { text: 'Annotation 侧边注释' })
+
+		const current =
+			ANNOTATION_STYLES.find((s) => s.value === this.plugin.settings.annotation_style)
+				?.desc ?? ''
+
+		const desc = `选择侧边注释的外观样式，可随时切换并实时生效。当前：${current}`
+
+		this.createSetting('注释样式', desc).addDropdown((dd) => {
+			ANNOTATION_STYLES.forEach((s) => dd.addOption(s.value, s.label))
+			dd.setValue(this.plugin.settings.annotation_style).onChange((v) => {
+				this.updateSetting('annotation_style', v as Settings['annotation_style'])
+				this.plugin.applyAnnotationStyle()
+				// 重新渲染设置面板，更新描述里的“当前”样式说明
+				this.display()
+			})
+		})
 	}
 
 	private renderNotes() {

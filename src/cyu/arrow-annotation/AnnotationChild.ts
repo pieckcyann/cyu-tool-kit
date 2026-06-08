@@ -625,7 +625,8 @@ function positionInlineLabels(
 		el.style.position = 'absolute'
 		el.style.top = `${relativeY}px`
 		// el.style.transform = `translateY(-50% + ${el.offsetHeight}) rotate(1deg)`
-		el.style.transform = 'translateY(-40%) rotate(1deg)'
+		// 旋转角度交给样式变量控制，便于不同样式集（如简约风）取消倾斜
+		el.style.transform = 'translateY(-40%) rotate(var(--ann-rotate, 1deg))'
 
 		if (isLeft) {
 			el.style.left = 'auto'

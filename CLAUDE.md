@@ -184,6 +184,27 @@ annRenderer.ts                   ← 用 SVG + rough.js 绘制箭头和高亮标
 - 根因：Bug 1 的修复过于激进，将代码块内有语义的 `\n` 文本节点（Prism.js 分词后行间的独立 `\n` 节点）也一并过滤，`flatText` 无换行，所有行号 ≥ 2 的查询退回到 `flatText.length`。
 - 修复：引入 `isInsidePreformattedContext`，过滤条件改为仅跳过**不在** `<code>/<pre>` 内的空白节点，保留代码块内的 `\n` 行分隔。
 
+### 外观样式集（可在设置中切换）
+
+注释外观完全由 CSS 变量驱动，提供 5 套预设样式，可在「设置 → Annotation 侧边注释 → 注释样式」下拉框中随时切换并实时生效（无需重新渲染笔记）。
+
+| 样式 | 值 | 风格 |
+|------|-----|------|
+| 手绘 | `sketch`（默认） | 暖色手绘、斜体无底色，贴合纸张主题 |
+| 便签 | `note` | 柔和卡片，带淡底色 / 细边框 / 轻投影 |
+| 简约 | `minimal` | 无衬底、无旋转、细线条 |
+| 荧光 | `marker` | 荧光笔底色，醒目圆润 |
+| 墨迹 | `ink` | 衬线斜体、深色墨水感 |
+
+**实现机制：**
+
+- 设置项 `annotation_style`（`SettingData.ts` 的 `AnnotationStyle` 联合类型，选项元信息在 `ANNOTATION_STYLES`）
+- `CyuToolkitPlugin.applyAnnotationStyle()` 在 `<body>` 上挂 `cyu-ann-style-<name>` 类名（先清除旧的同前缀类名）。`onload` 时调用，下拉框 `onChange` 时再次调用实现实时切换，`onunload` 清除
+- `src/styles/arrow-annotation.less` 中每个 `body.cyu-ann-style-<name>` 只重设一组 CSS 变量：标签外观（`--ann-color` / `--ann-bg` / `--ann-border` / `--ann-radius` / `--ann-padding` / `--ann-shadow` / `--ann-font-*` / `--ann-rotate` 等）、悬浮激活（`--ann-active-color/bg/shadow`）、以及 SVG（`--annotation-arrow-color` / `--annotation-arrow-active-color` / `--annotation-highlight-color`）
+- 变量定义在 body 上，借 CSS 自定义属性的继承级联同时作用于标签 DOM 与 SVG 箭头层。结构 CSS（`.annotation-label` 等）只消费变量并带回退值
+- 颜色多用 `color-mix(in srgb, var(--text-accent) … )` 与主题变量混合，自动适配明 / 暗与各类主题
+- 行内标签旋转角度在 `AnnotationChild.positionInlineLabels` 中写成 `rotate(var(--ann-rotate, 1deg))`，使简约风可取消倾斜
+
 ### SVG 绘制（annRenderer.ts）
 
 `renderArrows(container, targets)` 为每条规则绘制一个 `<g class="ann-group">`：

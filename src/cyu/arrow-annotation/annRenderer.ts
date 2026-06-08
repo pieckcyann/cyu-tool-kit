@@ -131,7 +131,8 @@ function drawCircle(
 		seed: hashString(target.seed), // 使用传入的 seed 保持确定性渲染
 		// stroke: '#8b5e3c', // 用深棕色或炭灰色模拟手绘笔触
 		// stroke: '#8b4513',
-		stroke: 'var(--text-muted)',
+		// 跟随样式集的高亮色变量，未定义时回退到主题 muted 色
+		stroke: 'var(--annotation-highlight-color, var(--text-muted))',
 		strokeWidth: strokeWidth,
 		roughness, // 粗糙度：值越大线越乱，针对长文本建议 1.5 - 2.0
 		bowing: 1.5, // 弯曲度：模拟画长线时的弧度偏离

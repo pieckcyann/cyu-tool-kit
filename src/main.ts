@@ -38,6 +38,9 @@ export default class CyuToolkitPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings()
 
+		// 应用侧边注释外观样式（在 body 上挂类名，CSS 变量随之级联到标签与 SVG）
+		this.applyAnnotationStyle()
+
 		this.addSettingTab(new CyuToolkitPluginSettingTab(this.app, this))
 
 		this.app.workspace.onLayoutReady(() => {
@@ -196,6 +199,27 @@ export default class CyuToolkitPlugin extends Plugin {
 
 	onunload() {
 		this.sidebar?.destroy()
+		this.clearAnnotationStyleClasses()
+	}
+
+	/** 所有可能挂在 body 上的注释样式类名前缀 */
+	private static readonly ANN_STYLE_PREFIX = 'cyu-ann-style-'
+
+	private clearAnnotationStyleClasses() {
+		const { classList } = document.body
+		Array.from(classList)
+			.filter((c) => c.startsWith(CyuToolkitPlugin.ANN_STYLE_PREFIX))
+			.forEach((c) => classList.remove(c))
+	}
+
+	/**
+	 * 把当前选择的注释样式作为类名挂到 body 上。
+	 * 切换样式时实时调用即可，无需重新渲染笔记。
+	 */
+	applyAnnotationStyle() {
+		this.clearAnnotationStyleClasses()
+		const style = this.settings.annotation_style || 'sketch'
+		document.body.classList.add(`${CyuToolkitPlugin.ANN_STYLE_PREFIX}${style}`)
 	}
 
 	async loadSettings() {
