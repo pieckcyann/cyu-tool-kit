@@ -186,15 +186,13 @@ annRenderer.ts                   ← 用 SVG + rough.js 绘制箭头和高亮标
 
 ### 外观样式集（可在设置中切换）
 
-注释外观完全由 CSS 变量驱动，提供 5 套预设样式，可在「设置 → Annotation 侧边注释 → 注释样式」下拉框中随时切换并实时生效（无需重新渲染笔记）。
+注释外观完全由 CSS 变量驱动，提供 3 套精致小巧的预设样式，可在「设置 → Annotation 侧边注释 → 注释样式」下拉框中随时切换并实时生效（无需重新渲染笔记）。
 
 | 样式 | 值 | 风格 |
 |------|-----|------|
-| 手绘 | `sketch`（默认） | 暖色手绘、斜体无底色，贴合纸张主题 |
-| 便签 | `note` | 柔和卡片，带淡底色 / 细边框 / 轻投影 |
-| 简约 | `minimal` | 无衬底、无旋转、细线条 |
-| 荧光 | `marker` | 荧光笔底色，醒目圆润 |
-| 墨迹 | `ink` | 衬线斜体、深色墨水感 |
+| 手绘 | `sketch`（默认） | 暖色细笔触斜体、无底色、轻微倾斜，贴合纸张主题 |
+| 简约 | `minimal` | 极细无衬、不旋转无底色，安静克制 |
+| 标签 | `tag` | 小巧药丸标签，淡底色 + 发丝细描边，精致不张扬 |
 
 **实现机制：**
 
@@ -204,6 +202,16 @@ annRenderer.ts                   ← 用 SVG + rough.js 绘制箭头和高亮标
 - 变量定义在 body 上，借 CSS 自定义属性的继承级联同时作用于标签 DOM 与 SVG 箭头层。结构 CSS（`.annotation-label` 等）只消费变量并带回退值
 - 颜色多用 `color-mix(in srgb, var(--text-accent) … )` 与主题变量混合，自动适配明 / 暗与各类主题
 - 行内标签旋转角度在 `AnnotationChild.positionInlineLabels` 中写成 `rotate(var(--ann-rotate, 1deg))`，使简约风可取消倾斜
+
+**SVG 笔触随样式联动（重要）：**
+
+手绘圈的粗糙度 / 弯曲度 / 单双线、波浪线振幅、连线曲率与手抖、箭头大小这些**几何参数无法用 CSS 表达**，由 `annRenderer.ts` 的设计令牌驱动：
+
+- `ANN_DESIGNS: Record<AnnStyle, AnnDesign>` 为每套样式定义 `roughness` / `bowing` / `multiStroke` / `circlePad` / `highlightWidth` / `waveAmp` / `curviness` / `jitter` / `connectorWidth` / `markerSize`
+- `getAnnDesign()` 读取 `document.body` 上的 `cyu-ann-style-*` 类名取对应令牌（默认 sketch），`renderArrows` 开头取一次并贯穿 `drawCircle` / `drawWave` / `buildCurvePath` / `buildMarkerDefs`
+- 由此：手绘=双线、较乱、连线带手抖、波浪起伏大；简约=单线近规整、近直线无手抖、振幅极小；标签=单线干净、平滑曲线、小箭头
+- 连线 / 高亮的**浓淡与悬浮粗细**仍由 CSS 变量控制（`--ann-connector-opacity` / `--ann-highlight-opacity` / `--ann-highlight-active-width`）
+- **悬浮流向动画**按样式 class 作用域差异化：手绘流动稍慢、标签用细密虚线缓慢流动、简约直接关闭流动只做安静变实。注意 `ann-flow` 把 `stroke-dashoffset` 推到 `-20`，各样式 `stroke-dasharray` 的周期须整除 20，否则循环跳格（默认 `6 4`=10，标签 `3 2`=5）
 
 ### SVG 绘制（annRenderer.ts）
 

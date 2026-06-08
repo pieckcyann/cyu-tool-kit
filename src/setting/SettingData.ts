@@ -20,16 +20,14 @@ export interface CyuTookitSettings {
 }
 
 /** 侧边注释可选的外观样式集 */
-export type AnnotationStyle = 'sketch' | 'note' | 'minimal' | 'marker' | 'ink'
+export type AnnotationStyle = 'sketch' | 'minimal' | 'tag'
 
 /** 样式集元信息：用于设置界面的下拉选项 */
 export const ANNOTATION_STYLES: { value: AnnotationStyle; label: string; desc: string }[] =
 	[
-		{ value: 'sketch', label: '手绘 (Sketch)', desc: '暖色手绘风，斜体无底色，贴合纸张主题' },
-		{ value: 'note', label: '便签 (Note)', desc: '柔和便签卡片，带淡底色与投影' },
-		{ value: 'minimal', label: '简约 (Minimal)', desc: '极简无衬，无旋转无底色，细线条' },
-		{ value: 'marker', label: '荧光 (Marker)', desc: '荧光笔强调色，醒目圆润' },
-		{ value: 'ink', label: '墨迹 (Ink)', desc: '衬线墨水风，深色斜体' },
+		{ value: 'sketch', label: '手绘 (Sketch)', desc: '暖色细笔触斜体，无底色，贴合纸张主题' },
+		{ value: 'minimal', label: '简约 (Minimal)', desc: '极细无衬，不旋转无底色，安静克制' },
+		{ value: 'tag', label: '标签 (Tag)', desc: '小巧药丸标签，淡底色细描边，精致不张扬' },
 	]
 
 export const DEFAULT_SETTINGS: CyuTookitSettings = {

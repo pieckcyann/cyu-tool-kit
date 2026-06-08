@@ -15,61 +15,40 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 // ─── 样式集：sketch（手绘，默认）───────────────────────────────────────────────
-// 暖色手绘风，斜体无底色，最贴近纸张 / 衬线主题
+// 暖色细笔触斜体，无底色，最贴近纸张 / 衬线主题。
+// 精致点：字号偏小、轻微倾斜带手写气、字距微开，圈线与暖色 muted 同调。
 body.cyu-ann-style-sketch {
-    --ann-color: color-mix(in srgb, var(--text-accent) 50%, var(--text-muted));
+    --ann-color: color-mix(in srgb, var(--text-accent) 45%, var(--text-muted));
     --ann-bg: transparent;
     --ann-border: none;
     --ann-radius: 4px;
-    --ann-padding: 1px 5px;
+    --ann-padding: 0 3px;
     --ann-shadow: none;
     --ann-font-style: italic;
     --ann-font-weight: 400;
     --ann-font-family: var(--font-text);
-    --ann-font-size: 0.8em;
-    --ann-letter-spacing: 0.01em;
-    --ann-line-height: 1.4;
-    --ann-rotate: 2deg;
-    --ann-opacity: 0.9;
+    --ann-font-size: 0.75em;
+    --ann-letter-spacing: 0.015em;
+    --ann-line-height: 1.38;
+    --ann-rotate: 1.6deg;
+    --ann-opacity: 0.88;
 
     --ann-active-color: var(--text-accent);
-    --ann-active-bg: color-mix(in srgb, var(--text-accent) 8%, transparent);
+    --ann-active-bg: color-mix(in srgb, var(--text-accent) 7%, transparent);
     --ann-active-shadow: none;
 
-    --annotation-arrow-color: color-mix(in srgb, var(--text-muted) 85%, transparent);
+    --annotation-arrow-color: color-mix(in srgb, var(--text-muted) 80%, transparent);
     --annotation-arrow-active-color: var(--text-accent);
-    --annotation-highlight-color: color-mix(in srgb, var(--text-accent) 70%, var(--text-muted));
+    --annotation-highlight-color: color-mix(in srgb, var(--text-accent) 65%, var(--text-muted));
+
+    // 连线 / 高亮的浓淡与激活时的笔触粗细
+    --ann-connector-opacity: 0.7;
+    --ann-highlight-opacity: 0.7;
+    --ann-highlight-active-width: 1.8;
 }
 
-// ─── 样式集：note（便签卡片）──────────────────────────────────────────────────
-// 柔和便签卡，带淡底色、细边框与轻投影，可读性最好
-body.cyu-ann-style-note {
-    --ann-color: var(--text-normal);
-    --ann-bg: color-mix(in srgb, var(--text-accent) 9%, var(--background-primary));
-    --ann-border: 1px solid color-mix(in srgb, var(--text-accent) 22%, transparent);
-    --ann-radius: 7px;
-    --ann-padding: 4px 9px;
-    --ann-shadow: 0 1px 5px color-mix(in srgb, var(--background-modifier-box-shadow, #000) 35%, transparent);
-    --ann-font-style: normal;
-    --ann-font-weight: 450;
-    --ann-font-family: var(--font-text);
-    --ann-font-size: 0.78em;
-    --ann-letter-spacing: 0;
-    --ann-line-height: 1.45;
-    --ann-rotate: -1.2deg;
-    --ann-opacity: 0.97;
-
-    --ann-active-color: var(--text-normal);
-    --ann-active-bg: color-mix(in srgb, var(--text-accent) 18%, var(--background-primary));
-    --ann-active-shadow: 0 2px 12px color-mix(in srgb, var(--text-accent) 28%, transparent);
-
-    --annotation-arrow-color: color-mix(in srgb, var(--text-accent) 45%, var(--text-muted));
-    --annotation-arrow-active-color: var(--text-accent);
-    --annotation-highlight-color: color-mix(in srgb, var(--text-accent) 60%, var(--text-muted));
-}
-
-// ─── 样式集：minimal（极简）──────────────────────────────────────────────────
-// 无衬底、无旋转、细线条，安静不抢眼
+// ─── 样式集：minimal（简约）──────────────────────────────────────────────────
+// 极细无衬、不旋转无底色，安静克制；字距略开以保持清晰。
 body.cyu-ann-style-minimal {
     --ann-color: var(--text-muted);
     --ann-bg: transparent;
@@ -80,73 +59,57 @@ body.cyu-ann-style-minimal {
     --ann-font-style: normal;
     --ann-font-weight: 400;
     --ann-font-family: var(--font-interface);
-    --ann-font-size: 0.74em;
-    --ann-letter-spacing: 0.02em;
+    --ann-font-size: 0.72em;
+    --ann-letter-spacing: 0.03em;
     --ann-line-height: 1.4;
     --ann-rotate: 0deg;
-    --ann-opacity: 0.8;
+    --ann-opacity: 0.78;
 
     --ann-active-color: var(--text-normal);
     --ann-active-bg: transparent;
     --ann-active-shadow: none;
 
-    --annotation-arrow-color: color-mix(in srgb, var(--text-muted) 55%, transparent);
+    --annotation-arrow-color: color-mix(in srgb, var(--text-muted) 50%, transparent);
     --annotation-arrow-active-color: var(--text-normal);
-    --annotation-highlight-color: color-mix(in srgb, var(--text-muted) 70%, transparent);
+    --annotation-highlight-color: color-mix(in srgb, var(--text-muted) 65%, transparent);
+
+    // 简约：连线最淡、激活时也只是细线，不喧哗
+    --ann-connector-opacity: 0.55;
+    --ann-highlight-opacity: 0.6;
+    --ann-highlight-active-width: 1.1;
 }
 
-// ─── 样式集：marker（荧光笔强调）────────────────────────────────────────────
-// 荧光底色，醒目圆润，适合重点笔记
-body.cyu-ann-style-marker {
-    --ann-color: var(--text-normal);
-    --ann-bg: color-mix(in srgb, var(--text-accent) 20%, transparent);
-    --ann-border: none;
-    --ann-radius: 3px;
-    --ann-padding: 2px 7px;
+// ─── 样式集：tag（标签）─────────────────────────────────────────────────────
+// 小巧药丸标签：淡底色 + 发丝细描边 + 药丸圆角，字号最小、内边距紧凑，
+// 不投影不旋转，精致而不张扬。
+body.cyu-ann-style-tag {
+    --ann-color: color-mix(in srgb, var(--text-normal) 72%, var(--text-accent));
+    --ann-bg: color-mix(in srgb, var(--text-accent) 8%, var(--background-primary));
+    --ann-border: 1px solid color-mix(in srgb, var(--text-accent) 20%, transparent);
+    --ann-radius: 999px; // 药丸形；多行时自然退化为圆端矩形
+    --ann-padding: 1px 8px;
     --ann-shadow: none;
     --ann-font-style: normal;
-    --ann-font-weight: 600;
+    --ann-font-weight: 450;
     --ann-font-family: var(--font-text);
-    --ann-font-size: 0.8em;
-    --ann-letter-spacing: 0;
-    --ann-line-height: 1.4;
-    --ann-rotate: -1deg;
+    --ann-font-size: 0.7em;
+    --ann-letter-spacing: 0.01em;
+    --ann-line-height: 1.35;
+    --ann-rotate: 0deg;
     --ann-opacity: 0.95;
 
     --ann-active-color: var(--text-normal);
-    --ann-active-bg: color-mix(in srgb, var(--text-accent) 40%, transparent);
-    --ann-active-shadow: 0 0 0 2px color-mix(in srgb, var(--text-accent) 30%, transparent);
+    --ann-active-bg: color-mix(in srgb, var(--text-accent) 15%, var(--background-primary));
+    --ann-active-shadow: 0 0 0 1px color-mix(in srgb, var(--text-accent) 28%, transparent);
 
-    --annotation-arrow-color: color-mix(in srgb, var(--text-accent) 80%, transparent);
+    --annotation-arrow-color: color-mix(in srgb, var(--text-accent) 42%, var(--text-muted));
     --annotation-arrow-active-color: var(--text-accent);
-    --annotation-highlight-color: var(--text-accent);
-}
+    --annotation-highlight-color: color-mix(in srgb, var(--text-accent) 55%, var(--text-muted));
 
-// ─── 样式集：ink（衬线墨水）─────────────────────────────────────────────────
-// 衬线斜体、深色墨迹感，古典书卷气
-body.cyu-ann-style-ink {
-    --ann-color: color-mix(in srgb, var(--text-normal) 78%, var(--text-accent));
-    --ann-bg: transparent;
-    --ann-border: none;
-    --ann-radius: 3px;
-    --ann-padding: 1px 4px;
-    --ann-shadow: none;
-    --ann-font-style: italic;
-    --ann-font-weight: 500;
-    --ann-font-family: Georgia, 'Times New Roman', var(--font-text), serif;
-    --ann-font-size: 0.85em;
-    --ann-letter-spacing: 0.01em;
-    --ann-line-height: 1.45;
-    --ann-rotate: 1deg;
-    --ann-opacity: 0.92;
-
-    --ann-active-color: var(--text-normal);
-    --ann-active-bg: color-mix(in srgb, var(--text-normal) 6%, transparent);
-    --ann-active-shadow: none;
-
-    --annotation-arrow-color: color-mix(in srgb, var(--text-normal) 55%, transparent);
-    --annotation-arrow-active-color: var(--text-normal);
-    --annotation-highlight-color: color-mix(in srgb, var(--text-normal) 70%, transparent);
+    // 标签：干净清晰，激活时略提粗细
+    --ann-connector-opacity: 0.7;
+    --ann-highlight-opacity: 0.75;
+    --ann-highlight-active-width: 1.4;
 }
 
 // ─── 基本定位 ─────────────────────────────────────────────────────────────────
@@ -164,7 +127,7 @@ body.cyu-ann-style-ink {
     width: var(--annotation-col-width, 140px);
     display: flex;
     flex-direction: column;
-    gap: 10px; // 略增间距，避免标签拥挤
+    gap: 7px; // 紧凑但不拥挤
     pointer-events: none;
 
     /* 使得各个注释从中间开始排列 */
@@ -277,17 +240,18 @@ body.cyu-ann-style-ink {
 
 .ann-connector {
     stroke: var(--annotation-arrow-color, var(--text-muted));
-    opacity: 0.75;
+    opacity: var(--ann-connector-opacity, 0.75);
     transition:
         stroke 0.18s ease,
-        opacity 0.18s ease;
+        opacity 0.18s ease,
+        stroke-width 0.18s ease;
 
     pointer-events: none !important; // 不允许交互
 }
 
 /* stub 侧的渐隐 */
 .ann-connector-stub {
-    opacity: 0.6;
+    opacity: calc(var(--ann-connector-opacity, 0.75) * 0.85);
     pointer-events: none;
 }
 
@@ -296,7 +260,7 @@ body.cyu-ann-style-ink {
 /* highlight (目标文本处的 圈/波浪线) */
 .ann-highlight {
     stroke: var(--annotation-highlight-color, var(--text-accent));
-    opacity: 0.7;
+    opacity: var(--ann-highlight-opacity, 0.7);
     transition:
         opacity 0.18s ease,
         stroke-width 0.18s ease,
@@ -336,7 +300,7 @@ body.cyu-ann-style-ink {
         .ann-highlight {
             stroke: var(--annotation-arrow-active-color, var(--annotation-highlight-color, var(--text-accent)));
             opacity: 1;
-            stroke-width: 2;
+            stroke-width: var(--ann-highlight-active-width, 1.8);
         }
 
         .ann-label-highlight {
@@ -345,6 +309,26 @@ body.cyu-ann-style-ink {
             border-radius: 3px;
         }
     }
+}
+
+// ─── 各样式的悬浮动画差异 ──────────────────────────────────────────────────────
+
+// 手绘：流向稍慢，更像顺着笔画走
+body.cyu-ann-style-sketch .ann-group.active .ann-connector-full {
+    animation-duration: 0.55s;
+}
+
+// 简约：不要流动虚线，悬浮时只是安静地变实、变清晰
+body.cyu-ann-style-minimal .ann-group.active .ann-connector-full {
+    stroke-dasharray: none;
+    animation: none;
+}
+
+// 标签：细密虚线、缓慢流动，精致克制
+// 注意：dash 周期需整除 ann-flow 的位移量 20（5×4），否则循环会跳格
+body.cyu-ann-style-tag .ann-group.active .ann-connector-full {
+    stroke-dasharray: 3 2; // 周期 5
+    animation-duration: 0.7s;
 }
 
 // ─── prefers-reduced-motion ───────────────────────────────────────────────────
