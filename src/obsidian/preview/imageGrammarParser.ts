@@ -3,6 +3,7 @@ import { capitalize, splitWithEscape } from '../../util/cyuUtil'
 import { Notice } from 'obsidian'
 
 const PARSERD_FLAG = 'ctk-image-parserd'
+const PENDING_FLAG = 'ctk-image-pending'
 export function imageGrammarParser(container: HTMLElement) {
 	fixImageStyles(container)
 
@@ -20,15 +21,20 @@ export function imageGrammarParser(container: HTMLElement) {
 
 		// 如果在处理器里找不到 img，说明它是个延时加载的内链图片
 		if (!imgElem) {
+			// 防止同一个 span 在滚动重渲染时反复挂观察者
+			if (imgSpan.classList.contains(PENDING_FLAG)) return
+			imgSpan.classList.add(PENDING_FLAG)
+
 			// 监听它的子节点变化，当 img 真正被 Obsidian 塞进去时再触发解析
-			const observer = new MutationObserver((mutations, obs) => {
+			const observer = new MutationObserver(() => {
 				const realImg = imgSpan.querySelector('img')
-				if (realImg) {
-					const context = _ParserInfo(imgSpan, realImg)
-					$ParserFloatFlag(context)
-					$ParserHeading(context)
-					obs.disconnect() // 停止监听
-				}
+				if (!realImg) return
+				const context = _ParserInfo(imgSpan, realImg)
+				$ParserFloatFlag(context)
+				$ParserHeading(context)
+				imgSpan.classList.remove(PENDING_FLAG)
+				imgSpan.classList.add(PARSERD_FLAG)
+				observer.disconnect() // 停止监听
 			})
 			observer.observe(imgSpan, { childList: true })
 			return

@@ -15,6 +15,7 @@ import { TimeTagChild } from '../../cyu/time-tag/TimeTagChild'
 import { inlineCodeHighlighter } from '../../cyu/inline-code-highlight/inlineCodeHighlighter'
 import { capitalize } from '../../util/cyuUtil'
 import { imageGrammarParser } from './imageGrammarParser'
+import { applyFakeItalic } from '../../cyu/fake-italic/fakeItalic'
 
 /**
  * Single entry-point for all `registerMarkdownPostProcessor` calls.
@@ -92,102 +93,6 @@ export function registerPreviewProcessors(plugin: CyuToolkitPlugin) {
 			// }, 0)
 		}
 	)
-}
-
-/**
- * 自定义斜体的倾斜度
- */
-function applyFakeItalic(container: HTMLElement) {
-	const elements = container.querySelectorAll('em')
-
-	elements.forEach((el) => {
-		// 1. 初始化：备份原始纯文本，防止重复初始化
-		if (!el.dataset.fakeItalicApplied) {
-			el.dataset.fakeItalicApplied = 'true'
-			el.dataset.originalText = el.textContent ?? ''
-		}
-
-		// 核心切分函数
-		const splitIntoLines = () => {
-			const originalText = el.dataset.originalText ?? ''
-			if (!originalText) return
-
-			// 先还原为纯文本，以便浏览器进行天然的流式排版测量
-			el.textContent = originalText
-
-			const textNode = el.firstChild
-			if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return
-
-			const range = document.createRange()
-			const lines: string[] = []
-			let lineStartIdx = 0
-			let lastBottom = -1
-
-			// 2. 利用 Range 逐字扫描，探测浏览器换行点
-			for (let i = 0; i <= originalText.length; i++) {
-				range.setStart(textNode, lineStartIdx)
-				range.setEnd(textNode, i)
-
-				const rects = range.getClientRects()
-				if (rects.length === 0) continue
-
-				// 获取当前扫描切片的最后一个矩形区域（即最新字体的底部坐标）
-				const currentBottom = rects[rects.length - 1].bottom
-
-				if (lastBottom === -1) {
-					lastBottom = currentBottom
-				}
-				// 如果检测到当前字的底部坐标明显下移，说明前一个字符处发生了换行
-				else if (currentBottom - lastBottom > 5) {
-					lines.push(originalText.slice(lineStartIdx, i - 1))
-					lineStartIdx = i - 1
-					lastBottom = currentBottom
-
-					// 重新校准 Range 边界
-					range.setStart(textNode, lineStartIdx)
-					range.setEnd(textNode, i)
-				}
-			}
-			// 将收尾的最后一行放入数组
-			if (lineStartIdx < originalText.length) {
-				lines.push(originalText.slice(lineStartIdx))
-			}
-
-			// 3. 内存中构建 DOM 片段，一次性挂载，最大化性能
-			const fragment = document.createDocumentFragment()
-			lines.forEach((lineText) => {
-				const span = document.createElement('span')
-				span.className = 'fake-italic-line'
-				span.textContent = lineText
-				fragment.appendChild(span)
-			})
-
-			el.innerHTML = ''
-			el.appendChild(fragment)
-		}
-
-		// 首次执行切分
-		splitIntoLines()
-
-		// 4. 建立精准的 ResizeObserver 监听器
-		let lastWidth = container.clientWidth
-		const observer = new ResizeObserver((entries) => {
-			for (const entry of entries) {
-				const currentWidth = entry.contentRect.width
-				// 关键：只有当容器的宽度真正发生改变时才触发重绘
-				// 这能完美避免因为包裹 inline-block 导致高度微调而引发的死循环
-				if (Math.abs(currentWidth - lastWidth) > 1) {
-					lastWidth = currentWidth
-					// 稍微包裹一层 requestAnimationFrame，确保渲染同步
-					requestAnimationFrame(() => {
-						splitIntoLines()
-					})
-				}
-			}
-		})
-
-		observer.observe(container)
-	})
 }
 
 function processHeadingPrefix(container: HTMLElement) {

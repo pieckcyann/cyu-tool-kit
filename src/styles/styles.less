@@ -118,7 +118,8 @@ em {
 
 .fake-italic-line {
     display: inline-block;
-    transform: skew(-8deg);
+    // 倾斜度可通过 --fake-italic-skew 自定义（负值 = 向右前倾，类似常规斜体）
+    transform: skew(var(--fake-italic-skew, -8deg));
     transform-origin: left bottom;
 
     /* 核心视觉缓冲优化：防止行尾最后一个英文字母或标点的右上角被裁切 */
