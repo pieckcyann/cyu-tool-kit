@@ -7,6 +7,7 @@ import {
 	WidgetType,
 } from '@codemirror/view'
 import { RangeSet, RangeSetBuilder } from '@codemirror/state'
+import { TIME_TAG_REGEX } from './TimeTagChild'
 
 // 源码模式下的样式
 // const timestampLineDeco = Decoration.line({
@@ -49,8 +50,6 @@ export const TimeTagViewPlugin = ViewPlugin.fromClass(
 		buildDecorations(view: EditorView): RangeSet<Decoration> {
 			const builder = new RangeSetBuilder<Decoration>()
 			// 1. 去掉 ^ 锚点，改用全局搜索 g
-			// const regex = /@\{(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\}/g
-			const regex = /@\{(\d{4}-\d{2}-\d{2}(?:\s\d{2}:\d{2}:\d{2})?)\}/g
 
 			const currentSelections = view.state.selection.ranges
 
@@ -61,9 +60,9 @@ export const TimeTagViewPlugin = ViewPlugin.fromClass(
 
 					// 2. 使用 matchAll 或 while(exec) 处理一行内的所有匹配
 					let match
-					regex.lastIndex = 0 // 重置正则索引
+					TIME_TAG_REGEX.lastIndex = 0 // 重置正则索引
 
-					while ((match = regex.exec(lineText)) !== null) {
+					while ((match = TIME_TAG_REGEX.exec(lineText)) !== null) {
 						const timestamp = match[1]
 						const startPos = line.from + match.index
 						const endPos = startPos + match[0].length

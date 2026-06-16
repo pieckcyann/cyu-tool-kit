@@ -1,5 +1,18 @@
 import { MarkdownPostProcessorContext, MarkdownRenderChild, Notice } from 'obsidian'
 
+// export const TIME_TAG_REGEX = /@\{(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\}/g
+// export const TIME_TAG_REGEX = /@\{(\d{4}-\d{2}-\d{2}(?:\s\d{2}:\d{2}:\d{2})?)\}/g
+export const TIME_TAG_REGEX =
+	/@\{(\d{4}-\d{2}(?:-\d{2})?(?:\s\d{2}:\d{2}(?::\d{2})?)?)\}/g
+
+/**
+ * @{2026-06} （仅年月）
+ * @{2026-06-14} （年月日）
+ * @{2026-06-14 23:14} （无秒）
+ * @{2026-06-14 23:14:41} （完整时间）
+ * @{2026-06 23:14} （有月无日，有时分）
+ */
+
 export class TimeTagChild extends MarkdownRenderChild {
 	private ctx: MarkdownPostProcessorContext
 	// 增加标识符，方便 layout-change 时寻找
@@ -24,7 +37,6 @@ export class TimeTagChild extends MarkdownRenderChild {
 	}
 
 	private process() {
-		const regex = /@\{(\d{4}-\d{2}-\d{2}(?:\s\d{2}:\d{2}:\d{2})?)\}/g
 		const walker = document.createTreeWalker(this.containerEl, NodeFilter.SHOW_TEXT, null)
 
 		let textNode: Text
@@ -33,8 +45,8 @@ export class TimeTagChild extends MarkdownRenderChild {
 		while ((textNode = walker.nextNode() as Text)) {
 			const text = textNode.nodeValue || ''
 			let match
-			regex.lastIndex = 0
-			while ((match = regex.exec(text)) !== null) {
+			TIME_TAG_REGEX.lastIndex = 0
+			while ((match = TIME_TAG_REGEX.exec(text)) !== null) {
 				const range = document.createRange()
 				range.setStart(textNode, match.index)
 				range.setEnd(textNode, match.index + match[0].length)
@@ -97,7 +109,7 @@ export class TimeTagChild extends MarkdownRenderChild {
 
 		const startLine = sectionInfo.lineStart
 		const activeFile = app.workspace.getActiveFile()
-		if (!activeFile) return null 
+		if (!activeFile) return null
 
 		// 从缓存读取标题
 		const cache = app.metadataCache.getFileCache(activeFile)

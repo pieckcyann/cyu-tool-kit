@@ -73,6 +73,18 @@
         position: relative;
         top: -2.5em;
         right: 0;
+
+        [class*="language-"],
+        .tag {
+            background: none;
+            --code-background: transparent;
+            --code-size: 0.8em;
+            opacity: 0.8;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
     }
 
     .ctk-time-tag {

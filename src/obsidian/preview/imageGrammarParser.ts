@@ -89,29 +89,31 @@ const _ParserInfo = (span: HTMLSpanElement, img: HTMLImageElement): Context => {
 
 // - 浮动语法: #L #R #C 其他语法： #nomix
 const $ParserFloatFlag = (context: Context) => {
-	const { isInternal, spanEle, spanSrc, imgEle } = context
+	const { isInternal, spanEle, spanSrc, imgEle, imgSrc } = context // 这里增加了 imgSrc 的解构
 	let float: 'left' | 'right' | 'middle' = 'middle'
 	let floatFlag: string | null = null
 	if (isInternal) {
 		/* 内链图片 */
 		// const realSrc = isInternal ? (imgSpan.getAttr('src') ?? '') : imgSrc
-		floatFlag = splitWithEscape(spanSrc, '#', '#').at(-1) ?? ''
-		if (floatFlag === 'L') {
+		floatFlag = spanSrc // 核心改动：不再切分，直接赋值完整 Src
+		if (/(?:^|#)L(?:$|#)/.test(floatFlag)) {
+			// 核心改动：使用正则精准匹配，避免 "R#nomix" 命中，必须是独立或被 # 隔开的 'L'
 			float = 'left'
-		} else if (floatFlag === 'R') {
+		} else if (/(?:^|#)R(?:$|#)/.test(floatFlag)) {
 			float = 'right'
-		} else if (floatFlag === 'C') {
+		} else if (/(?:^|#)C(?:$|#)/.test(floatFlag)) {
 			float = 'middle'
 		}
 	} else {
 		/* 外链图片 */
 		// floatFlag = splitWithEscape(context.imgAlt, '|').at(0) ?? ''
-		floatFlag = splitWithEscape(context.imgSrc, '#', '#').at(-1) ?? ''
-		if (floatFlag == 'L') {
+		floatFlag = imgSrc // 核心改动：不再切分，直接赋值完整 Src
+		if (/(?:^|#)L(?:$|#)/.test(floatFlag)) {
+			// 核心改动：同上
 			float = 'left'
-		} else if (floatFlag == 'R') {
+		} else if (/(?:^|#)R(?:$|#)/.test(floatFlag)) {
 			float = 'right'
-		} else if (floatFlag == 'C') {
+		} else if (/(?:^|#)C(?:$|#)/.test(floatFlag)) {
 			float = 'middle'
 		}
 	}
@@ -132,7 +134,8 @@ const $ParserFloatFlag = (context: Context) => {
 	// console.log('floatFlag:', floatFlag)
 	// imgEle.setAttr('data-float-flag', floatFlag)
 
-	if ((!isInternal && floatFlag == '#nomix') || (isInternal && floatFlag == 'nomix')) {
+	if (floatFlag && floatFlag.includes('nomix')) {
+		// 核心改动：在完整 Src 中判断是否包含 'nomix'
 		// imgEle.style.mixBlendMode = 'normal'
 		imgEle.setAttribute('data-nomix', 'true')
 	}
