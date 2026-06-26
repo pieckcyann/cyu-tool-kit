@@ -129,7 +129,8 @@ function buildCaretMap(root: Node): CaretMap {
 function caretAt(map: CaretMap, g: number): { node: Text; offset: number } {
 	if (g <= 0) return { node: map.nodes[0], offset: 0 }
 	const lastIdx = map.nodes.length - 1
-	if (g >= map.total) return { node: map.nodes[lastIdx], offset: map.nodes[lastIdx].data.length }
+	if (g >= map.total)
+		return { node: map.nodes[lastIdx], offset: map.nodes[lastIdx].data.length }
 
 	let lo = 0
 	let hi = lastIdx
@@ -158,7 +159,10 @@ function caretAt(map: CaretMap, g: number): { node: Text; offset: number } {
  * @param el       已还原为原始结构的活动 <em>（仅用于测量换行点）
  * @param snapshot <em> 的原始结构快照（每行片段从它的克隆上切出，保证结构完整）
  */
-function computeLineFragments(el: HTMLElement, snapshot: DocumentFragment): DocumentFragment[] {
+function computeLineFragments(
+	el: HTMLElement,
+	snapshot: DocumentFragment
+): DocumentFragment[] {
 	const map = buildCaretMap(el)
 	const range = document.createRange()
 
